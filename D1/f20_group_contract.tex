@@ -1,0 +1,219 @@
+\documentclass[12pt]{article}
+
+\fontfamily{lmss}
+\usepackage{fullpage}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{url}
+\usepackage{multicol}
+\usepackage{enumerate}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=blue,
+}
+
+\usepackage{geometry}
+\geometry{
+  top=1in,            % <-- you want to adjust this
+  bottom=1in,
+  left=1in,
+  right=1in,
+  headheight=3ex,       % <-- and this
+  headsep=4ex,          % <-- and this
+}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\footrulewidth}{0.4pt}
+\lhead{CS 486/686}
+\chead{Fall 2020}
+\rhead{Project}
+\rfoot{Page \thepage}
+\cfoot{v1.0}
+\lfoot{\copyright Alice Gao 2020}
+
+\setlength{\parskip}{\baselineskip}%
+\setlength{\parindent}{0pt}%
+
+\newenvironment{answer}[1]{
+\color{blue}
+	{\bf Answer:}
+}{
+}
+
+\newenvironment{alice}[1]{
+\color{magenta}
+	{\bf Alice:}
+}{
+}
+
+\usepackage{mathtools}
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+
+\title{CS 486/686 Project Group Contract Template}
+\author{Alice Gao}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+The purpose of the group contract is for the group members to create and communicate their expectations regarding how they will collaborate on the project.  If there any problem arises with a group, the course staff will use the group contract as a basis for their investigations.
+
+To complete the group contract, please discuss the following questions as a group and fill out the answers below. (Feel free to delete Alice's comments in your submission.)
+
+\begin{itemize}
+\item What does each member of the group want to get out of working on this project? Is everyone here to accomplish the same thing? What are your goals as a group collectively?
+
+\begin{answer}
+
+Yes, learn new staff like reinforcement learning.
+\end{answer}
+
+\item What group roles do you think are necessary for success of your project? Who will be assigned which group role? Take a look at a list of suggested roles on \href{https://uwaterloo.ca/student-success/sites/ca.student-success/files/uploads/files/TipSheet_GroupWork_0.pdf}{this handout}.  Consider each group member’s strengths and weaknesses, and how group roles can help everyone learn or capitalize on their strengths.
+
+\begin{answer}
+
+\begin{itemize}
+  \item Human crafted engine.
+  \item AI model. (training, inference, interacting)
+  \item Connection between model and games.
+  \item Visualization.
+  \item Report writing.
+\end{itemize}
+
+\end{answer}
+
+\item How will you communicate? What are your expectations regarding the timeliness of responses to emails or other messages?  How often do you plan to meet?  What time will the meetings be and how long will the meetings be?  What technology will you use?  
+
+\begin{alice}
+
+I highly recommend that you schedule a weekly meeting at the beginning of the term and that you make it mandatory for every group member to attend the weekly meeting.  This meeting will help you keep on track with the project, identify problems and address the problems promptly.  
+
+\end{alice}
+
+\begin{answer}
+
+Wechat, Zoom, github.
+
+Every Friday.
+
+1 hour. 2pm - 3pm.
+
+Zoom
+\end{answer}
+
+\item What do you expect group members to do prior to each weekly group meeting? 
+
+\begin{answer}
+
+DO YOUR JOB.
+\end{answer}
+
+\begin{alice}
+
+I suggest that you produce a list of todo items at the end of every meeting.  Then, at the next meeting, you should go over the todo items from the previosu meeting and discuss how to proceed. 
+
+\end{alice}
+
+
+\item What are you expectations around the attitude of group members in the weekly meeting, and how you should respond to each other’s ideas?  How will you manage turn-taking? How will you ensure that all people contribute to the conversations? How would you ensure that decision making is thorough yet expedient?
+
+\begin{answer}
+
+Replace this with your answer.
+\end{answer}
+
+\begin{alice}
+
+You need to figure out a good way to structure your meetings so that you will get the most out of each meeting.  In addition, you need to figure out a way to make decisions when there is disagreement within the group.  For instance, do you always require consensus before making a decision or are you comfortable with making a decision based on majority vote?  
+\end{alice}
+
+\item How are you going to structure the work? Do you expect to do most of the work during or outside of the weekly group meeting? What process will you use to assign the responsibilities?
+
+\begin{answer}
+
+Group meeting is only for present your work from last week.
+\end{answer}
+
+\begin{alice}
+
+It's fine to use a divide-and-conquer approach.  However, you should make sure to assign a similar amount of work to each group member such that no one feels overwhelmed or left out.  
+\end{alice}
+
+\item How will you submit the deliverables? Do you expect all members of the group to have a chance to vet the submission before submission? When should the write-up be ready for everyone to review?
+
+\begin{answer}
+
+Yes.
+\end{answer}
+
+\begin{alice}
+
+It is a good idea to discuss your ``procrastination'' habit here.  (Let's be honest.  We all procrastinate to some extent. =)  You will want to set an early enough deadline such that every group member will have their work ready and there is enough time for other group members to go over the work and modify it appropriately.  Doing this can avoid situations such as ``my group member did not complete their work until the day when the report is due and they left no time for me to review and modify the report.''
+\end{alice}
+
+\item How will you deal with surprises? What should a group member do when they have a hard time delivering on something they promised? How will the group respond?
+
+\begin{answer}
+
+Do the things in advance.
+\end{answer}
+
+\begin{alice}
+
+Dealing with unexpected situations is one of the most important skills that you will need to develop when working in a group.  Trust me --- with such an open-ended project, there will be surprises.  It is especially important to keep communicating when you are struggling.  The worst way of dealing with a difficult situation is to stop responding to emails and stop attending meetings.  Instead, let your group members know that you are struggling and try to figure out a solution together.
+\end{alice}
+
+\item How will you handle conflict? If any member in the group feels that something is not going right in the group, how would they signal it? How will the group respond?
+
+\begin{answer}
+
+Replace this with your answer.
+\end{answer}
+
+\begin{alice}
+
+Having conflicts between group members is inevitable.  It's important to establish some protocol regarding how you will resolve conflicts.  You are expected to try to resolve any conflict yourself first.  If you are unable to resolve the conflict, please notify the course staff and we will try to help you.
+
+\end{alice}
+
+\end{itemize}
+
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
