@@ -1,5 +1,5 @@
 # Fdb version 3
-["pdflatex"] 1601071730 "/Users/mango/cs486/CS486GroupProject/D1/f20_group_contract.tex" "/Users/mango/cs486/CS486GroupProject/D1/f20_group_contract.pdf" "f20_group_contract" 1601071730
+["pdflatex"] 1601071730 "/Users/mango/cs486/CS486GroupProject/D1/f20_group_contract.tex" "/Users/mango/cs486/CS486GroupProject/D1/f20_group_contract.pdf" "f20_group_contract" 1601091786
   "/Users/mango/cs486/CS486GroupProject/D1/f20_group_contract.aux" 1601071730 662 b2b94621371df8d9296b8bf5bec1b851 ""
   "/Users/mango/cs486/CS486GroupProject/D1/f20_group_contract.tex" 1601071730 8171 bc7e13265cd3be1d2d776878239be9b3 ""
   "/usr/local/texlive/2018/texmf-dist/fonts/map/fontname/texfonts.map" 1511824771 3332 103109f5612ad95229751940c61aada0 ""
@@ -64,11 +64,11 @@
   "f20_group_contract.out" 1601071730 0 d41d8cd98f00b204e9800998ecf8427e ""
   "f20_group_contract.tex" 1601071730 8171 bc7e13265cd3be1d2d776878239be9b3 ""
   (generated)
-  "/Users/mango/cs486/CS486GroupProject/D1/f20_group_contract.log"
-  "/Users/caoshuheng/Desktop/220/2020F/CS486/Project/D1/f20_group_contract.log"
-  "f20_group_contract.pdf"
-  "f20_group_contract.log"
   "/Users/caoshuheng/Desktop/220/2020F/CS486/Project/D1/f20_group_contract.pdf"
-  "f20_group_contract.out"
-  "f20_group_contract.aux"
+  "f20_group_contract.pdf"
   "/Users/mango/cs486/CS486GroupProject/D1/f20_group_contract.pdf"
+  "f20_group_contract.log"
+  "/Users/mango/cs486/CS486GroupProject/D1/f20_group_contract.log"
+  "f20_group_contract.aux"
+  "f20_group_contract.out"
+  "/Users/caoshuheng/Desktop/220/2020F/CS486/Project/D1/f20_group_contract.log"
