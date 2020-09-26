@@ -1,7 +1,13 @@
 # Fdb version 3
+<<<<<<< HEAD
 ["pdflatex"] 1601159144 "/Users/mango/cs486/CS486GroupProject/D1/f20_group_contract.tex" "/Users/mango/cs486/CS486GroupProject/D1/f20_group_contract.pdf" "f20_group_contract" 1601159145
   "/Users/mango/cs486/CS486GroupProject/D1/f20_group_contract.aux" 1601159145 662 b2b94621371df8d9296b8bf5bec1b851 ""
   "/Users/mango/cs486/CS486GroupProject/D1/f20_group_contract.tex" 1601159140 11819 7c0e6a3ab05fc10cbd3c1365b1914edb ""
+=======
+["pdflatex"] 1601091859 "/Users/mango/cs486/CS486GroupProject/D1/f20_group_contract.tex" "/Users/mango/cs486/CS486GroupProject/D1/f20_group_contract.pdf" "f20_group_contract" 1601091859
+  "/Users/mango/cs486/CS486GroupProject/D1/f20_group_contract.aux" 1601091859 662 b2b94621371df8d9296b8bf5bec1b851 ""
+  "/Users/mango/cs486/CS486GroupProject/D1/f20_group_contract.tex" 1601091858 7020 41523464e04e8ed3fec099d6a37c512b ""
+>>>>>>> master
   "/usr/local/texlive/2018/texmf-dist/fonts/map/fontname/texfonts.map" 1511824771 3332 103109f5612ad95229751940c61aada0 ""
   "/usr/local/texlive/2018/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1480098698 1004 54797486969f23fa377b128694d548df ""
   "/usr/local/texlive/2018/texmf-dist/fonts/tfm/public/cm/cmbx12.tfm" 1480098701 1324 c910af8c371558dc20f2d7822f66fe64 ""
@@ -60,6 +66,7 @@
   "/usr/local/texlive/2018/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1523934492 2717033 f61a5287d9c22a39a74f1979fe3f905c ""
   "/usr/local/texlive/2018/texmf-var/web2c/pdftex/pdflatex.fmt" 1523934516 4220280 10cab8fbd7c5a7c52aba9917e190d018 ""
   "/usr/local/texlive/2018/texmf.cnf" 1523934483 577 0b39adfd7c93507ff20c9c14c2f1a33f ""
+<<<<<<< HEAD
   "f20_group_contract.aux" 1601159145 662 b2b94621371df8d9296b8bf5bec1b851 ""
   "f20_group_contract.out" 1601159144 0 d41d8cd98f00b204e9800998ecf8427e ""
   "f20_group_contract.tex" 1601159140 11819 7c0e6a3ab05fc10cbd3c1365b1914edb ""
@@ -72,3 +79,17 @@
   "f20_group_contract.log"
   "/Users/caoshuheng/Desktop/220/2020F/CS486/Project/D1/f20_group_contract.log"
   "f20_group_contract.aux"
+=======
+  "f20_group_contract.aux" 1601091859 662 b2b94621371df8d9296b8bf5bec1b851 ""
+  "f20_group_contract.out" 1601091859 0 d41d8cd98f00b204e9800998ecf8427e ""
+  "f20_group_contract.tex" 1601091858 7020 41523464e04e8ed3fec099d6a37c512b ""
+  (generated)
+  "f20_group_contract.aux"
+  "/Users/caoshuheng/Desktop/220/2020F/CS486/Project/D1/f20_group_contract.pdf"
+  "/Users/mango/cs486/CS486GroupProject/D1/f20_group_contract.pdf"
+  "f20_group_contract.log"
+  "f20_group_contract.pdf"
+  "f20_group_contract.out"
+  "/Users/mango/cs486/CS486GroupProject/D1/f20_group_contract.log"
+  "/Users/caoshuheng/Desktop/220/2020F/CS486/Project/D1/f20_group_contract.log"
+>>>>>>> master
