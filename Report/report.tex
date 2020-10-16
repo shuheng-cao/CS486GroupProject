@@ -12,7 +12,7 @@
 \setlength{\pdfpageheight}{11in}  %Required
 \setcounter{secnumdepth}{0}  
 \usepackage{subfigure}
-
+\usepackage{xcolor}
 \begin{document}
 % The file aaai.sty is the style file for AAAI Press 
 % proceedings, working notes, and technical reports.
@@ -24,7 +24,7 @@ University of Waterloo\\
 Waterloo, ON, Canada\\
 }
 \maketitle
-
+\newcommand\bi[1]{{\textcolor{blue}{#1}}}
 %%%%%%%%%. Abstract %%%%%%%%%
 
 \begin{abstract}
@@ -49,7 +49,7 @@ The {\it Abstract} should be at most 150 words long, and should summarize briefl
 
 With the great triumph of AlphaGo in 2016, more and more researchers are interested in using machine learning techniques to solve more advanced and complicated games such as StarCraft II. However, in the authors' opinion, it also provides us an invaluable opportunity to revisit some of the traditional video games, aiming for more reliable and satisfying results. Consequently, this project's primary motivation is to introduce, implement, and compare several different approaches to tackle the Tetris, a tile-matching video game with enduring appeal and popularity. A more detailed introduction and instruction of Tetris will be presented in the {\it Methodology} section since the authors implemented a Tetris in Python for visualization and illustration purpose.
 
-Solving Tetris is a crucial and intriguing topic due to the two reasons below. On the one hand, Tetris is essentially an extraordinary optimization problem because each game will end no matter how well they are placed \cite{burgiel_1997}, so there is no such thing as perfect solutions to Tetris and there is always room to improve. On the other hand, the analyses and comparisons mentioned in this report are not limited to Tetris only, where we could broaden them to real-life problems, such as self-driving cars and robotics, with ease.
+Solving Tetris is a crucial and intriguing topic due to the two reasons below. On the one hand, Tetris is essentially an extraordinary optimization problem because each game will end no matter how well they are placed \cite{burgiel_1997}, so there is no such thing as perfect solutions to Tetris and there is always room to improve. On the other hand, the analyses and comparisons mentioned in this report are not limited to Tetris only, where we could broaden them to real-life problems, such as self-driving cars and robotics, {with appropriate modifications on the architectures introduced in this article}.
 
 Finally, as mentioned in the {\it Discussion} section, one of the main problems the machine learning community faces is the lack of explainability and interpretability for most of the models. The direct analyses on most of the recent models, such as AlphaGo and AlphaZero, are notoriously complicated and challenging, but with a more straightforward and simplified setup like Tetris, it gives us more opportunities to have a more in-depth insight into what is happening under the hood. Consequently, the results from simple setups will contribute to a better and deeper understanding of the more complex models.
 
@@ -63,13 +63,30 @@ In brief, the methodology of this project consists of four main parts, as shown 
   \item 
   First and foremost, we built a Tetris interface for both visualization and training purposes. For the sake of communication with our models, the interface is written in Python. 
   \item 
-  Next, we solved the problem using a hand-crafted agent, where we manually chose the weights for 4 most representative state features, the number of holes, the height of the highest column, the height of each column, and the difference in height between consecutive columns \cite{Bertsekas_1996}. This approach is based mainly on the heuristic search algorithm and involves a lot of trails-and-errors. The result serves as the benchmark for the project.
+  Next, we {will solve} the problem using a hand-crafted agent. {Inspired by Bertsekas and Tsitsiklis's paper} \cite{Bertsekas_1996}, we will manually chose the weights for 4 most representative state features: the number of holes, the height of the highest column, the height of each column, and the difference in height between consecutive columns. This approach is based mainly on the heuristic search algorithm and involves a lot of trails-and-errors. The result serves as the benchmark for the project {using the evaluation metrics mentioned below}.
   \item 
-  On top of that, we also tackled the problem from an AI engineer's perspective. The main idea is to use a genetic algorithm to automatically find an optimal weight combination for 9 state features, where the detailed description for the features could be found in the Methodology section.  After 200 training epochs, we indeed get a result surpassed the benchmark.
-  \item 
-  Ultimately, we added more functionalities to the traditional Tetris, like introduce the ability to see the next Tetromino and enable holding the unwanted Tetromino, and the retrained model yields satisfying results, which proved the ability to generalization.
-\end{itemize}
+  On top of that, we will also tackle the problem {using local search algorithm}. The main idea is to use a genetic algorithm to automatically find an optimal weight combination for 9 state features, where the detailed description for the features could be found in the Methodology section. 
+  % {According to the nature of the local search algorithm, this method will find the optimal weights without any human interference, and consequently, it is able to rely on more state features compared with the hand-crafted agent. As a result, we expect the local search algorithm to outperform the benchmark.}
+  
+  % After 200 training epochs, we indeed get a result surpassed the benchmark.
+  \item {Ultimately, we will solve the problem with reinforcement learning. The main idea is that we will build and train a deep Q-network (DQN) to evaluate all the successor states of the current state. More precisely, the DQN will receive a bitmap representation of successor and output a non-negative number represents the score for it. The agent will choose the successor with the highest score with probability $\epsilon$ and otherwise, it will select a random successor.}
+  % Ultimately, we added more functionalities to the traditional Tetris, like introduce the ability to see the next Tetromino and enable holding the unwanted Tetromino, and the retrained model yields satisfying results, which proved the ability to generalization.
 
+\end{itemize}
+{As for the evaluation metric, we will use the number of lines cleaned up before game over as our primary metric so that we could compare the three methods with each other as well as implementations from other papers. One thing worth mention is that in the DQN training, we won't directly use the evaluation metric mentioned above as the reward because it is too sparse. Instead, we will design a reward that is positively correlated with the evaluation metrics. More concretely, we will use the following rewarding scheme:}
+\begin{center}
+  \begin{tabular}{ |c|c| } 
+  \hline
+  Situation & Reward  \\ 
+  \hline
+   Game over & $-100$  \\ 
+   \hline
+   Clean up $k$ lines & $10\times k^{2}$  \\ 
+   \hline
+   Otherwise & $1$  \\
+   \hline
+  \end{tabular}
+\end{center}
 
 \item 
 {\bf Complete this bullet point for D4.}
@@ -105,6 +122,9 @@ In 2016, researcher at Stanford University continued to optimize Tetris engine p
 
 \section{Methodology}
 
+\subsection{Handcrafted Agent}
+\subsection{Local Search Agent}
+\subsection{Reinforcement Learning Agent}
 {\bf Complete this section for D2.}
 
 The {\it Methodology } section ($\sim$2 pages) describes the algorithms that you chose to implement.  Describe in details how each algorithm works.  Include their mathematical formulations, if necessary.  Include pseudo-code, if necessary.  If you had to extend an existing algorithm in order for it to work with the problem, describe in details what is different/new.  Provide a rationale for why you selected these particular algorithms and how they are appropriate for the problem.  You should provide enough details so that someone can reproduce the steps and replicate your results.  
@@ -141,16 +161,23 @@ You should also describe any pre-processing steps you took to prepare or create 
 %%%%%%%%%. Results %%%%%%%%%
 
 \section{Results}
-
-{\bf Complete this section for D2 and D3.}
-
-The {\it Results} section ($\sim$2 pages) describes how you evaluated the algorithms and reports the findings.  
-
-{\bf Complete the following two paragraphs for D2.}
-
+\subsection{Environmental Setup}
+\subsection{Evaluation Metrics}
 Describe the measures that you used to evaluate the algorithms.  Be as precise as possible by including their mathematical formulations.  Provide a rationale for why these performance metrics are appropriate for your problem.
-
+\subsection{Experimental Designs}
 Describe other details about your experimental design.  If you are tackling a machine learning problem, include details such as how you created the training, validation and test set, how you selected the model's hyper-parameters, etc.    
+\begin{itemize}
+  \item \textbf{Handcrafted Agent} 
+  \item \textbf{Local Search Agent} 
+  \item \textbf{Reinforcement Learning Agent} 
+\end{itemize}
+% {\bf Complete this section for D2 and D3.}
+
+% The {\it Results} section ($\sim$2 pages) describes how you evaluated the algorithms and reports the findings.  
+
+% {\bf Complete the following two paragraphs for D2.}
+
+
 
 {\bf Complete the following two paragraphs for D3.}
 
