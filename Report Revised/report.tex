@@ -1,0 +1,229 @@
+\def\year{2020}\relax
+
+\documentclass[letterpaper]{article} %DO NOT CHANGE THIS
+\usepackage{aaai20}  %Required
+\usepackage{times}  %Required
+\usepackage{helvet}  %Required
+\usepackage{courier}  %Required
+\usepackage{url}  %Required
+\usepackage{graphicx}  %Required
+\frenchspacing  %Required
+\setlength{\pdfpagewidth}{8.5in}  %Required
+\setlength{\pdfpageheight}{11in}  %Required
+\setcounter{secnumdepth}{0}  
+\usepackage{subfigure}
+\usepackage{xcolor}
+\begin{document}
+% The file aaai.sty is the style file for AAAI Press 
+% proceedings, working notes, and technical reports.
+%
+\title{A Genetic Approach to the Formulation of Tetris Engine}
+\author{Jiachen Zhang, Miaoqi Zhang, Shuheng Cao\\
+\{j756zhan, m337zhan, s53cao\}@uwaterloo.ca\\
+University of Waterloo\\
+Waterloo, ON, Canada\\
+}
+\maketitle
+\newcommand\bi[1]{{\textcolor{blue}{#1}}}
+%%%%%%%%%. Abstract %%%%%%%%%
+
+\begin{abstract}
+{\bf Complete this section for D4.}
+
+The {\it Abstract} should be at most 150 words long, and should summarize briefly what your project is about.  This includes the motivation for the problem (2-3 sentences), the problem you tackled (2-3 sentences), and your main results (1-2 sentences).   
+\end{abstract}
+
+%%%%%%%%%. Introduction %%%%%%%%%
+
+\section{Introduction} 
+
+% The {\it Introduction} section ($\sim$1 page) describes the background and motivation behind your work, and provides an overview of the work and the findings.  It should include the following content.  
+%
+\begin{itemize} 
+
+\item 
+{\bf Motivations}
+% {\bf Complete this part for D1.}
+
+% Motivate your entire paper.  At a high level, describe the problem that your project is addressing.  Why is this an important problem to tackle?  If there a solution to this problem, what are some potential real-world impacts of this solution?  Try to give a compelling motivating story.  If possible, support your argument with evidence such as facts and statistics.  (2-3 paragraphs)
+
+With the great triumph of AlphaGo in 2016, more and more researchers are interested in using machine learning techniques to solve more advanced and complicated games such as StarCraft II. However, in the authors' opinion, it also provides us an invaluable opportunity to revisit some of the traditional video games, aiming for more reliable and satisfying results. Consequently, this project's primary motivation is to introduce, implement, and compare several different approaches to tackle the Tetris, a tile-matching video game with enduring appeal and popularity. A more detailed introduction and instruction of Tetris will be presented in the {\it Methodology} section since the authors implemented a Tetris in Python for visualization and illustration purpose.
+
+Solving Tetris is a crucial and intriguing topic due to the two reasons below. On the one hand, Tetris is essentially an extraordinary optimization problem because each game will end no matter how well they are placed \cite{burgiel_1997}, so there is no such thing as perfect solutions to Tetris and there is always room to improve. On the other hand, the analyses and comparisons mentioned in this report are not limited to Tetris only, where we could broaden them to real-life problems, such as self-driving cars and robotics, \bi{with appropriate modifications on the architectures introduced in this article}.
+
+Finally, as mentioned in the {\it Discussion} section, one of the main problems the machine learning community faces is the lack of explainability and interpretability for most of the models. The direct analyses on most of the recent models, such as AlphaGo and AlphaZero, are notoriously complicated and challenging, but with a more straightforward and simplified setup like Tetris, it gives us more opportunities to have a more in-depth insight into what is happening under the hood. Consequently, the results from simple setups will contribute to a better and deeper understanding of the more complex models.
+
+\item 
+{\bf Methodologies}
+% {\bf For D1, describe the problem and your methodologies only.  Then, complete this part for D4. }
+
+% Describe, at a high-level, the problem you tackled and your main results.  What research questions are you trying to answer?   What methodologies did you used to answer the question? What are the performance measures that you used to evaluate the methodologies?   Describe your key findings in 2-3 sentences. (2-3 paragraphs)
+In brief, the methodology of this project consists of four main parts, as shown below.
+\begin{itemize}
+  \item 
+  First and foremost, we built a Tetris interface for both visualization and training purposes. For the sake of communication with our models, the interface is written in Python. 
+  \item 
+  Next, we \bi{will solve} the problem using a hand-crafted agent. \bi{Inspired by Bertsekas and Tsitsiklis's paper} \cite{Bertsekas_1996}, we will manually chose the weights for 4 most representative state features: the number of holes, the height of the highest column, the height of each column, and the difference in height between consecutive columns. This approach is based mainly on the heuristic search algorithm and involves a lot of trails-and-errors. The result serves as the benchmark for the project \bi{using the evaluation metrics mentioned below}.
+  \item 
+  On top of that, we will also tackle the problem \bi{using local search algorithm}. The main idea is to use a genetic algorithm to automatically find an optimal weight combination for 9 state features, where the detailed description for the features could be found in the Methodology section. 
+  % \bi{According to the nature of the local search algorithm, this method will find the optimal weights without any human interference, and consequently, it is able to rely on more state features compared with the hand-crafted agent. As a result, we expect the local search algorithm to outperform the benchmark.}
+  
+  % After 200 training epochs, we indeed get a result surpassed the benchmark.
+  \item \bi{Ultimately, we will solve the problem with reinforcement learning. The main idea is that we will build and train a deep Q-network (DQN) to evaluate all the successor states of the current state. More precisely, the DQN will receive a bitmap representation of successor and output a non-negative number represents the score for it. The agent will choose the successor with the highest score with probability $\epsilon$ and otherwise, it will select a random successor.}
+  % Ultimately, we added more functionalities to the traditional Tetris, like introduce the ability to see the next Tetromino and enable holding the unwanted Tetromino, and the retrained model yields satisfying results, which proved the ability to generalization.
+
+\end{itemize}
+\bi{As for the evaluation metric, we will use the number of lines cleaned up before game over as our primary metric so that we could compare the three methods with each other as well as implementations from other papers. One thing worth mention is that in the DQN training, we won't directly use the evaluation metric mentioned above as the reward because it is too sparse. Instead, we will design a reward that is positively correlated with the evaluation metrics. More concretely, we will use the following rewarding scheme:}
+\begin{center}
+  \begin{tabular}{ |c|c| } 
+  \hline
+  Situation & Reward  \\ 
+  \hline
+   Game over & $-100$  \\ 
+   \hline
+   Clean up $k$ lines & $10\times k$  \\ 
+   \hline
+   Otherwise & $1$  \\
+   \hline
+  \end{tabular}
+\end{center}
+
+\item 
+{\bf Complete this bullet point for D4.}
+
+Emphasize your contributions.  How should we interpret the results?  Why should people care about this work?   Does this project introduce any novel techniques or reveal any unexpected findings?  In bullet point forms, list 3-4 key contributions of your project.
+
+\end{itemize}
+
+%%%%%%%%%. Related Work %%%%%%%%%
+
+\section{Related Work} 
+
+There is a number of algorithms about Tetris so far. Most algorithms for Tetris use features and a linear evaluation function \cite{SO19}. The algorithms define multiple features and assign a weight value to each of the features. For a specific state with an existing Tetromino, it will use the evaluation function to calculate the evaluation value according to the weight of the features for every possible states. And then a "best" placement of the Tetromino will be picked according to the evaluation value.
+
+Tracing back to 1996, J.N. Tsitsiklis and B. Van Roy formulated Tetris as a Markov Decision problem. They introduced Feature-Based Method for Large Scale Dynamic Programming. The algorithm introduced two features, which were the number of "holes" and the height of the tallest column. Each state will be represented as a two-hundred-dimensional binary vector since the Tetris board is form by $10 \times 20$ grids. And a seven-dimentional bianry vector will represent the current falling Tetromino since there are seven type of Tetrominos in total. The algorithm can eliminate 31 rows on average of a hundred games \cite{TV96}.
+
+Later on, more features have been taken into consideration. For example, peak height, landing height, number of holes, row transition, column transition and eroded piece cells \cite{WCWT}. 
+
+These features were identified by the best artificial Tetris player until 2008 and introduced evalutation function: 
+$-4 \times holes - cumulative\ cells - row\ transitions - column\ transitions - landing\ height + eroeded\ cells$ \cite{SO19}. However, most algorithm will perform a row elimination whenever it is possible. This is not optimal in the long term because there could be some state that multiple rows can be eliminated at once \cite{WCWT}. 
+
+Tsai, Yen, Ma and Yu implemented "Tetris A.I.". Scores will be rewarded if a I-Tetromino is dropped and 4 rows are eliminated. The main idea is to make this kind of move as many as possible. The solution for this is to stack on the 9 columns and remain the left column empty. As long as an I-Tetromino apprears, it will be drop at that seperate column to eliminate multiple rows \cite{WCWT}.
+
+Moreover, they also implemented another model called "Two Wide Combo A.I.", which is a little bit more complex than the previous algorithms. It breaks the process into two parts. One is to "Stack" on the left eight columns by using BFS, and the other part is "Combo", which is to eliminate rows consecutively to earn Combo Bonus by dropping Tetrominos into the rest two columns \cite{WCWT}.
+
+The use of generic algorithm provides a new way which is worth taking into consideration. In 2006, Szita and Lorincz implemented cross-entropy algorithm. New features were introduced and for each feature, multiple games were played. It took the mean and standard deviation of the best weight of the linear policy that maximize the score and generated a new generation of policies \cite{SO19}.
+
+Back in 2003, Thomas Gärtner, Kurt Driessens and Jan Ramon introduced a new approach to Tetris optimization\cite{s017}. What's innovative in this paper is that researchers primarily used Relational Reinforcement Learning (RRL), training the network with Gaussian processes and graph kernels. Relational Reinforcement Learning advances traditional Reinforcement Learning by integrating with a relational learning programming which is also known as inductive logic programming. The use of Gaussian processes is to make probabilistic predictions and allow the agent to incrementally perform learning tasks. On the other hand, graph kernels help represent various states and actions during training process in a more structural way, which greatly facilitates learning. Compared to some previous RRL models which train data based on techniques such as decision trees, this approach has proven to be more effective.
+
+In 2016, researcher at Stanford University continued to optimize Tetris engine performance using Reinforcement Learning \cite{s016}. They used a notation called Q function. This function evaluate actions taken by the AI at various stages/states during the game; the value of this Q function tells us what the best next action is. Researchers attempted to improve convergence of Q function with the aid of heuristic functions. This method yields the best performance when combined with grouping actions. Basically, grouping actions means the entire sequence of actions a single piece take as it drops to the bottom whereas a single action is just one movement of the piece such as one space to the left. Although grouped actions increase game length compared to single actions, they achieved a much high game score. Another technique that significantly boosts the performance is transfer learning. Transfer learning effectively scores an average of two lines per game, compared to no lines for learning from scratch. The final technique used is called prioritized sweeping. Prioritized sweeping involves calculating a priority value. Based on that value, the researchers sampled actions based on probabilities proportionally to their priorities. This technique solves several problems, for example, the issue that certain actions gotten drastically under-represented in the experience dataset.
+
+%%%%%%%%%. Methodology %%%%%%%%%
+
+\section{Methodology}
+
+{\bf Complete this section for D2.}
+
+The {\it Methodology } section ($\sim$2 pages) describes the algorithms that you chose to implement.  Describe in details how each algorithm works.  Include their mathematical formulations, if necessary.  Include pseudo-code, if necessary.  If you had to extend an existing algorithm in order for it to work with the problem, describe in details what is different/new.  Provide a rationale for why you selected these particular algorithms and how they are appropriate for the problem.  You should provide enough details so that someone can reproduce the steps and replicate your results.  
+
+If you are tackling a machine learning problem, you may be using an existing data set or creating a new data set.  In this case, you should describe the data-set that you are analyzing as well as any data filtering and merging procedures that you used to prepare/create your data-set.  Your description should. include the size of the data-set(s) (i.e., number of examples), whether the class labels are balanced/imbalanced, the meaning of the features, and other unique characteristics of the data-sets.   Explain why the data-sets are appropriate for your problem and what are their limitations.  Include the URL of the websites from which you downloaded the data-set(s).
+
+You should also describe any pre-processing steps you took to prepare or create the final data-set that you used to train and test the algorithms.  Examples of pre-processing steps include procedures for joining multiple data-sets, filtering out certain examples, scaling features, etc.  Provide the rationale for why you are using these data preparation procedures, with enough details so that someone can reproduce the steps and replicate your results.   For example, if you chose to re-scale certain features, explain how the re-scaling was done and why.   
+
+
+%%%%%%%%%. Example of subfigure and 2-column figure layout %%%%%%%%%
+
+\begin{figure*}[t!]
+\centering
+\subfigure[image A]{
+\fbox{\includegraphics[height=2.6cm]{figures/A}}
+\label{fig:a}
+}\hfill
+\subfigure[image B]{
+\fbox{\includegraphics[height=2.6cm]{figures/B}}
+\label{fig:b}
+}\hfill
+\subfigure[image C]{
+\fbox{\includegraphics[height=2.6cm]{figures/C}}
+\label{fig:c}
+}\hfill
+\subfigure[image D]{
+\fbox{\includegraphics[height=2.6cm]{figures/D}}
+\label{fig:d}
+}\hfill
+\caption{Another example of figure layout}
+\label{fig:figures_across}
+\end{figure*}
+
+%%%%%%%%%. Results %%%%%%%%%
+
+\section{Results}
+
+{\bf Complete this section for D2 and D3.}
+
+The {\it Results} section ($\sim$2 pages) describes how you evaluated the algorithms and reports the findings.  
+
+{\bf Complete the following two paragraphs for D2.}
+
+Describe the measures that you used to evaluate the algorithms.  Be as precise as possible by including their mathematical formulations.  Provide a rationale for why these performance metrics are appropriate for your problem.
+
+Describe other details about your experimental design.  If you are tackling a machine learning problem, include details such as how you created the training, validation and test set, how you selected the model's hyper-parameters, etc.    
+
+{\bf Complete the following two paragraphs for D3.}
+
+Describe the findings from your evaluation.  Describe both (a) how well your techniques worked, and (b) what you learned about the problem through these techniques.  
+
+Prepare figures (e.g., Figure \ref{fig:results2}) and tables (e.g., Table \ref{tab:results1}) to describe your results clearly.  Make sure to label your figures and tables and explain them in the text.  If you are comparing the performance of algorithms, include statistical tests to assess whether the differences are statistically significant.  If possible, describe how your techniques compare to prior work.  
+
+\begin{table}[h!]
+    \centering
+    \normalsize{
+    \begin{tabular}{ l c }
+    \hline
+         Techniques & F-1 Score\\
+         \hline
+          Baseline & 0.80 \\
+          Another Baseline & 0.76\\
+          My Awesome Algorithm & {\bf 0.95}\\
+         \hline
+    \end{tabular}}
+    \caption{example of a table summarizing the results}
+    \label{tab:results1}
+\end{table} 
+
+\begin{figure}[htbp!]
+  \centering
+  \includegraphics[width=0.9\linewidth]{figures/roc.png}
+  \caption{ROC curve of my awesome algorithms}
+  \label{fig:results2}
+\end{figure}
+
+
+%%%%%%%%%. Discussion %%%%%%%%%
+
+\section{Discussion}
+
+{\bf Complete this section for D4.}
+
+The {\it Discussion} section ($\sim$1 pages) describes (a) the implications of your results, and (b) the impact and the limitations of your approach.  
+
+For the results, describe how a reader should interpret them.  Try to form concise take-away messages for the reader.  For your approach, describe the extent to which your approach helps to solve the problem.  Describe any limitations of your approach.  If possible, compare your results and your approach to that of prior work. 
+
+%%%%%%%%%. Conclusion %%%%%%%%%
+
+\section{Conclusion}
+
+{\bf Complete this section for D4.}
+
+The {\it Conclusion} section ($\sim$0.5 pages) provides a brief summary of the entire paper.  In this section, describe 
+\begin{itemize}
+    \item the motivation, the problem, and your results, and
+    \item 3-4 promising future directions.
+\end{itemize}
+
+%%%%%%%%% Bibliography %%%%%%%%%
+\newpage
+\bibliographystyle{aaai}
+\bibliography{report}
+
+\end{document}
