@@ -34,7 +34,7 @@ University of Waterloo\\
 Waterloo, ON, Canada\\
 }
 \maketitle
-\newcommand\bi[1]{{\textcolor{blue}{#1}}}
+\newcommand\bi[1]{{\textcolor{black}{#1}}}
 %%%%%%%%%. Abstract %%%%%%%%%
 
 \begin{abstract}
@@ -44,7 +44,6 @@ The {\it Abstract} should be at most 150 words long, and should summarize briefl
 \end{abstract}
 
 %%%%%%%%%. Introduction %%%%%%%%%
-
 \section{Introduction} 
 
 % The {\it Introduction} section ($\sim$1 page) describes the background and motivation behind your work, and provides an overview of the work and the findings.  It should include the following content.  
@@ -57,11 +56,11 @@ The {\it Abstract} should be at most 150 words long, and should summarize briefl
 
 % Motivate your entire paper.  At a high level, describe the problem that your project is addressing.  Why is this an important problem to tackle?  If there a solution to this problem, what are some potential real-world impacts of this solution?  Try to give a compelling motivating story.  If possible, support your argument with evidence such as facts and statistics.  (2-3 paragraphs)
 
-With the great triumph of AlphaGo in 2016, more and more researchers are interested in using machine learning techniques to solve more advanced and complicated games such as StarCraft II. However, in the authors' opinion, it also provides us an invaluable opportunity to revisit some of the traditional video games, aiming for more reliable and satisfying results. Consequently, this project's primary motivation is to introduce, implement, and compare several different approaches to tackle the Tetris, a tile-matching video game with enduring appeal and popularity. A more detailed introduction and instruction of Tetris will be presented in the {\it Methodology} section since the authors implemented a Tetris in Python for visualization and illustration purpose.
+With the great triumph of AlphaGo in 2016, more and more researchers are interested in using machine learning techniques to solve more advanced and complicated games such as StarCraft II. However, in the authors' opinion, it also provides us \bi{with} an invaluable opportunity to revisit some of the traditional video games, \bi{where we aim} for more reliable and satisfying results. Consequently, this project's primary motivation is to introduce, implement, and compare several different approaches to tackle the Tetris, a tile-matching video game with enduring appeal and popularity. \bi{In brief, Tetris is a tile-matching video game where the player will rotate and place seven different kinds of Tetrominos on top of each other. Horizontal lines will be cleaned up once they are complete, and a score will be awarded for that. This game's ultimate goal is to achieve as many marks as possible before the pieces reach the top of the game board, and therefore, there is no victory in this game.}
 
-Solving Tetris is a crucial and intriguing topic due to the two reasons below. On the one hand, Tetris is essentially an extraordinary optimization problem because each game will end no matter how well they are placed \cite{burgiel_1997}, so there is no such thing as perfect solutions to Tetris and there is always room to improve. On the other hand, the analyses and comparisons mentioned in this report are not limited to Tetris only, where we could broaden them to real-life problems, such as self-driving cars and robotics, {with appropriate modifications on the architectures introduced in this article}.
+Solving Tetris is a crucial and intriguing topic due to the two reasons below. On the one hand, Tetris is essentially an extraordinary optimization problem because each game will end no matter how well \bi{the Tetrominos} are placed \cite{burgiel_1997}. \bi{As a result}, there is no such thing as perfect solutions to Tetris and there is always room to improve. On the other hand, the analyses and comparisons mentioned in this report are not limited to Tetris only, where we could broaden them to real-life problems, such as self-driving cars and robotics, \bi{with appropriate modifications on the architectures introduced in this article}.
 
-Finally, as mentioned in the {\it Discussion} section, one of the main problems the machine learning community faces is the lack of explainability and interpretability for most of the models. The direct analyses on most of the recent models, such as AlphaGo and AlphaZero, are notoriously complicated and challenging, but with a more straightforward and simplified setup like Tetris, it gives us more opportunities to have a more in-depth insight into what is happening under the hood. Consequently, the results from simple setups will contribute to a better and deeper understanding of the more complex models.
+Finally, \bi{solving a relatively simple game like Tetris will help us better understand the related Reinforcement Learning models.} One of the main problems the machine learning community faces is the lack of explainability and interpretability for most of the models. The direct analyses on most of the recent models, such as AlphaGo and AlphaZero, are notoriously complicated and challenging, but with a more straightforward and simplified setup like Tetris, it gives us more opportunities to have a more in-depth insight into what is happening under the hood. Consequently, the results from simple setups will contribute to a better and deeper understanding of the more complex models.
 
 \item 
 {\bf Methodologies}
@@ -467,56 +466,6 @@ Note that we need a describes $\epsilon$ because we want to explore more in the 
       \label{fig:training}
     \end{figure}
 
-
-
-    % \tikzset{%
-    %   every neuron/.style={
-    %     circle,
-    %     draw,
-    %     minimum size=1cm
-    %   },
-    %   neuron missing/.style={
-    %     draw=none, 
-    %     scale=4,
-    %     text height=0.333cm,
-    %     execute at begin node=\color{black}$\vdots$
-    %   },
-    % }
-
-    % \begin{tikzpicture}[x=1.5cm, y=1.5cm, >=stealth]
-
-    % \foreach \m/\l [count=\y] in {1,2,3,missing,4}
-    %   \node [every neuron/.try, neuron \m/.try] (input-\m) at (0,2.5-\y) {};
-
-    % \foreach \m [count=\y] in {1,missing,2}
-    %   \node [every neuron/.try, neuron \m/.try ] (hidden-\m) at (2,2-\y*1.25) {};
-
-    % % \foreach \m [count=\y] in {1,missing,2}
-    % %   \node [every neuron/.try, neuron \m/.try ] (output-\m) at (4,1.5-\y) {};
-
-    % \foreach \l [count=\i] in {1,2,3,n}
-    %   \draw [<-] (input-\i) -- ++(-1,0)
-    %     node [above, midway] {$I_\l$};
-
-    % % \foreach \l [count=\i] in {1,n}
-    % %   \node [above] at (hidden-\i.north) {$H_\l$};
-
-    % % \foreach \l [count=\i] in {1,n}
-    % %   \draw [->] (output-\i) -- ++(1,0)
-    % %     node [above, midway] {$O_\l$};
-
-    % \foreach \i in {1,...,4}
-    %   \foreach \j in {1,...,2}
-    %     \draw [->] (input-\i) -- (hidden-\j);
-
-    % % \foreach \i in {1,...,2}
-    % %   \foreach \j in {1,...,2}
-    % %     \draw [->] (hidden-\i) -- (output-\j);
-
-    % \foreach \l [count=\x from 0] in {flatten, fully-connected}
-    %   \node [align=center, above] at (\x*2,2) {\l \\ layer};
-
-    % \end{tikzpicture}
 
   \end{enumerate}
   In conclusion, the experimental design for the Reinforcement Learning agent consists of three steps of training where we will employ $\epsilon$-greedy algorithm and partial weight initialization for the sake of efficiency and effectiveness. 
