@@ -209,7 +209,7 @@ Theoretically, we could tackle this Tetris problem directly using the Q-learning
   \label{fig:DQN}
 \end{figure*}
 
-Now, we will conquer these two hindrances and develop a practical architecture for this problem. For the first one, inspired by Stevens and Pradhan's idea of \textit{grouped action}, we can leverage the successor function from the genetic algorithm and reduce the dimension of Q-table. More precisely, instead of defining action $a_i$ to be one of the $5$ single moves, we will use a \textit{grouped action} to represents a sequence of moves until the current Tetromino is landing. \footnote{In other words, each \textit{grouped action} refers to a final placement for a specific Tetromino.} For example, if we got an L-shape Tetromino as shown in Figure \ref{fig:grouped_action}, one potential \textit{grouped action} will be $\{left\times 4, \,\,clockwise\,\,rotation \times 2,\,\,down\times 12\}$, which is essentially the successor function from the genetic algorithm.
+Now, we will conquer these two hindrances and develop a practical architecture for this problem. For the first one, inspired by Stevens's idea of \textit{grouped action} \cite{Stevens_2016}, we can leverage the successor function from the genetic algorithm and reduce the dimension of Q-table. More precisely, instead of defining action $a_i$ to be one of the $5$ single moves, we will use a \textit{grouped action} to represents a sequence of moves until the current Tetromino is landing. \footnote{In other words, each \textit{grouped action} refers to a final placement for a specific Tetromino.} For example, if we got an L-shape Tetromino as shown in Figure \ref{fig:grouped_action}, one potential \textit{grouped action} will be $\{left\times 4, \,\,clockwise\,\,rotation \times 2,\,\,down\times 12\}$, which is essentially the successor function from the genetic algorithm.
 
 
 With the new definition of \textit{grouped action}, we can reconstruct our Q-table and rewrite our updating formula. Notice that because after each grouped action, it's guaranteed to be a stable state (i.e., there is no floating Tetromino), we can simplify the two-dimensional Q-table into one-dimensional:
@@ -363,6 +363,23 @@ Describe other details about your experimental design.  If you are tackling a ma
   \item \textbf{Handcrafted Agent} 
   \item \textbf{Local Search Agent} 
   \item \textbf{Reinforcement Learning Agent} 
+  
+  As mentioned above, since we implemented a Tetris environment, we can say that we have unlimited training data. Therefore, for each hyperparameter combination, we will train the network for 1,000 games, validate and test separately for 200 games, where we will measure both metrics during training but only calculate the primary metric for validation and test. As for the hyperparameter, we will leverage results from Stevens's paper \cite{Stevens_2016} and initialize our hyperparameters using their suggestions as follow. 
+  
+  \begin{itemize}
+    \item {\bf Optimizer}: $RMSProp$
+    \item {\bf Learning rate}: $\alpha = 2\times 10^{-6}$
+    \item {\bf Discount rate}: $\gamma = 0.9$
+    \item {\bf Regularization}: Batch normalization and dropout with a retention probability of $0.75$
+  \end{itemize}
+
+  However, since our reward function, DQN architecture, and environment implementation are different from theirs, we need to adjust our hyperparameters according to the validation results.
+
+  Now, for the training process, there are a few more details worth mentioning.
+  \begin{itemize}
+    \item {\bf $\epsilon$-greedy Algorithm}
+    \item {\bf Transfer Learning}
+  \end{itemize}
 \end{itemize}
 % {\bf Complete this section for D2 and D3.}
 
