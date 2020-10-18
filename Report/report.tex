@@ -93,8 +93,8 @@ In brief, the methodology of this project consists of four main parts, as shown 
        Clean up $k$ lines & $10\times k^{2}$  \\ 
        \hline
        Safely landing a piece & $1$  \\
-       \hline
-       Otherwise & $0$  \\
+      %  \hline
+      %  Otherwise & $0$  \\
        \hline
       \end{tabular}}
   \caption{Reward Function}
@@ -190,7 +190,7 @@ Now, we will begin with a naive adaptation to the Tetris by defining states to b
 
 Theoretically, we could tackle this Tetris problem directly using the Q-learning setups mentioned above, but we are facing two severe hindrances:
 \begin{enumerate}
-  \item The reward is very sparse because all the actions except down are perfectly reversible. For example, $left$ can be reversed by $right$, and $clockwise\,\,rotation$ can be reversed by $counter\textit{-}clockwise\,\,rotation$. As a result, in the exploration stage, it will take the agent a long time before it can achieve a reward, which is particularly bad for training.
+  \item The reward is very sparse because all the actions except down are perfectly reversible. For example, $left$ can be reversed by $right$, and $clockwise\,\,rotation$ can be reversed by $counter\textit{-}clockwise\,\,rotation$. As a result, in the exploration stage, it will take the agent a long time before it can achieve a reward\footnote{Notice that according to the Table \ref{tab:reward}, we will only get a reward when we place a Tetromino so we won't get anything during the placement process.}, which is particularly bad for training. {}
   \item Furthermore, according to Phon-Amnuaisuk's paper, the number of stable states for a $20\times 10$ Tetris board is in the order of $10^{60}$ \cite{somnuk_2015}, which means our Q-table will be of size approximately $5\times 10^{60}$. This table is way too large to store in RAM and the training time for such a large table is also unbearable.
 \end{enumerate}
 
@@ -233,7 +233,7 @@ with the modified updating formula:
     Q(s_{t}) \leftarrow (1-\alpha) Q(s_{t}) + \alpha   \left ( r_{t} + \gamma  \max_{s_{i} \in successor(s_{t})}Q(s_{i})\right ) 
 \]
 
-With the reconstructed Q-table and modified updating formula, now for each state, the agent will choose the successor with the highest Q-value instead of a specific action. This successfully solves the sparse reward problem because now, after each grouped action, we will always get a non-zero reward according to \ref{tab:reward}. However, this setup inherits the drawback of requiring enormous storage space and training time because the number of states remains $10^{60}$. 
+With the reconstructed Q-table and modified updating formula, now for each state, the agent will choose the successor with the highest Q-value instead of a specific action. This successfully solves the sparse reward problem because now, after each grouped action, we will always get a non-zero reward. However, this setup inherits the drawback of requiring enormous storage space and training time because the number of states remains $10^{60}$. 
 
 To overcome the second hindrance, we need to understand why we have so many states in our Q-table. The problem lies in the fact that we have $20\times 10$ cells in the game board, and the number of possible states is exponential in the number of cells. This situation reminds us of how we encode images during image classification, and naturally, we will consider using Convolutional Neural Networks (CNN) to encoding our state (i.e., a $20\times 10$ bitmap).  This idea is first introduced by Google DeepMind in the paper Playing Atari with Deep Reinforcement Learning \cite{Mnih_2013}, and we will adapt this idea to Tetris to come up with the architecture as shown in Figure \ref{fig:DQN}.
 
@@ -329,7 +329,34 @@ In summary, DQN architecture successfully solves the problems of sparse reward a
 \section{Results}
 \subsection{Environmental Setup}
 \subsection{Evaluation Metrics}
-Describe the measures that you used to evaluate the algorithms.  Be as precise as possible by including their mathematical formulations.  Provide a rationale for why these performance metrics are appropriate for your problem.
+
+\textcolor{red}{\textbf{Missing first half of the evaluation metrics}}
+
+One thing worth mentioning about the evaluation metric is that we will use two metrics when training the Reinforcement Learning agent. The first metric is the one mentioned above, and it will be used as the primary standard to compare the performance of different hyperparameter combinations during validation. On top of that, this metric will also be used to compare with other algorithms mentioned in this paper as well as results from other papers. However, one problem with the primary metric is that its rewards are very sparse, where the agent needs to wait for several Tetrominos before it could clean a line and achieve one mark. This problem is particularly bad for training a DQN because, without frequent rewards, it is difficult for the network to learn anything from backpropagation. Therefore, we decided to reshape the primary metric into the following table.
+
+\begin{table}[h!]
+  \centering
+  \normalsize{
+    \begin{tabular}{ |c|c| } 
+      \hline
+      Situation & Reward  \\ 
+      \hline
+       Game over & $-100$  \\ 
+       \hline
+       Clean up $k$ lines & $10\times k^{2}$  \\ 
+       \hline
+       Safely landing a piece & $1$  \\
+      %  \hline
+      %  Otherwise & $0$  \\
+       \hline
+      \end{tabular}}
+  \caption{Reward Function}
+  \label{tab:rewardsCopy}
+\end{table} 
+
+Note that by design, the new metric is positively correlated with the primary metric in the sense that both of them encourage cleaning as many lines as possible. However, the new metric will also introduce a relatively small reward (compared with cleaning a line) for safely landing a Tetromino for the sake of more frequent simulation for backpropagation. Meanwhile, this metric also introduces a substantial penalty for losing the game to produce strong negative feedbacks for the network.
+
+% Describe the measures that you used to evaluate the algorithms.  Be as precise as possible by including their mathematical formulations.  Provide a rationale for why these performance metrics are appropriate for your problem.
 \subsection{Experimental Designs}
 Describe other details about your experimental design.  If you are tackling a machine learning problem, include details such as how you created the training, validation and test set, how you selected the model's hyper-parameters, etc.    
 \begin{itemize}
