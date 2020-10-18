@@ -69,24 +69,30 @@ In brief, the methodology of this project consists of four main parts, as shown 
   % \bi{According to the nature of the local search algorithm, this method will find the optimal weights without any human interference, and consequently, it is able to rely on more state features compared with the hand-crafted agent. As a result, we expect the local search algorithm to outperform the benchmark.}
   
   % After 200 training epochs, we indeed get a result surpassed the benchmark.
-  \item \bi{Ultimately, we will solve the problem with reinforcement learning. The main idea is that we will build and train a deep Q-network (DQN) to evaluate all the successor states of the current state. More precisely, the DQN will receive a bitmap representation of successor and output a non-negative number represents the score for it. The agent will choose the successor with the highest score with probability $\epsilon$ and otherwise, it will select a random successor.}
+  \item \bi{Ultimately, we will solve the problem with reinforcement learning. The main idea is that we will build and train a deep Q-network (DQN) to evaluate all the successor states of the current state. More precisely, the DQN will receive a bitmap representation of successor and output a non-negative number represents the score for it. After that, the agent will choose the successor with the highest score with probability $\epsilon$ and otherwise, it will select a random successor.}
   % Ultimately, we added more functionalities to the traditional Tetris, like introduce the ability to see the next Tetromino and enable holding the unwanted Tetromino, and the retrained model yields satisfying results, which proved the ability to generalization.
 
 \end{itemize}
 \bi{As for the evaluation metric, we will use the number of lines cleaned up before game over as our primary metric so that we could compare the three methods with each other as well as implementations from other papers. One thing worth mention is that in the DQN training, we won't directly use the evaluation metric mentioned above as the reward because it is too sparse. Instead, we will design a reward that is positively correlated with the evaluation metrics. More concretely, we will use the following rewarding scheme:}
-\begin{center}
-  \begin{tabular}{ |c|c| } 
-  \hline
-  Situation & Reward  \\ 
-  \hline
-   Game over & $-100$  \\ 
-   \hline
-   Clean up $k$ lines & $10\times k^{2}$  \\ 
-   \hline
-   Otherwise & $1$  \\
-   \hline
-  \end{tabular}
-\end{center}
+\begin{table}[h!]
+  \centering
+  \normalsize{
+    \begin{tabular}{ |c|c| } 
+      \hline
+      Situation & Reward  \\ 
+      \hline
+       Game over & $-100$  \\ 
+       \hline
+       Clean up $k$ lines & $10\times k^{2}$  \\ 
+       \hline
+       Safely landing a piece & $1$  \\
+       \hline
+       Otherwise & $0$  \\
+       \hline
+      \end{tabular}}
+  \caption{Reward Function}
+  \label{tab:reward}
+\end{table} 
 
 \item 
 {\bf Complete this bullet point for D4.}

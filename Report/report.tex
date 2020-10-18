@@ -13,6 +13,13 @@
 \setcounter{secnumdepth}{0}  
 \usepackage{subfigure}
 \usepackage{xcolor}
+\usepackage[linesnumbered,ruled]{algorithm2e}
+\usepackage{amsmath}
+\usepackage{dblfloatfix}    % To enable figures at the bottom of page
+
+\makeatletter
+\newcommand{\removelatexerror}{\let\@latex@error\@gobble}
+\makeatother
 \begin{document}
 % The file aaai.sty is the style file for AAAI Press 
 % proceedings, working notes, and technical reports.
@@ -74,19 +81,25 @@ In brief, the methodology of this project consists of four main parts, as shown 
 
 \end{itemize}
 {As for the evaluation metric, we will use the number of lines cleaned up before game over as our primary metric so that we could compare the three methods with each other as well as implementations from other papers. One thing worth mention is that in the DQN training, we won't directly use the evaluation metric mentioned above as the reward because it is too sparse. Instead, we will design a reward that is positively correlated with the evaluation metrics. More concretely, we will use the following rewarding scheme:}
-\begin{center}
-  \begin{tabular}{ |c|c| } 
-  \hline
-  Situation & Reward  \\ 
-  \hline
-   Game over & $-100$  \\ 
-   \hline
-   Clean up $k$ lines & $10\times k^{2}$  \\ 
-   \hline
-   Otherwise & $1$  \\
-   \hline
-  \end{tabular}
-\end{center}
+\begin{table}[h!]
+  \centering
+  \normalsize{
+    \begin{tabular}{ |c|c| } 
+      \hline
+      Situation & Reward  \\ 
+      \hline
+       Game over & $-100$  \\ 
+       \hline
+       Clean up $k$ lines & $10\times k^{2}$  \\ 
+       \hline
+       Safely landing a piece & $1$  \\
+       \hline
+       Otherwise & $0$  \\
+       \hline
+      \end{tabular}}
+  \caption{Reward Function}
+  \label{tab:reward}
+\end{table} 
 
 \item 
 {\bf Complete this bullet point for D4.}
@@ -125,13 +138,166 @@ In 2016, researcher at Stanford University continued to optimize Tetris engine p
 \subsection{Handcrafted Agent}
 \subsection{Local Search Agent}
 \subsection{Reinforcement Learning Agent}
-{\bf Complete this section for D2.}
 
-The {\it Methodology } section ($\sim$2 pages) describes the algorithms that you chose to implement.  Describe in details how each algorithm works.  Include their mathematical formulations, if necessary.  Include pseudo-code, if necessary.  If you had to extend an existing algorithm in order for it to work with the problem, describe in details what is different/new.  Provide a rationale for why you selected these particular algorithms and how they are appropriate for the problem.  You should provide enough details so that someone can reproduce the steps and replicate your results.  
+The genetic algorithm mentioned above is intelligent in the sense that it will automatically find optimal weight combinations. However, notice that it is still not perfect because the state features are always chosen by humans, and they are not necessarily representative. More concretely, we may lose some information since we will represent all the successors' states, which is of size $20\times 10$, using only nine features. Thus, we will develop a new algorithm that eliminates human-chosen features and finds a feasible representation itself.
 
-If you are tackling a machine learning problem, you may be using an existing data set or creating a new data set.  In this case, you should describe the data-set that you are analyzing as well as any data filtering and merging procedures that you used to prepare/create your data-set.  Your description should. include the size of the data-set(s) (i.e., number of examples), whether the class labels are balanced/imbalanced, the meaning of the features, and other unique characteristics of the data-sets.   Explain why the data-sets are appropriate for your problem and what are their limitations.  Include the URL of the websites from which you downloaded the data-set(s).
+As a result, we naturally lean towards the fields of reinforcement learning and will start with the Q-learning introduced by Chris Watkins in 1989. The detailed deduction and convergence proof are pretty complicated and are out of the scope of this report. However, the final results of Q-learning are incredibly similar to dynamic programming, where we maintain a Q-table with current states $s_i$ as column and available actions $a_j$ as rows:
 
-You should also describe any pre-processing steps you took to prepare or create the final data-set that you used to train and test the algorithms.  Examples of pre-processing steps include procedures for joining multiple data-sets, filtering out certain examples, scaling features, etc.  Provide the rationale for why you are using these data preparation procedures, with enough details so that someone can reproduce the steps and replicate your results.   For example, if you chose to re-scale certain features, explain how the re-scaling was done and why.   
+\begin{table}[h!]
+  \centering
+  \normalsize{
+    \begin{tabular}{ |c|c|c|c|c|c| } 
+      \hline
+       & $a_{0}$ & $a_{1}$ & $\cdots$ & $a_{n}$  \\ 
+      \hline
+       $s_{0}$ & $0.91$ & $0.65$ &$\cdots $ &$0.45$  \\ 
+       \hline
+       $s_{1}$ & $0.86$ & $0.14$ &$\cdots $ &$0.19$  \\ 
+       \hline
+       $\vdots$ & $\vdots$ & $\vdots$ &$\ddots $ &$\vdots$  \\ 
+       \hline
+       $s_{m}$ & $0.26$ & $0.61$ &$\cdots $ &$0.27$  \\ 
+       \hline
+      \end{tabular}}
+  \caption{Q-table example with random initialization}
+  \label{tab:qtable}
+\end{table}
+% Table \ref{tab:reward}
+% \begin{align*}
+  % \end{align*}
+And for each step, we will update the entry $(s_{t}, a_{t})$ using the formula
+\[
+    % Q^{new}(s_{t},a_{t}) \leftarrow \underbrace{Q(s_{t},a_{t})}_{\textit{old value}} + \underbrace{\alpha}_{\textit{learning rate}} \cdot  \overbrace{\bigg( \underbrace{\underbrace{r_{t}}_{\textit{reward}} + \underbrace{\gamma}_{\textit{discount factor}} \cdot \underbrace{\max_{a}Q(s_{t+1}, a)}_{\textit{estimate of optimal future value}}}_{\textit{new value (temporal difference target)}} - \underbrace{Q(s_{t},a_{t})}_{\textit{old value}} \bigg) }^{\textit{temporal difference}}
+    Q(s_{t},a_{t}) \leftarrow (1-\alpha) Q(s_{t},a_{t}) + \alpha   \left ( r_{t} + \gamma  \max_{a}Q(s_{t+1}, a)\right ) 
+\]
+where we have two hyper-parameters embedded in this formula:
+\begin{itemize}
+  \item $\alpha$: learning rate, which determines to what extent newly acquired information overrides old information.
+  \item $\gamma$: discount factor, which determines the importance of future rewards.\footnote{The term $\max_{a}Q(s_{t+1}, a) $ represents the estimation of the optimal future value.}
+\end{itemize}
+
+On top of that, we also need to manually determine three important setups:
+\begin{itemize}
+  \item $s_{i}$: all the possible states for the environment represented by a $20\times 10$ bitmap.
+  \item $a_{j}$: all the possible actions a player can take for a state.
+  \item $r_{t}$: reward received when moving from the state $s_{t}$ to $s_{t+1}$ and is determined by the reward function.
+\end{itemize}
+
+With all these hyper-parameters and setups, we will let the agent interact with the environment on its own. At each state, the agent will always choose to perform the action with the highest Q-value and update the Q-table according to the updating formula.\footnote{Here, it is not always true that the agent will perform the action with the highest Q-value. Some techniques like $\epsilon$-greedy algorithm will choose the optimal action with probability $\epsilon$ and a random walk otherwise. We will talk more about this in the experimental design section.} We will stop Q-learning until the agent completes the game, and we will repeat this process for large enough epochs so that the Q-table converges.
+
+Now, we will begin with a naive adaptation to the Tetris by defining states to be all the possible game states for a Tetris board of size $20\times 10$ and defining actions to be the set $\{clockwise\,\,rotation$, $counter\textit{-}clockwise\,\,rotation$, $left$, $right$, $down\}$.
+% $\{\textit{left},\textit{right}, \textit{down},\textit{clockwise rotation}, \textit{counter-clockwise rotation}\}$.
+
+Theoretically, we could tackle this Tetris problem directly using the Q-learning setups mentioned above, but we are facing two severe hindrances:
+\begin{enumerate}
+  \item The reward is very sparse because all the actions except down are perfectly reversible. For example, $left$ can be reversed by $right$, and $clockwise\,\,rotation$ can be reversed by $counter\textit{-}clockwise\,\,rotation$. As a result, in the exploration stage, it will take the agent a long time before it can achieve a reward, which is particularly bad for training.
+  \item Furthermore, according to Phon-Amnuaisuk's paper, the number of stable states for a $20\times 10$ Tetris board is in the order of $10^{60}$ \cite{somnuk_2015}, which means our Q-table will be of size approximately $5\times 10^{60}$. This table is way too large to store in RAM and the training time for such a large table is also unbearable.
+\end{enumerate}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.9\linewidth]{figures/group_actions.jpeg}
+  \caption{Grouped action example}
+  \label{fig:grouped_action}
+\end{figure}
+
+
+\begin{figure*}[h]
+  \centering
+  \includegraphics[width=0.85\linewidth]{figures/DQN.png}
+  \caption{Deep Q-network architecture}
+  \label{fig:DQN}
+\end{figure*}
+
+Now, we will conquer these two hindrances and develop a practical architecture for this problem. For the first one, inspired by Stevens and Pradhan's idea of \textit{grouped action}, we can leverage the successor function from the genetic algorithm and reduce the dimension of Q-table. More precisely, instead of defining action $a_i$ to be one of the $5$ single moves, we will use a \textit{grouped action} to represents a sequence of moves until the current Tetromino is landing. \footnote{In other words, each \textit{grouped action} refers to a final placement for a specific Tetromino.} For example, if we got an L-shape Tetromino as shown in Figure \ref{fig:grouped_action}, one potential \textit{grouped action} will be $\{left\times 4, \,\,clockwise\,\,rotation \times 2,\,\,down\times 12\}$, which is essentially the successor function from the genetic algorithm.
+
+
+With the new definition of \textit{grouped action}, we can reconstruct our Q-table and rewrite our updating formula. Notice that because after each grouped action, it's guaranteed to be a stable state (i.e., there is no floating Tetromino), we can simplify the two-dimensional Q-table into one-dimensional:
+\begin{table}[h!]
+  \centering
+  \normalsize{
+    \begin{tabular}{ |c|c|c|c|c|c| } 
+      \hline
+      $s_{0}$ & $s_{1}$ & $\cdots$ & $s_{m-1}$ & $s_{m}$  \\ 
+      \hline
+      $0.91$ & $0.65$ &$\cdots $ &$0.45$ &$0.19$  \\ 
+       \hline
+      \end{tabular}}
+  \caption{New Q-table with random initialization}
+  \label{tab:qtbale}
+\end{table}
+
+with the modified updating formula:
+\[
+    % Q^{new}(s_{t},a_{t}) \leftarrow \underbrace{Q(s_{t},a_{t})}_{\textit{old value}} + \underbrace{\alpha}_{\textit{learning rate}} \cdot  \overbrace{\bigg( \underbrace{\underbrace{r_{t}}_{\textit{reward}} + \underbrace{\gamma}_{\textit{discount factor}} \cdot \underbrace{\max_{a}Q(s_{t+1}, a)}_{\textit{estimate of optimal future value}}}_{\textit{new value (temporal difference target)}} - \underbrace{Q(s_{t},a_{t})}_{\textit{old value}} \bigg) }^{\textit{temporal difference}}
+    Q(s_{t}) \leftarrow (1-\alpha) Q(s_{t}) + \alpha   \left ( r_{t} + \gamma  \max_{s_{i} \in successor(s_{t})}Q(s_{i})\right ) 
+\]
+
+With the reconstructed Q-table and modified updating formula, now for each state, the agent will choose the successor with the highest Q-value instead of a specific action. This successfully solves the sparse reward problem because now, after each grouped action, we will always get a non-zero reward according to \ref{tab:reward}. However, this setup inherits the drawback of requiring enormous storage space and training time because the number of states remains $10^{60}$. 
+
+To overcome the second hindrance, we need to understand why we have so many states in our Q-table. The problem lies in the fact that we have $20\times 10$ cells in the game board, and the number of possible states is exponential in the number of cells. This situation reminds us of how we encode images during image classification, and naturally, we will consider using Convolutional Neural Networks (CNN) to encoding our state (i.e., a $20\times 10$ bitmap).  This idea is first introduced by Google DeepMind in the paper Playing Atari with Deep Reinforcement Learning \cite{Mnih_2013}, and we will adapt this idea to Tetris to come up with the architecture as shown in Figure \ref{fig:DQN}.
+
+Notice that this Deep Q-network (DQN) will take a $20\times 10$ bitmap as input and output a non-negative real number as the score for that bitmap. This behavior is essentially the same as what we did in Q-learning except that the DNQ will generate the score on the fly while Q-learning will merely look up the score. At its core, the DQN is trying to approximate the Q-table using a reasonable amount of time and space. 
+
+Compared with other CNN architecture, our DQN is relatively small and straightforward, mainly because of the tiny input size. Here is a summary for each layer in Figure \ref{fig:DQN}:
+\begin{itemize}
+  \item 
+  {\bf conv1}: a convolutional layer with filter size $3\times 3$, output channel size $32$, and leaky ReLU activation function.
+  \item 
+  {\bf pool1}: a max-pooling layer with filter size $2\times 2$.
+  \item 
+  {\bf conv2}: an identical layer as {\bf conv1} except that the output channel size to be $64$.
+  \item 
+  {\bf pool2}: an identical layer as {\bf pool2}.  
+  \item 
+  {\bf flatten:} this is simply a flattened version of the {\bf pool2} feature map.
+  \item 
+  {\bf fc}: this is a fully connected layer of size $256$ with ReLU activation function.
+  \item 
+  {\bf score}: this is a fully connected layer of size $1$ with ReLU activation function.
+\end{itemize}
+
+On top of that, here is the pseudo-code to train our DQN:
+
+\begin{figure}[h!]
+	\centering
+	\begin{minipage}{.95\linewidth}
+    \removelatexerror% Nullify \@latex@error
+		\begin{algorithm}[H]
+			\DontPrintSemicolon
+			\SetKwFunction{FMain}{train}
+			\SetKwProg{Fn}{Function}{:}{}
+			\Fn{\FMain{$cur$, $DQN$}}{
+      \textbf{Input: }$cur$ is current game state and $DQN$ is the network, which supports two operations $predict$ and $fit$\;
+      \textbf{Input: }$nex$ is the next game state\;
+      $states \gets successor(cur)$\;
+      $maxQ \gets 0, reward \gets 0, maxState \gets \textbf{None} $\;
+      \For{$state$ \textbf{in} $states$}{
+        $score \gets DQN.predict(state)$\;
+        \If{$score > maxQ$} {
+          $maxQ \gets score$\;
+          $reward \gets reward(state)$\;
+          $maxState \gets state $\;
+        }
+      }
+      $Q' \gets (1-\alpha) \cdot maxQ + \alpha  \cdot  \left ( reward + \gamma\cdot   maxQ\right )$\;
+      $DQN.fit(maxState, Q')$\;
+      \Return maxState\;
+			}
+		\end{algorithm}
+	\end{minipage}
+  \caption{Pseudo-code for Training}
+\end{figure}
+
+In summary, DQN architecture successfully solves the problems of sparse reward and enormous states, which gives us an efficient and effective estimation for the original Q-learning in Table \ref{tab:qtable}. Moreover, with CNN's powerful encoding capability, we don't need to choose the features manually, and the architecture will automatically find the optimal features during backpropagation. As a result, we can say that DQN architecture has the potential to outperform the genetic algorithm.
+
+% {\bf Complete this section for D2.}
+
+% The {\it Methodology } section ($\sim$2 pages) describes the algorithms that you chose to implement.  Describe in details how each algorithm works.  Include their mathematical formulations, if necessary.  Include pseudo-code, if necessary.  If you had to extend an existing algorithm in order for it to work with the problem, describe in details what is different/new.  Provide a rationale for why you selected these particular algorithms and how they are appropriate for the problem.  You should provide enough details so that someone can reproduce the steps and replicate your results.  
+
+% If you are tackling a machine learning problem, you may be using an existing data set or creating a new data set.  In this case, you should describe the data-set that you are analyzing as well as any data filtering and merging procedures that you used to prepare/create your data-set.  Your description should. include the size of the data-set(s) (i.e., number of examples), whether the class labels are balanced/imbalanced, the meaning of the features, and other unique characteristics of the data-sets.   Explain why the data-sets are appropriate for your problem and what are their limitations.  Include the URL of the websites from which you downloaded the data-set(s).
+
+% You should also describe any pre-processing steps you took to prepare or create the final data-set that you used to train and test the algorithms.  Examples of pre-processing steps include procedures for joining multiple data-sets, filtering out certain examples, scaling features, etc.  Provide the rationale for why you are using these data preparation procedures, with enough details so that someone can reproduce the steps and replicate your results.   For example, if you chose to re-scale certain features, explain how the re-scaling was done and why.   
 
 
 %%%%%%%%%. Example of subfigure and 2-column figure layout %%%%%%%%%
