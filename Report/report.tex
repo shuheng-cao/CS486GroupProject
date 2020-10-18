@@ -17,6 +17,9 @@
 \usepackage{amsmath}
 \usepackage{dblfloatfix}    % To enable figures at the bottom of page
 
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+
 \makeatletter
 \newcommand{\removelatexerror}{\let\@latex@error\@gobble}
 \makeatother
@@ -269,7 +272,7 @@ On top of that, here is the pseudo-code to train our DQN:
 			\SetKwProg{Fn}{Function}{:}{}
 			\Fn{\FMain{$cur$, $DQN$}}{
       \textbf{Input: }$cur$ is current game state and $DQN$ is the network, which supports two operations $predict$ and $fit$\;
-      \textbf{Input: }$nex$ is the next game state\;
+      \textbf{Output: }$nex$ is the next game state\;
       $states \gets successor(cur)$\;
       $maxQ \gets 0, reward \gets 0, maxState \gets \textbf{None} $\;
       \For{$state$ \textbf{in} $states$}{
@@ -287,6 +290,7 @@ On top of that, here is the pseudo-code to train our DQN:
 		\end{algorithm}
 	\end{minipage}
   \caption{Pseudo-code for Training}
+  \label{fig:code1}
 \end{figure}
 
 In summary, DQN architecture successfully solves the problems of sparse reward and enormous states, which gives us an efficient and effective estimation for the original Q-learning in Table \ref{tab:qtable}. Moreover, with CNN's powerful encoding capability, we don't need to choose the features manually, and the architecture will automatically find the optimal features during backpropagation. As a result, we can say that DQN architecture has the potential to outperform the genetic algorithm.
@@ -302,27 +306,27 @@ In summary, DQN architecture successfully solves the problems of sparse reward a
 
 %%%%%%%%%. Example of subfigure and 2-column figure layout %%%%%%%%%
 
-\begin{figure*}[t!]
-\centering
-\subfigure[image A]{
-\fbox{\includegraphics[height=2.6cm]{figures/A}}
-\label{fig:a}
-}\hfill
-\subfigure[image B]{
-\fbox{\includegraphics[height=2.6cm]{figures/B}}
-\label{fig:b}
-}\hfill
-\subfigure[image C]{
-\fbox{\includegraphics[height=2.6cm]{figures/C}}
-\label{fig:c}
-}\hfill
-\subfigure[image D]{
-\fbox{\includegraphics[height=2.6cm]{figures/D}}
-\label{fig:d}
-}\hfill
-\caption{Another example of figure layout}
-\label{fig:figures_across}
-\end{figure*}
+% \begin{figure*}[t!]
+% \centering
+% \subfigure[image A]{
+% \fbox{\includegraphics[height=2.6cm]{figures/A}}
+% \label{fig:a}
+% }\hfill
+% \subfigure[image B]{
+% \fbox{\includegraphics[height=2.6cm]{figures/B}}
+% \label{fig:b}
+% }\hfill
+% \subfigure[image C]{
+% \fbox{\includegraphics[height=2.6cm]{figures/C}}
+% \label{fig:c}
+% }\hfill
+% \subfigure[image D]{
+% \fbox{\includegraphics[height=2.6cm]{figures/D}}
+% \label{fig:d}
+% }\hfill
+% \caption{Another example of figure layout}
+% \label{fig:figures_across}
+% \end{figure*}
 
 %%%%%%%%%. Results %%%%%%%%%
 
@@ -364,7 +368,7 @@ Describe other details about your experimental design.  If you are tackling a ma
   \item \textbf{Local Search Agent} 
   \item \textbf{Reinforcement Learning Agent} 
   
-  As mentioned above, since we implemented a Tetris environment, we can say that we have unlimited training data. Therefore, for each hyperparameter combination, we will train the network for 1,000 games, validate and test separately for 200 games, where we will measure both metrics during training but only calculate the primary metric for validation and test. As for the hyperparameter, we will leverage results from Stevens's paper \cite{Stevens_2016} and initialize our hyperparameters using their suggestions as follow. 
+  As mentioned above, since we implemented a Tetris environment, we can say that we have unlimited training data. Therefore, for each hyperparameter combination, we will train the network for 1,000 games, validate and test separately for 100 games, where we will measure both metrics during training but only calculate the primary metric for validation and test. As for the hyperparameter, we will leverage results from Stevens's paper \cite{Stevens_2016} and initialize our hyperparameters using their suggestions as follow. 
   
   \begin{itemize}
     \item {\bf Optimizer}: $RMSProp$
@@ -375,11 +379,147 @@ Describe other details about your experimental design.  If you are tackling a ma
 
   However, since our reward function, DQN architecture, and environment implementation are different from theirs, we need to adjust our hyperparameters according to the validation results.
 
-  Now, for the training process, there are a few more details worth mentioning.
-  \begin{itemize}
+  Now, for the training process, there are two details worth mentioning.
+  \begin{enumerate}
     \item {\bf $\epsilon$-greedy Algorithm}
-    \item {\bf Transfer Learning}
-  \end{itemize}
+    
+    The tradeoff between exploration and exploitation is one of the most critical challenges for most of the reinforcement learning problem, and our DQN is no exception. Note that according to the setups mentioned in the Methodology section, the only chance for our network to explore comes from the random initialization of the system, and once it finds a solution, exploitation will dominate exploration because we always choose the successor with the highest score. This is not ideal because we may miss some potential shortcuts\footnote{In other words, the selected successor may not be optimal for long-term.}, and as a result, we will apply the $\epsilon$-greedy algorithm during the training phase. In brief, it will stick to the optimal successor with a decaying probability $\epsilon$ and randomly choose a successor otherwise \cite{Tokic_2010}. Thus, we will update the training algorithm in Figure \ref{fig:code1}  correspondingly as follow.
+  
+    \begin{figure}[h!]
+      \centering
+      \begin{minipage}{.95\linewidth}
+        \removelatexerror% Nullify \@latex@error
+        \begin{algorithm}[H]
+          \DontPrintSemicolon
+          \SetKwFunction{FMain}{train}
+          \SetKwProg{Fn}{Function}{:}{}
+          \Fn{\FMain{$cur$, $DQN$}}{
+          $states \gets successor(cur)$\;
+          $maxQ \gets 0, reward \gets 0, maxState \gets \textbf{None} $\;
+          \For{$state$ \textbf{in} $states$}{
+            $score \gets DQN.predict(state)$\;
+            \If{$score > maxQ$} {
+              $maxQ \gets score$\;
+              $reward \gets reward(state)$\;
+              $maxState \gets state $\;
+            }
+          }\;
+          \tcp{$\epsilon$-greedy algorithm}
+          $p \gets uniform(0,1)$\;
+          \If{$p > \epsilon$}
+          {
+            $maxState \gets random(states) $\;
+            $maxQ \gets DQN.predict(maxState)$\;
+            $reward \gets reward(maxState)$\;
+          }
+
+          $\epsilon \gets \epsilon - \delta$\tcp*{$\epsilon$ decaying}\;
+          $Q' \gets (1-\alpha) \cdot maxQ + \alpha  \cdot  \left ( reward + \gamma\cdot   maxQ\right )$\;
+          $DQN.fit(maxState, Q')$\;
+          \Return maxState\;
+          }
+        \end{algorithm}
+      \end{minipage}
+      \caption{Pseudo-code for Training with $\epsilon$-greedy}
+      \label{fig:code2}
+    \end{figure}
+
+Note that we need a describes $\epsilon$ because we want to explore more in the beginning (in our case, we will use $\epsilon=0.5$), and as we approach the end of the training phase, we want to exploit more (which means $\delta = \frac{\epsilon}{\text{\# of training}} = \frac{0.5}{1000} = 0.0005$).\footnote{This gives two extra hyperparameters that need to be adjusted.}
+
+    \item {\bf Training by Part}
+
+    According to the experiment results from Steven's paper, another challenge we will face during the training is that each game will last for a long time, mainly because of the large $20\times 10$ game board. Therefore, we will solve this problem by training our network part by part, where we will decompose the training process into three parts for the sake of time efficiency as follow:
+    \begin{itemize}
+      \item 
+      Firstly, we will train the DQN on a $5\times 10$ game board for 400 epochs.
+      \item 
+      Then, we will train it on a $10\times 10$ for another 400 epochs.
+      \item 
+      Finally, we will train it on the full board ($20\times 10$) for 200 epochs.
+    \end{itemize}
+
+    This will give us a total of 1,000 training epochs, but this design should be much faster than trained directly on the full board because the time needed for each game is shortened. However, the sequential training process is not as easy as it sounds like, and the main problem here is the difference in length of the flattened vectors:
+
+    \begin{table}[h!]
+      \centering
+      \normalsize{
+        \begin{tabular}{ |c|c| } 
+          \hline
+          Input Size & Flattened Vector Size  \\ 
+          \hline
+           $5\times 10$ & $512$  \\ 
+           \hline
+           $10\times 10$ & $1024$  \\ 
+           \hline
+           $20\times 10$ & $2048$  \\
+           \hline
+          \end{tabular}}
+      \caption{Flattened vector sizes for different input}
+      \label{tab:rewardsCopy}
+    \end{table} 
+
+    The difference between these vectors' sizes will mess up the weight matrix of DQN architecture, so we need to initialize the weight matrix manually when we change the input size. More precisely, whenever we increase the input size, we will initialize a new fully-connected layer and copy the previous network's weights to half of the current network. A visualization for $5\times 10$ to $10\times 10$ is shown in Figure \ref{fig:training}, where we initialize the bottom half (shown in blue) of the weight matrix with the previous weights and randomly initialize the upper half of the weight matrix (shown in green).
+
+    \begin{figure}[h]
+      \centering
+      \includegraphics[width=0.9\linewidth]{figures/architecutre.jpeg}
+      \caption{Grouped action example}
+      \label{fig:training}
+    \end{figure}
+
+
+
+    % \tikzset{%
+    %   every neuron/.style={
+    %     circle,
+    %     draw,
+    %     minimum size=1cm
+    %   },
+    %   neuron missing/.style={
+    %     draw=none, 
+    %     scale=4,
+    %     text height=0.333cm,
+    %     execute at begin node=\color{black}$\vdots$
+    %   },
+    % }
+
+    % \begin{tikzpicture}[x=1.5cm, y=1.5cm, >=stealth]
+
+    % \foreach \m/\l [count=\y] in {1,2,3,missing,4}
+    %   \node [every neuron/.try, neuron \m/.try] (input-\m) at (0,2.5-\y) {};
+
+    % \foreach \m [count=\y] in {1,missing,2}
+    %   \node [every neuron/.try, neuron \m/.try ] (hidden-\m) at (2,2-\y*1.25) {};
+
+    % % \foreach \m [count=\y] in {1,missing,2}
+    % %   \node [every neuron/.try, neuron \m/.try ] (output-\m) at (4,1.5-\y) {};
+
+    % \foreach \l [count=\i] in {1,2,3,n}
+    %   \draw [<-] (input-\i) -- ++(-1,0)
+    %     node [above, midway] {$I_\l$};
+
+    % % \foreach \l [count=\i] in {1,n}
+    % %   \node [above] at (hidden-\i.north) {$H_\l$};
+
+    % % \foreach \l [count=\i] in {1,n}
+    % %   \draw [->] (output-\i) -- ++(1,0)
+    % %     node [above, midway] {$O_\l$};
+
+    % \foreach \i in {1,...,4}
+    %   \foreach \j in {1,...,2}
+    %     \draw [->] (input-\i) -- (hidden-\j);
+
+    % % \foreach \i in {1,...,2}
+    % %   \foreach \j in {1,...,2}
+    % %     \draw [->] (hidden-\i) -- (output-\j);
+
+    % \foreach \l [count=\x from 0] in {flatten, fully-connected}
+    %   \node [align=center, above] at (\x*2,2) {\l \\ layer};
+
+    % \end{tikzpicture}
+
+  \end{enumerate}
+  In conclusion, the experimental design for the Reinforcement Learning agent consists of three steps of training where we will employ $\epsilon$-greedy algorithm and partial weight initialization for the sake of efficiency and effectiveness. 
 \end{itemize}
 % {\bf Complete this section for D2 and D3.}
 
