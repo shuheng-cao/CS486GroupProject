@@ -420,9 +420,7 @@ As mentioned above, since we implemented a Tetris environment, we can say that w
   
   The experimental design for the handcrafted agent is relatively straight-forward. Since we are merely relying on our observation and intuition, we need to keep track of each game manually. Therefore, we will use a training set of 3 games, a validation set of 100 games, and a test set of another 100 games. The training process is rather simple. We will watch the agent playing for three rounds (training) and let it play for itself for another 100 rounds (validation). Meanwhile, we will analyze its mistakes during training and calculate the average score for the validation. Then, according to the analysis, we will adjust the weights correspondingly, and if the combination of the new weights yields a better validation score, we will use it. Otherwise, we will try some other updates, and if we can't improve the validation result anymore, we will stop. Finally, we will use the best weights combination as our final result and test it on another 100 games.
 
-  As for the weight initialization, we will start with the weights $(-1s,3,2,4)$ because we think ... 
-  
-  \textcolor{red}{\textbf{Please give a reason for such initialization} }
+  As for the weight initialization, we will start with the weights $(-1,3,2,4)$ with the following reasoning. Ultimately, the higher our board is, the less chance there is for the game to last longer. So, we intuitively assign the most weight to the $4th$ (maximum height). Now we want to assign weights to the $3rd$ and the $2nd$ weight. We notice that holes make it hard to be cleared; and it may consequently lead to accumulated height of the board. Therefore, in our initialization, we want to assign a relatively higher weight to the second weight, which is the number of holes. Finally, as mentioned in Methodology part, we would like the weight for the first feature to be negative because we want the number of lines cleared to be as large as possible. Hence, we would choose the number -1 as the initial weight to the $1st$ feature. 
 
   \item \textbf{Local Search Agent} 
   
