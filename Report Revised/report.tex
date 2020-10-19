@@ -57,11 +57,16 @@ Finally, \bi{solving a relatively simple game like Tetris will help us better un
 {\bf Methodologies}
 % {\bf For D1, describe the problem and your methodologies only.  Then, complete this part for D4. }
 
+\bi{The problem we are trying to solve is to design an agent that could achieve as many scores as possible in the Tetris game. We will implement three algorithms, including the baseline method, as shown below.}
 % Describe, at a high-level, the problem you tackled and your main results.  What research questions are you trying to answer?   What methodologies did you used to answer the question? What are the performance measures that you used to evaluate the methodologies?   Describe your key findings in 2-3 sentences. (2-3 paragraphs)
-In brief, the methodology of this project consists of four main parts, as shown below.
+% In brief, the methodology of this project consists of four main parts, as shown below.
 \begin{itemize}
   \item 
-  First and foremost, we built a Tetris interface for both visualization and training purposes. For the sake of communication with our models, the interface is written in Python. 
+  First and foremost, we built a Tetris interface for both visualization and training purposes. For the sake of communication with our models, the interface is written in Python \bi{and it will support two basic functionalities: 
+  \begin{itemize}
+    \item Providing bitmaps for current and successor states.
+    \item Generating score or reward for each state.
+  \end{itemize}}
   \item 
   Next, we \bi{will solve} the problem using a hand-crafted agent. \bi{Inspired by Bertsekas and Tsitsiklis's paper} \cite{Bertsekas_1996}, we will manually chose the weights for 4 most representative state features: the number of holes, the height of the highest column, the height of each column, and the difference in height between consecutive columns. This approach is based mainly on the heuristic search algorithm and involves a lot of trails-and-errors. The result serves as the benchmark for the project \bi{using the evaluation metrics mentioned below}.
   \item 
