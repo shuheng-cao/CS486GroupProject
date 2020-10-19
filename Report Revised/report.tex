@@ -64,8 +64,8 @@ Finally, \bi{solving a relatively simple game like Tetris will help us better un
   \item 
   First and foremost, we built a Tetris interface for both visualization and training purposes. For the sake of communication with our models, the interface is written in Python \bi{and it will support two basic functionalities: 
   \begin{itemize}
-    \item Providing bitmaps for current and successor states.
-    \item Generating score or reward for each state.
+    \item Generating all the successors for current state.
+    \item Calculating score or reward for each state.
   \end{itemize}}
   \item 
   Next, we \bi{will solve} the problem using a hand-crafted agent. \bi{Inspired by Bertsekas and Tsitsiklis's paper} \cite{Bertsekas_1996}, we will manually chose the weights for 4 most representative state features: the number of holes, the height of the highest column, the height of each column, and the difference in height between consecutive columns. This approach is based mainly on the heuristic search algorithm and involves a lot of trails-and-errors. The result serves as the benchmark for the project \bi{using the evaluation metrics mentioned below}.

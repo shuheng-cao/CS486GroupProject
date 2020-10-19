@@ -50,37 +50,42 @@ The {\it Abstract} should be at most 150 words long, and should summarize briefl
 %
 \begin{itemize} 
 
-\item 
-{\bf Motivations}
-% {\bf Complete this part for D1.}
-
-% Motivate your entire paper.  At a high level, describe the problem that your project is addressing.  Why is this an important problem to tackle?  If there a solution to this problem, what are some potential real-world impacts of this solution?  Try to give a compelling motivating story.  If possible, support your argument with evidence such as facts and statistics.  (2-3 paragraphs)
-
-With the great triumph of AlphaGo in 2016, more and more researchers are interested in using machine learning techniques to solve more advanced and complicated games such as StarCraft II. However, in the authors' opinion, it also provides us \bi{with} an invaluable opportunity to revisit some of the traditional video games, \bi{where we aim} for more reliable and satisfying results. Consequently, this project's primary motivation is to introduce, implement, and compare several different approaches to tackle the Tetris, a tile-matching video game with enduring appeal and popularity. \bi{In brief, Tetris is a tile-matching video game where the player will rotate and place seven different kinds of Tetrominos on top of each other. Horizontal lines will be cleaned up once they are complete, and a score will be awarded for that. This game's ultimate goal is to achieve as many marks as possible before the pieces reach the top of the game board, and therefore, there is no victory in this game.}
-
-Solving Tetris is a crucial and intriguing topic due to the two reasons below. On the one hand, Tetris is essentially an extraordinary optimization problem because each game will end no matter how well \bi{the Tetrominos} are placed \cite{burgiel_1997}. \bi{As a result}, there is no such thing as perfect solutions to Tetris and there is always room to improve. On the other hand, the analyses and comparisons mentioned in this report are not limited to Tetris only, where we could broaden them to real-life problems, such as self-driving cars and robotics, \bi{with appropriate modifications on the architectures introduced in this article}.
-
-Finally, \bi{solving a relatively simple game like Tetris will help us better understand the related Reinforcement Learning models.} One of the main problems the machine learning community faces is the lack of explainability and interpretability for most of the models. The direct analyses on most of the recent models, such as AlphaGo and AlphaZero, are notoriously complicated and challenging, but with a more straightforward and simplified setup like Tetris, it gives us more opportunities to have a more in-depth insight into what is happening under the hood. Consequently, the results from simple setups will contribute to a better and deeper understanding of the more complex models.
-
-\item 
-{\bf Methodologies}
-% {\bf For D1, describe the problem and your methodologies only.  Then, complete this part for D4. }
-
-% Describe, at a high-level, the problem you tackled and your main results.  What research questions are you trying to answer?   What methodologies did you used to answer the question? What are the performance measures that you used to evaluate the methodologies?   Describe your key findings in 2-3 sentences. (2-3 paragraphs)
-In brief, the methodology of this project consists of four main parts, as shown below.
-\begin{itemize}
   \item 
-  First and foremost, we built a Tetris interface for both visualization and training purposes. For the sake of communication with our models, the interface is written in Python. 
-  \item 
-  Next, we {will solve} the problem using a hand-crafted agent. {Inspired by Bertsekas and Tsitsiklis's paper} \cite{Bertsekas_1996}, we will manually chose the weights for 4 most representative state features: the number of holes, the height of the highest column, the height of each column, and the difference in height between consecutive columns. This approach is based mainly on the heuristic search algorithm and involves a lot of trails-and-errors. The result serves as the benchmark for the project {using the evaluation metrics mentioned below}.
-  \item 
-  On top of that, we will also tackle the problem {using local search algorithm}. The main idea is to use a genetic algorithm to automatically find an optimal weight combination for 9 state features, where the detailed description for the features could be found in the Methodology section. 
-  % {According to the nature of the local search algorithm, this method will find the optimal weights without any human interference, and consequently, it is able to rely on more state features compared with the hand-crafted agent. As a result, we expect the local search algorithm to outperform the benchmark.}
+  {\bf Motivations}
+  % {\bf Complete this part for D1.}
   
-  % After 200 training epochs, we indeed get a result surpassed the benchmark.
-  \item {Ultimately, we will solve the problem with reinforcement learning. The main idea is that we will build and train a deep Q-network (DQN) to evaluate all the successor states of the current state. More precisely, the DQN will receive a bitmap representation of successor and output a non-negative number represents the score for it. The agent will choose the successor with the highest score with probability $\epsilon$ and otherwise, it will select a random successor.}
-  % Ultimately, we added more functionalities to the traditional Tetris, like introduce the ability to see the next Tetromino and enable holding the unwanted Tetromino, and the retrained model yields satisfying results, which proved the ability to generalization.
-
+  % Motivate your entire paper.  At a high level, describe the problem that your project is addressing.  Why is this an important problem to tackle?  If there a solution to this problem, what are some potential real-world impacts of this solution?  Try to give a compelling motivating story.  If possible, support your argument with evidence such as facts and statistics.  (2-3 paragraphs)
+  
+  With the great triumph of AlphaGo in 2016, more and more researchers are interested in using machine learning techniques to solve more advanced and complicated games such as StarCraft II. However, in the authors' opinion, it also provides us \bi{with} an invaluable opportunity to revisit some of the traditional video games, \bi{where we aim} for more reliable and satisfying results. Consequently, this project's primary motivation is to introduce, implement, and compare several different approaches to tackle the Tetris, a tile-matching video game with enduring appeal and popularity. \bi{In brief, Tetris is a tile-matching video game where the player will rotate and place seven different kinds of Tetrominos on top of each other. Horizontal lines will be cleaned up once they are complete, and a score will be awarded for that. This game's ultimate goal is to achieve as many marks as possible before the pieces reach the top of the game board, and therefore, there is no victory in this game.}
+  
+  Solving Tetris is a crucial and intriguing topic due to the two reasons below. On the one hand, Tetris is essentially an extraordinary optimization problem because each game will end no matter how well \bi{the Tetrominos} are placed \cite{burgiel_1997}. \bi{As a result}, there is no such thing as perfect solutions to Tetris and there is always room to improve. On the other hand, the analyses and comparisons mentioned in this report are not limited to Tetris only, where we could broaden them to real-life problems, such as self-driving cars and robotics, \bi{with appropriate modifications on the architectures introduced in this article}.
+  
+  Finally, \bi{solving a relatively simple game like Tetris will help us better understand the related Reinforcement Learning models.} One of the main problems the machine learning community faces is the lack of explainability and interpretability for most of the models. The direct analyses on most of the recent models, such as AlphaGo and AlphaZero, are notoriously complicated and challenging, but with a more straightforward and simplified setup like Tetris, it gives us more opportunities to have a more in-depth insight into what is happening under the hood. Consequently, the results from simple setups will contribute to a better and deeper understanding of the more complex models.
+  
+  \item 
+  {\bf Methodologies}
+  % {\bf For D1, describe the problem and your methodologies only.  Then, complete this part for D4. }
+  
+  \bi{The problem we are trying to solve is to design an agent that could achieve as many scores as possible in the Tetris game. We will implement three algorithms, including the baseline method, as shown below.}
+  % Describe, at a high-level, the problem you tackled and your main results.  What research questions are you trying to answer?   What methodologies did you used to answer the question? What are the performance measures that you used to evaluate the methodologies?   Describe your key findings in 2-3 sentences. (2-3 paragraphs)
+  % In brief, the methodology of this project consists of four main parts, as shown below.
+  \begin{itemize}
+    \item 
+    First and foremost, we built a Tetris interface for both visualization and training purposes. For the sake of communication with our models, the interface is written in Python \bi{and it will support two basic functionalities: 
+    \begin{itemize}
+      \item Generating all the successors for current state.
+      \item Calculating score or reward for each state.
+    \end{itemize}}
+    \item 
+    Next, we \bi{will solve} the problem using a hand-crafted agent. \bi{Inspired by Bertsekas and Tsitsiklis's paper} \cite{Bertsekas_1996}, we will manually chose the weights for 4 most representative state features: the number of holes, the height of the highest column, the height of each column, and the difference in height between consecutive columns. This approach is based mainly on the heuristic search algorithm and involves a lot of trails-and-errors. The result serves as the benchmark for the project \bi{using the evaluation metrics mentioned below}.
+    \item 
+    On top of that, we will also tackle the problem \bi{using local search algorithm}. The main idea is to use a genetic algorithm to automatically find an optimal weight combination for 9 state features, where the detailed description for the features could be found in the Methodology section. 
+    % \bi{According to the nature of the local search algorithm, this method will find the optimal weights without any human interference, and consequently, it is able to rely on more state features compared with the hand-crafted agent. As a result, we expect the local search algorithm to outperform the benchmark.}
+    
+    % After 200 training epochs, we indeed get a result surpassed the benchmark.
+    \item \bi{Ultimately, we will solve the problem with reinforcement learning. The main idea is that we will build and train a deep Q-network (DQN) to evaluate all the successor states of the current state. More precisely, the DQN will receive a bitmap representation of successor and output a non-negative number represents the score for it. After that, the agent will choose the successor with the highest score with probability $\epsilon$ and otherwise, it will select a random successor.}
+    % Ultimately, we added more functionalities to the traditional Tetris, like introduce the ability to see the next Tetromino and enable holding the unwanted Tetromino, and the retrained model yields satisfying results, which proved the ability to generalization.
+  
 \end{itemize}
 {As for the evaluation metric, we will use the number of lines cleaned up before game over as our primary metric so that we could compare the three methods with each other as well as implementations from other papers. One thing worth mention is that in the DQN training, we won't directly use the evaluation metric mentioned above as the reward because it is too sparse. Instead, we will design a reward that is positively correlated with the evaluation metrics. More concretely, we will use the following rewarding scheme:}
 \begin{table}[h!]
@@ -138,52 +143,71 @@ In 2016, researcher at Stanford University continued to optimize Tetris engine p
 \section{Methodology}
 
 \subsection{Handcrafted Agent}
-
-Our first approach is a manually trail-and-error approach. Every time when generating successors(states), we define a heuristic value associated with each state which is calculated based on a combination of weighted features. We would always choose successors with the lowest heuristic value at every step. For a handcrafted agent approach, we define 4 features:
+Our first approach is a manually trial-and-error approach, or more precisely, we will assign a weight manually for each feature below according to our intuition and experiment results. Then, for each generated successor states, we will always choose the state with the lowest heuristic value, which is calculated based on a summation of the four weighted features. Here are the four features we are going to use and a rationale for choosing them:
 \begin{enumerate}
-  \item number of lines cleared
-  \item number of holes
-  \item sum of difference of height between adjacent columns
-  \item max height
+ \item {\bf number of lines cleared}\footnote{Note that this is special compared with other features because we want it to be as large as possible, so we will assign a negative weight to it.}
+
+This feature faithfully reflects our evaluation metric since we will achieve scores only by cleaning lines.
+
+ \item {\bf number of holes}
+
+The holes in the Tetris game are particularly harmful because, in order to clean the line containing a hole, we need to clean up all the lines above that hole. 
+
+ \item {\bf sum of the difference of height between adjacent columns}
+
+The "gaps" in the board make it harder to clear rows simply because the Tetrimonos are generated randomly, and those "gaps" are not likely to be filled perfectly by the next Tetrimono.
+
+ \item {\bf maximum height}
+
+The higher the board is, the closer it is to the "ceiling" (vertical limit of the board), which means there may be fewer steps to play before the game terminates.
+
 \end{enumerate}
 
-The goal is to figure out how much weight we should give to each feature such that the agent would have optimal performance. We define the performance as the most number of rows cleared before the game is terminated.
+We would run simulations consecutively and record the performance associated with the weight combination. Based on the results, we would adjust one or more weight values and use them in the next simulation until the game behaves rationally in human criterion.
 
-In a handcrafted agent approach, we want to intuitively give high weights to features which are more likely to cause game to be over and give low weights to features that are more likely to cause rows to be cleared. For example, we want to avoid choosing successors(states) which have a high max height. This is because intuitively, the higher the board is, the closer the board is to the "ceiling" (vertical limit of the board), which means there may be fewer steps to play before the game is terminated. As a result, we want to assign a high weight to this feature, which is max height. Similarly, we would also want to avoid choosing successors which have a high sum of difference of height between adjacent rows. This is also intuitive: if there are a lot of "gaps" in the board, it makes it harder to clear rows simply because the "gaps" are not easy to be filled perfectly. However, if a successor would result in one or more lines cleared, then intuitively we know that this is a good move and we want to assign low weight to this feature.We would run simulations consecutively and record the performance associated with the weight combination. Based on the results, we would adjust one or more weight value and use it in the next simulation until certain stopping criteria has been met.
-
-An advantage of this handcrafted approach is that we are somewhat informed of what features should be rewarded and penalized. Compared to adjust the weight "blindly", we are more likely to arrive at an optimal combination taking fewer steps.
-
+An advantage of this handcrafted approach is that we are somewhat informed of what features should be rewarded and penalized. Compared to adjust the weight using algorithms, manually adjustment will give us a better understanding and intuition about the game during the weight adjustment process.
 \subsection{Local Search Agent}
+Essentially, in a handcrafted agent approach, human decisions are used to adjust weight combinations during every iteration of the simulation. Such an algorithm obviously has some limitations because a lot of possible adjustments to the weights can not be tested/explored. Moreover, we only use four features in the handcrafted agent, which may not be sufficiently representative. As a result, we need an approach that takes more underlying features into consideration, together with a more systematical way to improve weight combinations other than just by intuition. With these goals bearing in mind, we propose a second approach that utilized the genetic algorithm, a powerful local search algorithm.
 
-Essentially, in a handcrafted agent approach, human decisions are used to adjust weight combination during every iteration of simulation. Such approach obviously has some limitations simply because a lot of possible adjustment to the weights can not be tested/explored. Moreover, the features that are used in a handcrafted agent approach, which has a number of 4, are also determined by human intuition. What if there are some more underlying features yet to be taken into consideration? Is there a more systematical way to choose successor and improve weight combinations other than just by intuition? With these questions bearing in mind, we propose a second approach which utilized local search and in particular, a genetic algorithm approach.
-
-In a genetic algorithm approach, we would use a feature set which includes a total of 10 features. These features are:
+In the genetic algorithm approach, we would use a feature set that includes a total of 10 features. These features are:
 \begin{enumerate}
-  \item number of lines cleared
-  \item number of holes
-  \item sum of difference of height between adjacent columns
-  \item max height
-  \item number of blocks currently on the board
-  \item number of rows with at least a hole in it
-  \item max height difference between lowest column and highest column
-  \item number of cells that is not filled with no blocks above it and two horizontal neighbours filled
-  \item the height where the highest hole is located
-  \item number of occupied rows which is above the highest hole such that if removed, the highest hole is not no longer a hole
+ \item number of lines cleared
+ \item number of holes
+ \item sum of the difference of height between adjacent columns
+ \item maximum height
+ \item number of blocks currently on the board
+ \item number of rows with at least a hole in it
+ \item max height difference between the lowest column and highest column
+ \item number of cells that is not filled with no blocks above it and two horizontal neighbors filled
+ \item the height where the highest hole is located
+ \item number of occupied rows which is above the highest hole such that if removed, the highest hole is no longer a hole
 \end{enumerate}
 
-Now that we have our feature set, we would construct our genetic algorithm approach start by defining following terms:
+Now that once we have our feature set, we would construct our genetic algorithm approach start by defining the following terms:
 
 \begin{itemize}
-    \item Chromosome: An array of 10 numbers representing our weights combination, each number is ranged from 0 to 1
-    \item Fitness: How many lines are cleared before the game is terminated
-    \item Selection: After ranking each state based on fitness score, we would remove a portion of states with low fitness scores and arbitrarily combine any two states from the remaining states as parents for the next generation
-    \item Crossover: Take a combination of weights from the first parent and the second and make it the chromosome for the children
-    \item Mutation: After crossover, one random weight value in the chromosome of the child state is mutated with certain probability
+ \item Chromosome: An array of 10 numbers representing our weights combination, each number is ranged from 0 to 1
+ \item Fitness: How many lines are cleared before the game is terminated
+ \item Selection: After ranking each state based on fitness score, we would remove $p$ percent of states with low fitness scores and use remaining states as parents for the next generation
+ \item Crossover: Take a combination of weights among the remaining parents and make it the chromosome for the children
+ \item Mutation: After crossover, one random weight value in the chromosome of the child state will be mutated with a certain probability $q$
 \end{itemize}
 
-The game would start by generating random chromosome for each possible child (the state after dropping the second block). For each of these child, we would run a new simulation on it until the simulated game terminates. We would then record how many lines have been removed in this game and use that as our fitness score for this child. Next we would begin our selection process which would give us a number of parent states. For each group of parents, we would perform crossover and mutation operations to get us children of the next generation. Then, for each child in this generation, we would start the above the process all over again. That is, we would run simulation, record fitness, remove least fit offspring, and generate successors. We would stop the game after certain number of generations have been created. We would then choose the child with the highest fitness score and use it chromosome as our final weight combination. 
 
-It is obvious to see that in this genetic algorithm approach, we would eliminate a lot of human assumptions. That is, what weight value should be changed and by how much. We would also take into consideration of more features which may further eliminate human assumptions of which feature could have an underlying impact on the game-play or not. Despite of the amount of computation with this approach, we are more likely to find an optimal weight combination compared to a handcrafted agent.
+The game would start by generating random chromosomes for $N$ children, and for each of these children, we will run $M$ simulations on it. The average lines cleaned will be recorded for each child and will be used as the fitness score for them. Next, we would begin our selection process, which would give us a number of parent states. For each group of parents, we would perform crossover and mutation operations to get us children of the next generation. Then, for each child in this generation, we would start the above the process all over again. That is, we would run simulation, record fitness, remove least fit offspring, and generate successors. We would stop the game until there is no significant improvement in performance between the parents and the children. Finally, we will choose the child with the highest fitness score and use its chromosome as our final weight combination. 
+
+One important thing worth noting is the implementation of crossover. When determining the exact combination of chromosome from the parent states, we would consider the fitness scores of parents because if one parent has a higher fitness score than the other, the former chromosome should have been more optimal than the latter one. Therefore, we would want the child to "inherit" more from the first parent. Let's assume the first parent's fitness score is $f1$ and that of second parent is $f2$. Assuming that $f1 >= f2$, then we define the combination as follows: 
+ 
+ \begin{itemize}
+ \item if $\frac{f1}{f2} = 1$, we will randomly take 5 weights from the first parent and fill the remaining weights from the second parent
+ \item if $0 < \frac{f1}{f2} - 1 <= 0.25$, we will do a 6:4 sampling
+ \item if $0.25 < \frac{f1}{f2} - 1 <= 0.5$, we will do a 7:3 sampling
+ \item if $0.5 < \frac{f1}{f2} - 1 <= 0.75$, we will do a 8:2 sampling
+ \item if $0.75 < \frac{f1}{f2} - 1$, we will do a 9:1 sampling
+ \end{itemize}
+
+
+In conclusion, in the genetic algorithm approach, we eliminate a lot of human assumptions. That is, what weight value should be changed, and by how much. We would also take into consideration more features that may further eliminate human assumptions of which feature could have an underlying impact on the game-play or not. Despite the amount of computation with this approach, we are more likely to find an optimal weight combination compared to a handcrafted agent.
 
 
 \subsection{Reinforcement Learning Agent}
@@ -341,49 +365,21 @@ On top of that, here is the pseudo-code to train our DQN:
 
 In summary, DQN architecture successfully solves the problems of sparse reward and enormous states, which gives us an efficient and effective estimation for the original Q-learning in Table \ref{tab:qtable}. Moreover, with CNN's powerful encoding capability, we don't need to choose the features manually, and the architecture will automatically find the optimal features during backpropagation. As a result, we can say that DQN architecture has the potential to outperform the genetic algorithm.
 
-% {\bf Complete this section for D2.}
-
-% The {\it Methodology } section ($\sim$2 pages) describes the algorithms that you chose to implement.  Describe in details how each algorithm works.  Include their mathematical formulations, if necessary.  Include pseudo-code, if necessary.  If you had to extend an existing algorithm in order for it to work with the problem, describe in details what is different/new.  Provide a rationale for why you selected these particular algorithms and how they are appropriate for the problem.  You should provide enough details so that someone can reproduce the steps and replicate your results.  
-
-% If you are tackling a machine learning problem, you may be using an existing data set or creating a new data set.  In this case, you should describe the data-set that you are analyzing as well as any data filtering and merging procedures that you used to prepare/create your data-set.  Your description should. include the size of the data-set(s) (i.e., number of examples), whether the class labels are balanced/imbalanced, the meaning of the features, and other unique characteristics of the data-sets.   Explain why the data-sets are appropriate for your problem and what are their limitations.  Include the URL of the websites from which you downloaded the data-set(s).
-
-% You should also describe any pre-processing steps you took to prepare or create the final data-set that you used to train and test the algorithms.  Examples of pre-processing steps include procedures for joining multiple data-sets, filtering out certain examples, scaling features, etc.  Provide the rationale for why you are using these data preparation procedures, with enough details so that someone can reproduce the steps and replicate your results.   For example, if you chose to re-scale certain features, explain how the re-scaling was done and why.   
-
-
-%%%%%%%%%. Example of subfigure and 2-column figure layout %%%%%%%%%
-
-% \begin{figure*}[t!]
-% \centering
-% \subfigure[image A]{
-% \fbox{\includegraphics[height=2.6cm]{figures/A}}
-% \label{fig:a}
-% }\hfill
-% \subfigure[image B]{
-% \fbox{\includegraphics[height=2.6cm]{figures/B}}
-% \label{fig:b}
-% }\hfill
-% \subfigure[image C]{
-% \fbox{\includegraphics[height=2.6cm]{figures/C}}
-% \label{fig:c}
-% }\hfill
-% \subfigure[image D]{
-% \fbox{\includegraphics[height=2.6cm]{figures/D}}
-% \label{fig:d}
-% }\hfill
-% \caption{Another example of figure layout}
-% \label{fig:figures_across}
-% \end{figure*}
-
-%%%%%%%%%. Results %%%%%%%%%
 
 \section{Results}
 \subsection{Environmental Setup}
-For implementation of the game Tetris, we referenced the Tetris-AI implementation \cite{Nuno}. The board is $20 \times 10$ and  each Tetromino is a list of four positions that it occupies. Initially, it will generate the appearance of Tetrominos in random order. The state will be defined as a $20 \times 10$ matrix, where each entry could be one of 0, 1 or 2, represents the empty block, the occupied block and the block occupied by the current Tetromino respectively. For each state, the data of lines cleared, number of holes, total bumpiness, max bumpiness, sum of height, maximum height and minimum height are collected. These will be used for calculation of the heuristic. For the successor function, instead of returning all the successor's board state, it only returns a dictionary where the key is a tuple contains the horizontal offset of the Tetromino and the rotation, and the value is the value of all the features of the state. The model will select the "best" state and then update the board state according to the horizontal offset and the rotation of the Tetromino.
+For the implementation of the game Tetris, we referenced the Tetris-AI implementation \cite{Nuno}. The board is $20 \times 10$, and each Tetromino is a list of four positions that it occupies. Initially, it will generate the appearance of Tetrominos in random order. The state will be defined as a $20 \times 10$ matrix, where each entry could be one of 0, 1, or 2, represents the empty block, the occupied block, and the block occupied by the current Tetromino, respectively. For each state, all the features needed by handcrafted and local search agents will be collected, and we will use them to calculate the heuristic. 
+
+\textcolor{red}{\textbf{We need to come up with bitmaps for all the successor states. Please describe how we will generate the successor state.} }
+
+\textcolor{red}{For the successor function, instead of returning all the successor's board state, it only returns a dictionary where the key is a tuple containing the horizontal offset of the Tetromino and the rotation. The value is the value of all the features of the state. The model will select the "best" state and then update the board state according to the horizontal offset and the rotation of the Tetromino.}
 \subsection{Evaluation Metrics}
 
-There are two reasonable evaluation metrics for Handcrafted Agent and Local Search Agent. One is to count the total number of Tetromino dropped before the game ends. And the other is to count the number of lines cleared before the game ends. They both sounds reasonable. However, we would like to use the second metric for our evaluation. The number of Tetromino dropped somehow describes "how long" does the game played, but this does not indicate "how good" the model is. It is still possible to fill the board without clear a single line, and it is also possible to clear several lines with very few Tetromino dropped. In order to make it live longer, the purpose is to clear lines whenever it could and clear lines as much as possible. So we pick the number of lines cleared as our evaluation metrics. In general, the score of the game is highly related to the number of lines cleared. The more lines cleared, the more score we will get finally, so it means the model plays "better". On the other hand, according to the previous researches on Tetris agent \cite{SO19, TV96, WCWT}, the rules and the way that the score is rewarded can be different. We finally want to compare our model with the agents that already exits. In order to make a fair comparison, all of the agents will use the same evaluation metric which is the number of lines cleared before a game ends. So that we could tell which model has a better performance in the game.
 
-One thing worth mentioning about the evaluation metric is that we will use two metrics when training the Reinforcement Learning agent. The first metric is the one mentioned above, and it will be used as the primary standard to compare the performance of different hyperparameter combinations during validation. On top of that, this metric will also be used to compare with other algorithms mentioned in this paper as well as results from other papers. However, one problem with the primary metric is that its rewards are very sparse, where the agent needs to wait for several Tetrominos before it could clean a line and achieve one mark. This problem is particularly bad for training a DQN because, without frequent rewards, it is difficult for the network to learn anything from backpropagation. Therefore, we decided to reshape the primary metric into the following table.
+
+According to previous researches and the game mechanism, we have two reasonable metrics to choose from. One is to count the total number of Tetromino dropped before the game ends. And the other is to count the number of lines cleared before the game ends. They both sound reasonable, but we would like to use the second metric for our evaluation. The number of Tetromino dropped somehow describes "how long" does the game played, but this does not indicate "how good" the model is. It is still possible to fill the board without clear a single line, and it is also possible to clear several lines with very few Tetromino dropped. In order to make it live longer, the purpose is to remove lines whenever it could and clear lines as much as possible. So we pick the number of lines cleared as our evaluation metrics. In general, the score of the game is highly related to the number of lines cleared. The more lines cleared, the more score we will get finally, so it means the model plays "better". On the other hand, according to the previous researches on Tetris agent \cite{SO19}, the rules and the way that the score is rewarded can be different. We finally want to compare our model with the agents that already exist. In order to make a fair comparison, all of the agents will use the same evaluation metric, which is the number of lines cleared before a game ends so that we could tell which model has a better performance in the game.
+
+One thing worth mentioning about the evaluation metric is that we will simoutanously use two metrics when training the Reinforcement Learning agent. The first metric is the one mentioned above, and it will be used as the primary standard to compare the performance of different hyperparameter combinations during validation. On top of that, this metric will also be used to compare with other algorithms mentioned in this paper as well as results from other papers. However, one problem with the primary metric is that its rewards are very sparse, where the agent needs to wait for several Tetrominos before it could clean a line and achieve one mark. This problem is particularly bad for training a DQN because, without frequent rewards, it is difficult for the network to learn anything from backpropagation. Therefore, we decided to reshape the primary metric into the following table.
 
 \begin{table}[h!]
   \centering
@@ -409,45 +405,68 @@ Note that by design, the new metric is positively correlated with the primary me
 
 % Describe the measures that you used to evaluate the algorithms.  Be as precise as possible by including their mathematical formulations.  Provide a rationale for why these performance metrics are appropriate for your problem.
 \subsection{Experimental Designs}
+
+As mentioned above, since we implemented a Tetris environment, we can say that we have unlimited training data. Therefore, we can train our algorithm as many games as we want as long as time permits. 
+
 \begin{itemize}
   \item \textbf{Handcrafted Agent} 
   
-  The experimental design for the handcrafted agent is rather straight-forward. 
+  The experimental design for the handcrafted agent is relatively straight-forward. Since we are merely relying on our observation and intuition, we need to keep track of each game manually. Therefore, we will use a training set of 3 games, a validation set of 100 games, and a test set of another 100 games. The training process is rather simple. We will watch the agent playing for three rounds (training) and let it play for itself for another 100 rounds (validation). Meanwhile, we will analyze its mistakes during training and calculate the average score for the validation. Then, according to the analysis, we will adjust the weights correspondingly, and if the combination of the new weights yields a better validation score, we will use it. Otherwise, we will try some other updates, and if we can't improve the validation result anymore, we will stop. Finally, we will use the best weights combination as our final result and test it on another 100 games.
+
+  As for the weight initialization, we will start with the weights $(-1s,3,2,4)$ because we think ... 
   
-  Every time when we start a new iteration of simulation, we would assign an adjusted weight combination to the game. Initially the weight combination is one that is resulted from an intuitive thought process. After the first simulation, we would try to adjust the weight of one or more features and supplement the new weight combination to a new simulation of game. For example, we would increase the weight of feature A (sum of difference of height between adjacent rows) while keeping other features the same to see whether or not this would yield a better result. We would repeat this process till certain threshold is reached. Possible thresholds are: number of simulations performed so far, trivial improvement (less than 1\%), if not no improvement, has been witnessed for a consecutive of 10 simulations.
+  \textcolor{red}{\textbf{Please give a reason for such initialization} }
 
   \item \textbf{Local Search Agent} 
   
-  The experiment would mainly consists of 4 steps:
-  \begin{enumerate}
-      \item Determine the fitness score of one state after running simulation with respect to one chromosome
-      \item Delete portions of state with low fitness score and randomly choose parents from the remaining
-      \item Crossover process, and in particular, how to allocate portions of weights taken from each parent
-      \item Mutation process
-  \end{enumerate}
-  There are some important details in step 1, 2, 3 and 4.
-  
-  Firstly, in step 1, since each simulation is independent, the sequence of blocks generated in the game is not exactly the same. As a result, even though the chromosome of one state is fixed, we might arrive at different fitness scores in different simulations. To tackle this, instead of running one simulation for each state, we would run a total of 10 simulations. We would then record fitness scores for all 10 simulations and use the mean of them as the final fitness score for a given state and its associated chromosome.
-  
-  Secondly, in step 2, after sorting each state based on their fitness score, we would first remove 1\% of those with lowest scores. For the remaining states, which say, have a total number of $N$, then we would group two states randomly to form parents of next generation. There are in total ${n \choose 2}$ ways of grouping. As for implementation, for each state we would define a set of visited other states called $S_{i}$ where $i$ is the index of current state. During the selection process, we would select state $i$ to pair with state $j$ if and only if $i \not\in S_{j}$ and $j \not\in S_{i}$
-  
-  Thirdly, in step 3, when determining the exact combination of chromosome from the parent states, we would take into consideration of fitness scores of parents as well. It make sense: if one parent has higher fitness score than the other, then the former chromosome should have been more optimal than the latter one. Therefore, we would want the child to "inherit" more from the first parent. Let's say the fitness score of first parent is $f1$ and that of second parent is $f2$. Assuming that $f1 >= f2$, then we define the combination as follows:
-  
-  \begin{itemize}
-      \item if $\frac{f1}{f2} = 1$, then we take first 5 weights from the first parent and last 5 weights from the second parent
-      \item if $0 < \frac{f1}{f2} - 1 <= 0.25$, then we take first 6 weights from the first parent and last 4 weights from the second parent
-      \item if $0.25 < \frac{f1}{f2} - 1 <= 0.5$, then we take first 7 weights from the first parent and last 3 weights from the second parent
-      \item if $0.5 < \frac{f1}{f2} - 1 <= 0.75$, then we take first 8 weights from the first parent and last 2 weights from the second parent
-      \item if $0.75 < \frac{f1}{f2} - 1$, then we take first 9 weights from the first parent and last 1 weight from the second parent
-  \end{itemize}
+  Again, we will decide on the train-validation split first. Since we don't need to manipulate the weights manually for the local search agent, we will train the agent on more games. We are going to train the agent for 1,000 games\footnote{This is essentially the $N$ we mentioned in Methodology.}, validate on 100 games, and eventually test on another 100 games. 
 
-  After this step, we have completed the selection and crossover step. 
+  As mentioned in the Methodology section, the experiment would have three main hyperparameters, namely selection probability $p$, mutation probability $q$, and the number of children $M$. Since the number of hyperparameters are tolerable, we will do a complete hyperparameter search on these values:
+  \begin{itemize}
+  \item {\bf Selection probability}: $p\in\{0.4,0.5,0.6\}$
+  \item {\bf Mutation probability}: $q \in \{0.01, 0.1\}$
+  \item {\bf Number of children}: $M \in \{50, 100\}$
+  \end{itemize}
+  More precisely, we will train on $3\times 2\times 2 = 12$ different combinations of hyperparameters and find the one with highest validation score. After this complete search, we will perform some further explorations on a more precise level. For example, if we found $p=0.5,q=0.1,M=100$ to be the best-performed combination of hyperparameters, we will do another complete search on 
+  \begin{itemize}
+  \item {\bf Selection probability}: $p\in\{0.45,0.5,0.5\}$
+  \item {\bf Mutation probability}: $q \in \{0.08, 0.12\}$
+  \item {\bf Number of children}: $M \in \{80, 120\}$
+  \end{itemize}
+  We may repeat this "zoom in" search several times if time permits and at last, we will test the best model on another 100 games to compare it with benchmark as well as the reinforcement learning agent.
+
+  In my opinion, the rationale for the complete search is that we don't have a proper initialization to start on, so we have no choice but to begin with a broad range of hyperparameters. After the first exploration, we will get some ideas about the optimal hyperparameters, and we could aim towards a more precise decision. This is a time-efficient way of finding the optimal hyperparameters when we don't have any prior knowledge.
+
+  % The experiment would mainly consists of 4 steps:
+  % \begin{enumerate}
+  %     \item Determine the fitness score of one state after running simulation with respect to one chromosome
+  %     \item Delete portions of state with low fitness score and randomly choose parents from the remaining
+  %     \item Crossover process, and in particular, how to allocate portions of weights taken from each parent
+  %     \item Mutation process
+  % \end{enumerate}
+  % There are some important details in step 1, 2, 3 and 4.
   
-  Lastly, in step 4, we would mutate one weight value out of ten with a probability of 10\%. In particular, we would have a random number generator which only returns 0 and 1, with the probability of 90\% and 10\% respectively. If it returns 1, we would then have a second random number generator which generates an integer $i$ from 0 to 9, each with a probability of 10\%. We would then mutate the $i\textsuperscript{th}$ weight value to be an arbitrary number from 0 to 1. After this step we have already created a new generation of children with new chromosomes.
+  % Firstly, in step 1, since each simulation is independent, the sequence of blocks generated in the game is not exactly the same. As a result, even though the chromosome of one state is fixed, we might arrive at different fitness scores in different simulations. To tackle this, instead of running one simulation for each state, we would run a total of 10 simulations. We would then record fitness scores for all 10 simulations and use the mean of them as the final fitness score for a given state and its associated chromosome.
+  
+  % Secondly, in step 2, after sorting each state based on their fitness score, we would first remove 1\% of those with lowest scores. For the remaining states, which say, have a total number of $N$, then we would group two states randomly to form parents of next generation. There are in total ${n \choose 2}$ ways of grouping. As for implementation, for each state we would define a set of visited other states called $S_{i}$ where $i$ is the index of current state. During the selection process, we would select state $i$ to pair with state $j$ if and only if $i \not\in S_{j}$ and $j \not\in S_{i}$
+  
+  % Thirdly, in step 3, when determining the exact combination of chromosome from the parent states, we would take into consideration of fitness scores of parents as well. It make sense: if one parent has higher fitness score than the other, then the former chromosome should have been more optimal than the latter one. Therefore, we would want the child to "inherit" more from the first parent. Let's say the fitness score of first parent is $f1$ and that of second parent is $f2$. Assuming that $f1 >= f2$, then we define the combination as follows:
+  
+  % \begin{itemize}
+  %     \item if $\frac{f1}{f2} = 1$, then we take first 5 weights from the first parent and last 5 weights from the second parent
+  %     \item if $0 < \frac{f1}{f2} - 1 <= 0.25$, then we take first 6 weights from the first parent and last 4 weights from the second parent
+  %     \item if $0.25 < \frac{f1}{f2} - 1 <= 0.5$, then we take first 7 weights from the first parent and last 3 weights from the second parent
+  %     \item if $0.5 < \frac{f1}{f2} - 1 <= 0.75$, then we take first 8 weights from the first parent and last 2 weights from the second parent
+  %     \item if $0.75 < \frac{f1}{f2} - 1$, then we take first 9 weights from the first parent and last 1 weight from the second parent
+  % \end{itemize}
+
+  % After this step, we have completed the selection and crossover step. 
+  
+  % Lastly, in step 4, we would mutate one weight value out of ten with a probability of 10\%. In particular, we would have a random number generator which only returns 0 and 1, with the probability of 90\% and 10\% respectively. If it returns 1, we would then have a second random number generator which generates an integer $i$ from 0 to 9, each with a probability of 10\%. We would then mutate the $i\textsuperscript{th}$ weight value to be an arbitrary number from 0 to 1. After this step we have already created a new generation of children with new chromosomes.
 
   \item \textbf{Reinforcement Learning Agent} 
   
-  As mentioned above, since we implemented a Tetris environment, we can say that we have unlimited training data. Therefore, for each hyperparameter combination, we will train the network for 1,000 games, validate and test separately for 100 games, where we will measure both metrics during training but only calculate the primary metric for validation and test. As for the hyperparameter, we will leverage results from Stevens's paper \cite{Stevens_2016} and initialize our hyperparameters using their suggestions as follow. 
+  Therefore, for each hyperparameter combination, we will train the network for 1,000 games, validate for 100 games, where we will measure both metrics during training but only calculate the primary metric for validation. After we find the optimal hyperparameters, we will test the final architecture for 100 games and use this result to compare with others. As for the hyperparameter, we will leverage results from Stevens's paper \cite{Stevens_2016} and initialize our hyperparameters using their suggestions as follow. 
   
   \begin{itemize}
     \item {\bf Optimizer}: $RMSProp$
@@ -580,12 +599,12 @@ Prepare figures (e.g., Figure \ref{fig:results2}) and tables (e.g., Table \ref{t
     \label{tab:results1}
 \end{table} 
 
-\begin{figure}[htbp!]
-  \centering
-  \includegraphics[width=0.9\linewidth]{figures/roc.png}
-  \caption{ROC curve of my awesome algorithms}
-  \label{fig:results2}
-\end{figure}
+% \begin{figure}[htbp!]
+%   \centering
+%   \includegraphics[width=0.9\linewidth]{figures/roc.png}
+%   \caption{ROC curve of my awesome algorithms}
+%   \label{fig:results2}
+% \end{figure}
 
 
 %%%%%%%%%. Discussion %%%%%%%%%
@@ -613,6 +632,7 @@ The {\it Conclusion} section ($\sim$0.5 pages) provides a brief summary of the e
 %%%%%%%%% Bibliography %%%%%%%%%
 \newpage
 \bibliographystyle{aaai}
+
 \bibliography{report}
 
 \end{document}
