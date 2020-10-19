@@ -138,7 +138,54 @@ In 2016, researcher at Stanford University continued to optimize Tetris engine p
 \section{Methodology}
 
 \subsection{Handcrafted Agent}
+
+Our first approach is a manually trail-and-error approach. Every time when generating successors(states), we define a heuristic value associated with each state which is calculated based on a combination of weighted features. We would always choose successors with the lowest heuristic value at every step. For a handcrafted agent approach, we define 4 features:
+\begin{enumerate}
+  \item number of lines cleared
+  \item number of holes
+  \item sum of difference of height between adjacent columns
+  \item max height
+\end{enumerate}
+
+The goal is to figure out how much weight we should give to each feature such that the agent would have optimal performance. We define the performance as the most number of rows cleared before the game is terminated.
+
+In a handcrafted agent approach, we want to intuitively give high weights to features which are more likely to cause game to be over and give low weights to features that are more likely to cause rows to be cleared. For example, we want to avoid choosing successors(states) which have a high max height. This is because intuitively, the higher the board is, the closer the board is to the "ceiling" (vertical limit of the board), which means there may be fewer steps to play before the game is terminated. As a result, we want to assign a high weight to this feature, which is max height. Similarly, we would also want to avoid choosing successors which have a high sum of difference of height between adjacent rows. This is also intuitive: if there are a lot of "gaps" in the board, it makes it harder to clear rows simply because the "gaps" are not easy to be filled perfectly. However, if a successor would result in one or more lines cleared, then intuitively we know that this is a good move and we want to assign low weight to this feature.We would run simulations consecutively and record the performance associated with the weight combination. Based on the results, we would adjust one or more weight value and use it in the next simulation until certain stopping criteria has been met.
+
+An advantage of this handcrafted approach is that we are somewhat informed of what features should be rewarded and penalized. Compared to adjust the weight "blindly", we are more likely to arrive at an optimal combination taking fewer steps.
+
 \subsection{Local Search Agent}
+
+Essentially, in a handcrafted agent approach, human decisions are used to adjust weight combination during every iteration of simulation. Such approach obviously has some limitations simply because a lot of possible adjustment to the weights can not be tested/explored. Moreover, the features that are used in a handcrafted agent approach, which has a number of 4, are also determined by human intuition. What if there are some more underlying features yet to be taken into consideration? Is there a more systematical way to choose successor and improve weight combinations other than just by intuition? With these questions bearing in mind, we propose a second approach which utilized local search and in particular, a genetic algorithm approach.
+
+In a genetic algorithm approach, we would use a feature set which includes a total of 10 features. These features are:
+\begin{enumerate}
+  \item number of lines cleared
+  \item number of holes
+  \item sum of difference of height between adjacent columns
+  \item max height
+  \item number of blocks currently on the board
+  \item number of rows with at least a hole in it
+  \item max height difference between lowest column and highest column
+  \item number of cells that is not filled with no blocks above it and two horizontal neighbours filled
+  \item the height where the highest hole is located
+  \item number of occupied rows which is above the highest hole such that if removed, the highest hole is not no longer a hole
+\end{enumerate}
+
+Now that we have our feature set, we would construct our genetic algorithm approach start by defining following terms:
+
+\begin{itemize}
+    \item Chromosome: An array of 10 numbers representing our weights combination, each number is ranged from 0 to 1
+    \item Fitness: How many lines are cleared before the game is terminated
+    \item Selection: After ranking each state based on fitness score, we would remove a portion of states with low fitness scores and arbitrarily combine any two states from the remaining states as parents for the next generation
+    \item Crossover: Take a combination of weights from the first parent and the second and make it the chromosome for the children
+    \item Mutation: After crossover, one random weight value in the chromosome of the child state is mutated with certain probability
+\end{itemize}
+
+The game would start by generating random chromosome for each possible child (the state after dropping the second block). For each of these child, we would run a new simulation on it until the simulated game terminates. We would then record how many lines have been removed in this game and use that as our fitness score for this child. Next we would begin our selection process which would give us a number of parent states. For each group of parents, we would perform crossover and mutation operations to get us children of the next generation. Then, for each child in this generation, we would start the above the process all over again. That is, we would run simulation, record fitness, remove least fit offspring, and generate successors. We would stop the game after certain number of generations have been created. We would then choose the child with the highest fitness score and use it chromosome as our final weight combination. 
+
+It is obvious to see that in this genetic algorithm approach, we would eliminate a lot of human assumptions. That is, what weight value should be changed and by how much. We would also take into consideration of more features which may further eliminate human assumptions of which feature could have an underlying impact on the game-play or not. Despite of the amount of computation with this approach, we are more likely to find an optimal weight combination compared to a handcrafted agent.
+
+
 \subsection{Reinforcement Learning Agent}
 
 The genetic algorithm mentioned above is intelligent in the sense that it will automatically find optimal weight combinations. However, notice that it is still not perfect because the state features are always chosen by humans, and they are not necessarily representative. More concretely, we may lose some information since we will represent all the successors' states, which is of size $20\times 10$, using only nine features. Thus, we will develop a new algorithm that eliminates human-chosen features and finds a feasible representation itself.
@@ -361,10 +408,42 @@ Note that by design, the new metric is positively correlated with the primary me
 
 % Describe the measures that you used to evaluate the algorithms.  Be as precise as possible by including their mathematical formulations.  Provide a rationale for why these performance metrics are appropriate for your problem.
 \subsection{Experimental Designs}
-Describe other details about your experimental design.  If you are tackling a machine learning problem, include details such as how you created the training, validation and test set, how you selected the model's hyper-parameters, etc.    
 \begin{itemize}
   \item \textbf{Handcrafted Agent} 
+  
+  The experimental design for the handcrafted agent is rather straight-forward. 
+  
+  Every time when we start a new iteration of simulation, we would assign an adjusted weight combination to the game. Initially the weight combination is one that is resulted from an intuitive thought process. After the first simulation, we would try to adjust the weight of one or more features and supplement the new weight combination to a new simulation of game. For example, we would increase the weight of feature A (sum of difference of height between adjacent rows) while keeping other features the same to see whether or not this would yield a better result. We would repeat this process till certain threshold is reached. Possible thresholds are: number of simulations performed so far, trivial improvement (less than 1\%), if not no improvement, has been witnessed for a consecutive of 10 simulations.
+
   \item \textbf{Local Search Agent} 
+  
+  The experiment would mainly consists of 4 steps:
+  \begin{enumerate}
+      \item Determine the fitness score of one state after running simulation with respect to one chromosome
+      \item Delete portions of state with low fitness score and randomly choose parents from the remaining
+      \item Crossover process, and in particular, how to allocate portions of weights taken from each parent
+      \item Mutation process
+  \end{enumerate}
+  There are some important details in step 1, 2, 3 and 4.
+  
+  Firstly, in step 1, since each simulation is independent, the sequence of blocks generated in the game is not exactly the same. As a result, even though the chromosome of one state is fixed, we might arrive at different fitness scores in different simulations. To tackle this, instead of running one simulation for each state, we would run a total of 10 simulations. We would then record fitness scores for all 10 simulations and use the mean of them as the final fitness score for a given state and its associated chromosome.
+  
+  Secondly, in step 2, after sorting each state based on their fitness score, we would first remove 1\% of those with lowest scores. For the remaining states, which say, have a total number of $N$, then we would group two states randomly to form parents of next generation. There are in total ${n \choose 2}$ ways of grouping. As for implementation, for each state we would define a set of visited other states called $S_{i}$ where $i$ is the index of current state. During the selection process, we would select state $i$ to pair with state $j$ if and only if $i \not\in S_{j}$ and $j \not\in S_{i}$
+  
+  Thirdly, in step 3, when determining the exact combination of chromosome from the parent states, we would take into consideration of fitness scores of parents as well. It make sense: if one parent has higher fitness score than the other, then the former chromosome should have been more optimal than the latter one. Therefore, we would want the child to "inherit" more from the first parent. Let's say the fitness score of first parent is $f1$ and that of second parent is $f2$. Assuming that $f1 >= f2$, then we define the combination as follows:
+  
+  \begin{itemize}
+      \item if $\frac{f1}{f2} = 1$, then we take first 5 weights from the first parent and last 5 weights from the second parent
+      \item if $0 < \frac{f1}{f2} - 1 <= 0.25$, then we take first 6 weights from the first parent and last 4 weights from the second parent
+      \item if $0.25 < \frac{f1}{f2} - 1 <= 0.5$, then we take first 7 weights from the first parent and last 3 weights from the second parent
+      \item if $0.5 < \frac{f1}{f2} - 1 <= 0.75$, then we take first 8 weights from the first parent and last 2 weights from the second parent
+      \item if $0.75 < \frac{f1}{f2} - 1$, then we take first 9 weights from the first parent and last 1 weight from the second parent
+  \end{itemize}
+
+  After this step, we have completed the selection and crossover step. 
+  
+  Lastly, in step 4, we would mutate one weight value out of ten with a probability of 10\%. In particular, we would have a random number generator which only returns 0 and 1, with the probability of 90\% and 10\% respectively. If it returns 1, we would then have a second random number generator which generates an integer $i$ from 0 to 9, each with a probability of 10\%. We would then mutate the $i\textsuperscript{th}$ weight value to be an arbitrary number from 0 to 1. After this step we have already created a new generation of children with new chromosomes.
+
   \item \textbf{Reinforcement Learning Agent} 
   
   As mentioned above, since we implemented a Tetris environment, we can say that we have unlimited training data. Therefore, for each hyperparameter combination, we will train the network for 1,000 games, validate and test separately for 100 games, where we will measure both metrics during training but only calculate the primary metric for validation and test. As for the hyperparameter, we will leverage results from Stevens's paper \cite{Stevens_2016} and initialize our hyperparameters using their suggestions as follow. 
