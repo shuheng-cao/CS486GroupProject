@@ -216,6 +216,7 @@ The genetic algorithm mentioned above is intelligent in the sense that it will a
 
 As a result, we naturally lean towards the fields of reinforcement learning and will start with the Q-learning introduced by Chris Watkins in 1989. The detailed deduction and convergence proof are pretty complicated and are out of the scope of this report. However, the final results of Q-learning are incredibly similar to dynamic programming, where we maintain a Q-table with current states $s_i$ as column and available actions $a_j$ as rows:
 
+$\,$
 \begin{table}[h!]
   \centering
   \normalsize{
@@ -235,10 +236,9 @@ As a result, we naturally lean towards the fields of reinforcement learning and 
   \caption{Q-table example with random initialization}
   \label{tab:qtable}
 \end{table}
-% Table \ref{tab:reward}
-% \begin{align*}
-  % \end{align*}
+
 And for each step, we will update the entry $(s_{t}, a_{t})$ using the formula
+
 \[
     % Q^{new}(s_{t},a_{t}) \leftarrow \underbrace{Q(s_{t},a_{t})}_{\textit{old value}} + \underbrace{\alpha}_{\textit{learning rate}} \cdot  \overbrace{\bigg( \underbrace{\underbrace{r_{t}}_{\textit{reward}} + \underbrace{\gamma}_{\textit{discount factor}} \cdot \underbrace{\max_{a}Q(s_{t+1}, a)}_{\textit{estimate of optimal future value}}}_{\textit{new value (temporal difference target)}} - \underbrace{Q(s_{t},a_{t})}_{\textit{old value}} \bigg) }^{\textit{temporal difference}}
     Q(s_{t},a_{t}) \leftarrow (1-\alpha) Q(s_{t},a_{t}) + \alpha   \left ( r_{t} + \gamma  \max_{a}Q(s_{t+1}, a)\right ) 
@@ -258,6 +258,13 @@ On top of that, we also need to manually determine three important setups:
 
 With all these hyper-parameters and setups, we will let the agent interact with the environment on its own. At each state, the agent will always choose to perform the action with the highest Q-value and update the Q-table according to the updating formula.\footnote{Here, it is not always true that the agent will perform the action with the highest Q-value. Some techniques like $\epsilon$-greedy algorithm will choose the optimal action with probability $\epsilon$ and a random walk otherwise. We will talk more about this in the experimental design section.} We will stop Q-learning until the agent completes the game, and we will repeat this process for large enough epochs so that the Q-table converges.
 
+\begin{figure*}[h!]
+  \centering
+  \includegraphics[width=0.85\linewidth]{figures/DQN.png}
+  \caption{Deep Q-network architecture}
+  \label{fig:DQN}
+\end{figure*}
+
 Now, we will begin with a naive adaptation to the Tetris by defining states to be all the possible game states for a Tetris board of size $20\times 10$ and defining actions to be the set $\{clockwise\,\,rotation$, $counter\textit{-}clockwise\,\,rotation$, $left$, $right$, $down\}$.
 % $\{\textit{left},\textit{right}, \textit{down},\textit{clockwise rotation}, \textit{counter-clockwise rotation}\}$.
 
@@ -267,25 +274,18 @@ Theoretically, we could tackle this Tetris problem directly using the Q-learning
   \item Furthermore, according to Phon-Amnuaisuk's paper, the number of stable states for a $20\times 10$ Tetris board is in the order of $10^{60}$ \cite{somnuk_2015}, which means our Q-table will be of size approximately $5\times 10^{60}$. This table is way too large to store in RAM and the training time for such a large table is also unbearable.
 \end{enumerate}
 
-\begin{figure}
+\begin{figure}[h!]
   \centering
   \includegraphics[width=0.9\linewidth]{figures/group_actions.jpeg}
   \caption{Grouped action example}
   \label{fig:grouped_action}
 \end{figure}
 
-
-\begin{figure*}[h]
-  \centering
-  \includegraphics[width=0.85\linewidth]{figures/DQN.png}
-  \caption{Deep Q-network architecture}
-  \label{fig:DQN}
-\end{figure*}
-
 Now, we will conquer these two hindrances and develop a practical architecture for this problem. For the first one, inspired by Stevens's idea of \textit{grouped action} \cite{Stevens_2016}, we can leverage the successor function from the genetic algorithm and reduce the dimension of Q-table. More precisely, instead of defining action $a_i$ to be one of the $5$ single moves, we will use a \textit{grouped action} to represents a sequence of moves until the current Tetromino is landing. \footnote{In other words, each \textit{grouped action} refers to a final placement for a specific Tetromino.} For example, if we got an L-shape Tetromino as shown in Figure \ref{fig:grouped_action}, one potential \textit{grouped action} will be $\{left\times 4, \,\,clockwise\,\,rotation \times 2,\,\,down\times 12\}$, which is essentially the successor function from the genetic algorithm.
 
 
 With the new definition of \textit{grouped action}, we can reconstruct our Q-table and rewrite our updating formula. Notice that because after each grouped action, it's guaranteed to be a stable state (i.e., there is no floating Tetromino), we can simplify the two-dimensional Q-table into one-dimensional:
+
 \begin{table}[h!]
   \centering
   \normalsize{
@@ -310,6 +310,8 @@ With the reconstructed Q-table and modified updating formula, now for each state
 
 To overcome the second hindrance, we need to understand why we have so many states in our Q-table. The problem lies in the fact that we have $20\times 10$ cells in the game board, and the number of possible states is exponential in the number of cells. This situation reminds us of how we encode images during image classification, and naturally, we will consider using Convolutional Neural Networks (CNN) to encoding our state (i.e., a $20\times 10$ bitmap).  This idea is first introduced by Google DeepMind in the paper Playing Atari with Deep Reinforcement Learning \cite{Mnih_2013}, and we will adapt this idea to Tetris to come up with the architecture as shown in Figure \ref{fig:DQN}.
 
+
+
 Notice that this Deep Q-network (DQN) will take a $20\times 10$ bitmap as input and output a non-negative real number as the score for that bitmap. This behavior is essentially the same as what we did in Q-learning except that the DNQ will generate the score on the fly while Q-learning will merely look up the score. At its core, the DQN is trying to approximate the Q-table using a reasonable amount of time and space. 
 
 Compared with other CNN architecture, our DQN is relatively small and straightforward, mainly because of the tiny input size. Here is a summary for each layer in Figure \ref{fig:DQN}:
@@ -330,7 +332,7 @@ Compared with other CNN architecture, our DQN is relatively small and straightfo
   {\bf score}: this is a fully connected layer of size $1$ with ReLU activation function.
 \end{itemize}
 
-On top of that, here is the pseudo-code to train our DQN:
+On top of that, the pseudo-code to train the DQN is shown in Figure \ref{fig:code1}.
 
 \begin{figure}[h!]
 	\centering
@@ -481,7 +483,7 @@ As mentioned above, since we implemented a Tetris environment, we can say that w
   \begin{enumerate}
     \item {\bf $\epsilon$-greedy Algorithm}
     
-    The tradeoff between exploration and exploitation is one of the most critical challenges for most of the reinforcement learning problem, and our DQN is no exception. Note that according to the setups mentioned in the Methodology section, the only chance for our network to explore comes from the random initialization of the system, and once it finds a solution, exploitation will dominate exploration because we always choose the successor with the highest score. This is not ideal because we may miss some potential shortcuts\footnote{In other words, the selected successor may not be optimal for long-term.}, and as a result, we will apply the $\epsilon$-greedy algorithm during the training phase. In brief, it will stick to the optimal successor with a decaying probability $\epsilon$ and randomly choose a successor otherwise \cite{Tokic_2010}. Thus, we will update the training algorithm in Figure \ref{fig:code1}  correspondingly as follow.
+    The tradeoff between exploration and exploitation is one of the most critical challenges for most of the reinforcement learning problem, and our DQN is no exception. Note that according to the setups mentioned in the Methodology section, the only chance for our network to explore comes from the random initialization of the system, and once it finds a solution, exploitation will dominate exploration because we always choose the successor with the highest score. This is not ideal because we may miss some potential shortcuts\footnote{In other words, the selected successor may not be optimal for long-term.}, and as a result, we will apply the $\epsilon$-greedy algorithm during the training phase. In brief, it will stick to the optimal successor with a decaying probability $\epsilon$ and randomly choose a successor otherwise \cite{Tokic_2010}. Thus, we will update the training algorithm in Figure \ref{fig:code2}.
   
     \begin{figure}[h!]
       \centering
