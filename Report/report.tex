@@ -37,11 +37,11 @@ Waterloo, ON, Canada\\
 \newcommand\bi[1]{{\textcolor{black}{#1}}}
 %%%%%%%%%. Abstract %%%%%%%%%
 
-\begin{abstract}
-% {\bf Complete this section for D4.}
+% \begin{abstract}
+% % {\bf Complete this section for D4.}
 
-% The {\it Abstract} should be at most 150 words long, and should summarize briefly what your project is about.  This includes the motivation for the problem (2-3 sentences), the problem you tackled (2-3 sentences), and your main results (1-2 sentences).   
-\end{abstract}
+% % The {\it Abstract} should be at most 150 words long, and should summarize briefly what your project is about.  This includes the motivation for the problem (2-3 sentences), the problem you tackled (2-3 sentences), and your main results (1-2 sentences).   
+% \end{abstract}
 
 %%%%%%%%%. Introduction %%%%%%%%%
 \section{Introduction} 
@@ -263,12 +263,7 @@ On top of that, we also need to manually determine three important setups:
 
 With all these hyper-parameters and setups, we will let the agent interact with the environment on its own. At each state, the agent will always choose to perform the action with the highest Q-value and update the Q-table according to the updating formula.\footnote{Here, it is not always true that the agent will perform the action with the highest Q-value. Some techniques like $\epsilon$-greedy algorithm will choose the optimal action with probability $\epsilon$ and a random walk otherwise. We will talk more about this in the experimental design section.} We will stop Q-learning until the agent completes the game, and we will repeat this process for large enough epochs so that the Q-table converges.
 
-\begin{figure*}[h!]
-  \centering
-  \includegraphics[width=0.85\linewidth]{figures/DQN.png}
-  \caption{Deep Q-network architecture}
-  \label{fig:DQN}
-\end{figure*}
+
 
 Now, we will begin with a naive adaptation to the Tetris by defining states to be all the possible game states for a Tetris board of size $20\times 10$ and defining actions to be the set $\{clockwise\,\,rotation$, $counter\textit{-}clockwise\,\,rotation$, $left$, $right$, $down\}$.
 % $\{\textit{left},\textit{right}, \textit{down},\textit{clockwise rotation}, \textit{counter-clockwise rotation}\}$.
@@ -279,14 +274,14 @@ Theoretically, we could tackle this Tetris problem directly using the Q-learning
   \item Furthermore, according to Phon-Amnuaisuk's paper, the number of stable states for a $20\times 10$ Tetris board is in the order of $10^{60}$ \cite{somnuk_2015}, which means our Q-table will be of size approximately $5\times 10^{60}$. This table is way too large to store in RAM and the training time for such a large table is also unbearable.
 \end{enumerate}
 
+Now, we will conquer these two hindrances and develop a practical architecture for this problem. For the first one, inspired by Stevens's idea of \textit{grouped action} \cite{Stevens_2016}, we can leverage the successor function from the genetic algorithm and reduce the dimension of Q-table. More precisely, instead of defining action $a_i$ to be one of the $5$ single moves, we will use a \textit{grouped action} to represents a sequence of moves until the current Tetromino is landing.\footnote{In other words, each \textit{grouped action} refers to a final placement for a specific Tetromino.} For example, if we got an L-shape Tetromino as shown in Figure \ref{fig:grouped_action}, one potential \textit{grouped action} will be $\{left\times 4, \,\,clockwise\,\,rotation \times 2,\,\,down\times 12\}$, which is essentially the successor function from the genetic algorithm.
+
 \begin{figure}[h!]
   \centering
   \includegraphics[width=0.9\linewidth]{figures/group_actions.jpeg}
   \caption{Grouped action example}
   \label{fig:grouped_action}
 \end{figure}
-
-Now, we will conquer these two hindrances and develop a practical architecture for this problem. For the first one, inspired by Stevens's idea of \textit{grouped action} \cite{Stevens_2016}, we can leverage the successor function from the genetic algorithm and reduce the dimension of Q-table. More precisely, instead of defining action $a_i$ to be one of the $5$ single moves, we will use a \textit{grouped action} to represents a sequence of moves until the current Tetromino is landing. \footnote{In other words, each \textit{grouped action} refers to a final placement for a specific Tetromino.} For example, if we got an L-shape Tetromino as shown in Figure \ref{fig:grouped_action}, one potential \textit{grouped action} will be $\{left\times 4, \,\,clockwise\,\,rotation \times 2,\,\,down\times 12\}$, which is essentially the successor function from the genetic algorithm.
 
 
 With the new definition of \textit{grouped action}, we can reconstruct our Q-table and rewrite our updating formula. Notice that because after each grouped action, it's guaranteed to be a stable state (i.e., there is no floating Tetromino), we can simplify the two-dimensional Q-table into one-dimensional:
@@ -319,25 +314,7 @@ To overcome the second hindrance, we need to understand why we have so many stat
 
 Notice that this Deep Q-network (DQN) will take a $20\times 10$ bitmap as input and output a non-negative real number as the score for that bitmap. This behavior is essentially the same as what we did in Q-learning except that the DNQ will generate the score on the fly while Q-learning will merely look up the score. At its core, the DQN is trying to approximate the Q-table using a reasonable amount of time and space. 
 
-Compared with other CNN architecture, our DQN is relatively small and straightforward, mainly because of the tiny input size. Here is a summary for each layer in Figure \ref{fig:DQN}:
-\begin{itemize}
-  \item 
-  {\bf conv1}: a convolutional layer with filter size $3\times 3$, output channel size $32$, and leaky ReLU activation function.
-  \item 
-  {\bf pool1}: a max-pooling layer with filter size $2\times 2$.
-  \item 
-  {\bf conv2}: an identical layer as {\bf conv1} except that the output channel size to be $64$.
-  \item 
-  {\bf pool2}: an identical layer as {\bf pool2}.  
-  \item 
-  {\bf flatten:} this is simply a flattened version of the {\bf pool2} feature map.
-  \item 
-  {\bf fc}: this is a fully connected layer of size $256$ with ReLU activation function.
-  \item 
-  {\bf score}: this is a fully connected layer of size $1$ with ReLU activation function.
-\end{itemize}
-
-On top of that, the pseudo-code to train the DQN is shown in Figure \ref{fig:code1}.
+Compared with other CNN architecture, our DQN is relatively small and straightforward, mainly because of the tiny input size. A detailed summary and visualization of the network can be found in \textbf{Appendix A}. On top of that, the pseudo-code to train the DQN is shown in Figure \ref{fig:code1}.
 
 \begin{figure}[h!]
 	\centering
@@ -363,23 +340,92 @@ On top of that, the pseudo-code to train the DQN is shown in Figure \ref{fig:cod
       $Q' \gets (1-\alpha) \cdot maxQ + \alpha  \cdot  \left ( reward + \gamma\cdot   maxQ\right )$\;
       $DQN.fit(maxState, Q')$\;
       \Return maxState\;
-			}
+      }
+      \caption{Pseudo-code for Training}
 		\end{algorithm}
 	\end{minipage}
   \caption{Pseudo-code for Training}
   \label{fig:code1}
 \end{figure}
 
-In summary, DQN architecture successfully solves the problems of sparse reward and enormous states, which gives us an efficient and effective estimation for the original Q-learning in Table \ref{tab:qtable}. Moreover, with CNN's powerful encoding capability, we don't need to choose the features manually, and the architecture will automatically find the optimal features during backpropagation. As a result, we can say that DQN architecture has the potential to outperform the genetic algorithm.
+
+Now, there are two details worth mentioning during the training process.
+\begin{enumerate}
+  \item {\bf $\epsilon$-greedy Algorithm}
+  
+  The tradeoff between exploration and exploitation is one of the most critical challenges for most of the reinforcement learning problem, and our DQN is no exception. Note that for the current setups, the only chance for our network to explore comes from the random initialization of the system, and once it finds a solution, exploitation will dominate exploration because we always choose the successor with the highest score. This is not ideal because we may miss some potential shortcuts\footnote{In other words, the selected successor may not be optimal for long-term.}, and as a result, we will apply the $\epsilon$-greedy algorithm during the training phase. In brief, it will stick to the optimal successor with a decaying probability $\epsilon$ and randomly choose a successor otherwise \cite{Tokic_2010}. Thus, we will update the training algorithm in Figure \ref{fig:code2}.
+
+  \begin{figure}[h!]
+    \centering
+    \begin{minipage}{.95\linewidth}
+      \removelatexerror% Nullify \@latex@error
+      \begin{algorithm}[H]
+        \DontPrintSemicolon
+        \SetKwFunction{FMain}{train}
+        \SetKwProg{Fn}{Function}{:}{}
+        \Fn{\FMain{$cur$, $DQN$}}{
+        $states \gets successor(cur)$\;
+        $maxQ \gets 0, reward \gets 0, maxState \gets \textbf{None} $\;
+        \For{$state$ \textbf{in} $states$}{
+          $score \gets DQN.predict(state)$\;
+          \If{$score > maxQ$} {
+            $maxQ \gets score$\;
+            $reward \gets reward(state)$\;
+            $maxState \gets state $\;
+          }
+        }\;
+        \tcp{$\epsilon$-greedy algorithm}
+        $p \gets uniform(0,1)$\;
+        \If{$p > \epsilon$}
+        {
+          $maxState \gets random(states) $\;
+          $maxQ \gets DQN.predict(maxState)$\;
+          $reward \gets reward(maxState)$\;
+        }
+
+        $\epsilon \gets \epsilon - \delta$\tcp*{$\epsilon$ decaying}\;
+        $Q' \gets (1-\alpha) \cdot maxQ + \alpha  \cdot  \left ( reward + \gamma\cdot   maxQ\right )$\;
+        $DQN.fit(maxState, Q')$\;
+        \Return maxState\;
+        }
+        \caption{Training with $\epsilon$-greedy}
+      \end{algorithm}
+    \end{minipage}
+    \caption{Pseudo-code for Training with $\epsilon$-greedy}
+    \label{fig:code2}
+  \end{figure}
+
+  Note that we need a decaying $\epsilon$ because we want to explore more in the beginning, and as we approach the end of the training phase, we want to exploit more.\footnote{This gives two extra hyperparameters $\epsilon$ and $\delta$ that need to be adjusted.}
+
+  \item {\bf Training by Part}
+
+  According to the experiment results from Steven's paper \cite{Stevens_2016}, another challenge we will face during the training is that each game will last for a long time, mainly because of the large $20\times 10$ game board. Therefore, we will solve this problem by training our network part by part, where we will start with a small board and gradually increase the board size. A more detailed implementation about this can be found in \textbf{Experiment Design} subsection under \textbf{Results} section because it involves choosing a lot of hyperparameters.
+  
+
+\end{enumerate}
+
+In summary, DQN architecture successfully solves the problems of sparse rewards and enormous states, which gives us an efficient and effective estimation for the original Q-learning in Table \ref{tab:qtable}. Moreover, with CNN's powerful encoding capability, we don't need to choose the features manually, and the architecture will automatically find the optimal features during backpropagation. As a result, we can say that DQN architecture has the potential to outperform the genetic algorithm.
 
 
 \section{Results}
 \subsection{Environmental Setup}
-For the implementation of the game Tetris, we referenced the Tetris-AI implementation \cite{Nuno}. The board is $20 \times 10$, and each Tetromino is a list of four positions that it occupies. Initially, it will generate the appearance of Tetrominos in random order. The state will be defined as a $20 \times 10$ matrix, where each entry could be one of 0, 1, or 2, represents the empty block, the occupied block, and the block occupied by the current Tetromino, respectively. For each state, all the features needed by handcrafted and local search agents will be collected, and we will use them to calculate the heuristic. 
+For the implementation of the game Tetris, we referenced the Tetris-AI implementation \cite{Nuno}. The board is $20 \times 10$, and each Tetromino is a list of four positions that it occupies. At every step, it will generate the appearance of the next Tetrominos at random. The state will be defined as a $20 \times 10$ matrix, where each entry could be one of 0, 1, or 2, represents the empty block, the occupied block, and the block occupied by the current Tetromino, respectively. For each state, all the features needed by handcrafted and local search agents will be collected, and we will use them to calculate the heuristic. 
 
-\textcolor{red}{\textbf{We need to come up with bitmaps for all the successor states. Please describe how we will generate the successor state.} }
+For the successor function, given the current board state and the next Tetromino, it will try all the possible locations and rotations that the Tetromino could land. Starting from the top left corner, the successor function will try all the rotations (1, 2, or 4 rotations depending on the shape of Tetromino. 1 rotation for ”O” shape, 2 rotations for ”I”, and 4 rotations for other shapes). Then shift the Tetromino 1 unit to the right and repeat the process again until we reach the right top corner of the board. That is when we can figure out all the possible moves, and according to the type of agents, the successor function will return different results. More precisely,
+\begin{itemize}
+  \item 
+  For the handcrafted agent, we will return a list of 4 feature values
+  \item 
+  For the local search agent, we will return a list of 10 feature values
+  \item 
+  For the reinforcement learning agent, we will return a list of $20\times 10$ bitmaps representing all the successor states
+\end{itemize}
+Finally, the agent will return its decision to the model, and it will update the current state correspondingly.
 
-\textcolor{red}{For the successor function, instead of returning all the successor's board state, it only returns a dictionary where the key is a tuple containing the horizontal offset of the Tetromino and the rotation. The value is the value of all the features of the state. The model will select the "best" state and then update the board state according to the horizontal offset and the rotation of the Tetromino.}
+
+% \textcolor{red}{\textbf{We need to come up with bitmaps for all the successor states. Please describe how we will generate the successor state.} }
+
+% \textcolor{red}{For the successor function, instead of returning all the successor's board state, it only returns a dictionary where the key is a tuple containing the horizontal offset of the Tetromino and the rotation. The value is the value of all the features of the state. The model will select the "best" state and then update the board state according to the horizontal offset and the rotation of the Tetromino.}
 \subsection{Evaluation Metrics}
 
 
@@ -471,107 +517,39 @@ As mentioned above, since we implemented a Tetris environment, we can say that w
 
   \item \textbf{Reinforcement Learning Agent} 
   
-  Therefore, for each hyperparameter combination, we will train the network for 1,000 games, validate for 100 games, where we will measure both metrics during training but only calculate the primary metric for validation. After we find the optimal hyperparameters, we will test the final architecture for 100 games and use this result to compare with others. As for the hyperparameter, we will leverage results from Stevens's paper \cite{Stevens_2016} and initialize our hyperparameters using their suggestions as follow. 
+  Similar to the train-test split mentioned above, for each hyperparameter combination, we will train the network for 1,000 games and validate for 100 games, where we will measure both metrics (primary metric and reward) during training but only calculate the primary metric for validation. After we find the optimal hyperparameters, we will test the final architecture for 100 games and use this result to compare with others. As we mentioned in the {\bf Methodology} section, we will only perform the $\epsilon$-greedy algorithm and training by part techniques during the training process because we don't want to introduce any randomness during the validation or testing.
+  
+  As for the hyperparameter, we will leverage results from Stevens's paper \cite{Stevens_2016} and initialize our hyperparameters using their suggestions as follow. 
   
   \begin{itemize}
     \item {\bf Optimizer}: $RMSProp$
     \item {\bf Learning rate}: $\alpha = 2\times 10^{-6}$
     \item {\bf Discount rate}: $\gamma = 0.9$
+    \item {\bf Randomness}: $\epsilon = 0.5$ and $\delta = 0.0005$
     \item {\bf Regularization}: Batch normalization and dropout with a retention probability of $0.75$
   \end{itemize}
 
-  However, since our reward function, DQN architecture, and environment implementation are different from theirs, we need to adjust our hyperparameters according to the validation results.
+  However, since our reward function, DQN architecture, and environment implementation are different from theirs, we need to adjust our hyperparameters according to the validation results, where we need to explore the optimal combination of hyperparameters similar to what we will do for the Genetic Algorithm mentioned above.
 
-  Now, for the training process, there are two details worth mentioning.
-  \begin{enumerate}
-    \item {\bf $\epsilon$-greedy Algorithm}
-    
-    The tradeoff between exploration and exploitation is one of the most critical challenges for most of the reinforcement learning problem, and our DQN is no exception. Note that according to the setups mentioned in the Methodology section, the only chance for our network to explore comes from the random initialization of the system, and once it finds a solution, exploitation will dominate exploration because we always choose the successor with the highest score. This is not ideal because we may miss some potential shortcuts\footnote{In other words, the selected successor may not be optimal for long-term.}, and as a result, we will apply the $\epsilon$-greedy algorithm during the training phase. In brief, it will stick to the optimal successor with a decaying probability $\epsilon$ and randomly choose a successor otherwise \cite{Tokic_2010}. Thus, we will update the training algorithm in Figure \ref{fig:code2}.
+  Now, recall that we introduced the special technique \textit{training by part} in the \textbf{Methodology} section and here is the detailed explanation:
   
-    \begin{figure}[h!]
-      \centering
-      \begin{minipage}{.95\linewidth}
-        \removelatexerror% Nullify \@latex@error
-        \begin{algorithm}[H]
-          \DontPrintSemicolon
-          \SetKwFunction{FMain}{train}
-          \SetKwProg{Fn}{Function}{:}{}
-          \Fn{\FMain{$cur$, $DQN$}}{
-          $states \gets successor(cur)$\;
-          $maxQ \gets 0, reward \gets 0, maxState \gets \textbf{None} $\;
-          \For{$state$ \textbf{in} $states$}{
-            $score \gets DQN.predict(state)$\;
-            \If{$score > maxQ$} {
-              $maxQ \gets score$\;
-              $reward \gets reward(state)$\;
-              $maxState \gets state $\;
-            }
-          }\;
-          \tcp{$\epsilon$-greedy algorithm}
-          $p \gets uniform(0,1)$\;
-          \If{$p > \epsilon$}
-          {
-            $maxState \gets random(states) $\;
-            $maxQ \gets DQN.predict(maxState)$\;
-            $reward \gets reward(maxState)$\;
-          }
+  We will decompose the training process into three parts for the sake of time efficiency as follow:
+  \begin{itemize}
+    \item 
+    Firstly, we will train the DQN on a $5\times 10$ game board for 400 epochs.
+    \item 
+    Then, we will train it on a $10\times 10$ for another 400 epochs.
+    \item 
+    Finally, we will train it on the full board ($20\times 10$) for 200 epochs.
+  \end{itemize}
 
-          $\epsilon \gets \epsilon - \delta$\tcp*{$\epsilon$ decaying}\;
-          $Q' \gets (1-\alpha) \cdot maxQ + \alpha  \cdot  \left ( reward + \gamma\cdot   maxQ\right )$\;
-          $DQN.fit(maxState, Q')$\;
-          \Return maxState\;
-          }
-        \end{algorithm}
-      \end{minipage}
-      \caption{Pseudo-code for Training with $\epsilon$-greedy}
-      \label{fig:code2}
-    \end{figure}
+  
+  
+  This will give us a total of 1,000 training epochs, but this design should be much faster than trained directly on the full board because the time needed for each game is shortened. Technically speaking, the \textit{training by part} also involves some hyperparameters, such as size of the game board and length for each sub-training process. However, we don't want to introduce too many degrees of freedom to the hyperparameters so we will make the assertion that our choice is optimal.
+  
+  At last, a detailed explanation on implementation of \textit{training by part} can be found in \textbf{Appendix B}.
+  
 
-Note that we need a describes $\epsilon$ because we want to explore more in the beginning (in our case, we will use $\epsilon=0.5$), and as we approach the end of the training phase, we want to exploit more (which means $\delta = \frac{\epsilon}{\text{\# of training}} = \frac{0.5}{1000} = 0.0005$).\footnote{This gives two extra hyperparameters that need to be adjusted.}
-
-    \item {\bf Training by Part}
-
-    According to the experiment results from Steven's paper, another challenge we will face during the training is that each game will last for a long time, mainly because of the large $20\times 10$ game board. Therefore, we will solve this problem by training our network part by part, where we will decompose the training process into three parts for the sake of time efficiency as follow:
-    \begin{itemize}
-      \item 
-      Firstly, we will train the DQN on a $5\times 10$ game board for 400 epochs.
-      \item 
-      Then, we will train it on a $10\times 10$ for another 400 epochs.
-      \item 
-      Finally, we will train it on the full board ($20\times 10$) for 200 epochs.
-    \end{itemize}
-
-    This will give us a total of 1,000 training epochs, but this design should be much faster than trained directly on the full board because the time needed for each game is shortened. However, the sequential training process is not as easy as it sounds like, and the main problem here is the difference in length of the flattened vectors:
-
-    \begin{table}[h!]
-      \centering
-      \normalsize{
-        \begin{tabular}{ |c|c| } 
-          \hline
-          Input Size & Flattened Vector Size  \\ 
-          \hline
-           $5\times 10$ & $512$  \\ 
-           \hline
-           $10\times 10$ & $1024$  \\ 
-           \hline
-           $20\times 10$ & $2048$  \\
-           \hline
-          \end{tabular}}
-      \caption{Flattened vector sizes for different input}
-      \label{tab:rewardsCopy}
-    \end{table} 
-
-    The difference between these vectors' sizes will mess up the weight matrix of DQN architecture, so we need to initialize the weight matrix manually when we change the input size. More precisely, whenever we increase the input size, we will initialize a new fully-connected layer and copy the previous network's weights to half of the current network. A visualization for $5\times 10$ to $10\times 10$ is shown in Figure \ref{fig:training}, where we initialize the bottom half (shown in blue) of the weight matrix with the previous weights and randomly initialize the upper half of the weight matrix (shown in green).
-
-    \begin{figure}[h]
-      \centering
-      \includegraphics[width=0.9\linewidth]{figures/architecutre.jpeg}
-      \caption{Grouped action example}
-      \label{fig:training}
-    \end{figure}
-
-
-  \end{enumerate}
   In conclusion, the experimental design for the Reinforcement Learning agent consists of three steps of training where we will employ $\epsilon$-greedy algorithm and partial weight initialization for the sake of efficiency and effectiveness. 
 \end{itemize}
 % {\bf Complete this section for D2 and D3.}
@@ -614,7 +592,7 @@ Note that we need a describes $\epsilon$ because we want to explore more in the 
 
 %%%%%%%%%. Discussion %%%%%%%%%
 
-\section{Discussion}
+% \section{Discussion}
 
 % {\bf Complete this section for D4.}
 
@@ -624,7 +602,7 @@ Note that we need a describes $\epsilon$ because we want to explore more in the 
 
 %%%%%%%%%. Conclusion %%%%%%%%%
 
-\section{Conclusion}
+% \section{Conclusion}
 
 % {\bf Complete this section for D4.}
 
@@ -637,7 +615,71 @@ Note that we need a describes $\epsilon$ because we want to explore more in the 
 %%%%%%%%% Bibliography %%%%%%%%%
 \newpage
 \bibliographystyle{aaai}
-
 \bibliography{report}
 
+
+
+
+\begin{figure*}[h!]
+  \centering
+  \includegraphics[width=0.75\linewidth]{figures/DQN.png}
+  \caption{Deep Q-network architecture}
+  \label{fig:DQN}
+\end{figure*}
+\newpage
+$\,$
+\newpage
+\section{Appendix A}
+
+The structure of the network is shown in the Figure \ref{fig:DQN} and here are the detailed information about each layer:
+
+\begin{itemize}
+  \item 
+  {\bf conv1}: a convolutional layer with filter size $3\times 3$, output channel size $32$, and leaky ReLU activation function.
+  \item 
+  {\bf pool1}: a max-pooling layer with filter size $2\times 2$.
+  \item 
+  {\bf conv2}: an identical layer as {\bf conv1} except that the output channel size to be $64$.
+  \item 
+  {\bf pool2}: an identical layer as {\bf pool2}.  
+  \item 
+  {\bf flatten:} this is simply a flattened version of the {\bf pool2} feature map.
+  \item 
+  {\bf fc}: this is a fully connected layer of size $256$ with ReLU activation function.
+  \item 
+  {\bf score}: this is a fully connected layer of size $1$ with ReLU activation function.
+\end{itemize}
+
+\newpage
+\section{Appendix B}
+
+  The sequential training process of \textit{training by part} is actually not as easy as it sounds like, and the main problem here is the difference in length of the flattened vectors:
+
+  \begin{table}[h!]
+    \centering
+    \normalsize{
+      \begin{tabular}{ |c|c| } 
+        \hline
+        Input Size & Flattened Vector Size  \\ 
+        \hline
+          $5\times 10$ & $512$  \\ 
+          \hline
+          $10\times 10$ & $1024$  \\ 
+          \hline
+          $20\times 10$ & $2048$  \\
+          \hline
+        \end{tabular}}
+    \caption{Flattened vector sizes for different input}
+    \label{tab:vectorSize}
+  \end{table} 
+
+  The difference between these vectors' sizes will mess up the weight matrix of DQN architecture, so we need to initialize the weight matrix manually when we change the input size. More precisely, whenever we increase the input size, we will initialize a new fully-connected layer and copy the previous network's weights to half of the current network. A visualization for $5\times 10$ to $10\times 10$ is shown in Figure \ref{fig:training}, where we initialize the bottom half (shown in blue) of the weight matrix with the previous weights and randomly initialize the upper half of the weight matrix (shown in green).
+
+  \begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/architecutre.jpeg}
+    \caption{Grouped action example}
+    \label{fig:training}
+  \end{figure}
+  
 \end{document}
