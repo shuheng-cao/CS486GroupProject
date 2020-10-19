@@ -88,25 +88,30 @@ The {\it Abstract} should be at most 150 words long, and should summarize briefl
   
 \end{itemize}
 {As for the evaluation metric, we will use the number of lines cleaned up before game over as our primary metric so that we could compare the three methods with each other as well as implementations from other papers. One thing worth mention is that in the DQN training, we won't directly use the evaluation metric mentioned above as the reward because it is too sparse. Instead, we will design a reward that is positively correlated with the evaluation metrics. More concretely, we will use the following rewarding scheme:}
-\begin{table}[h!]
-  \centering
-  \normalsize{
-    \begin{tabular}{ |c|c| } 
-      \hline
-      Situation & Reward  \\ 
-      \hline
-       Game over & $-100$  \\ 
-       \hline
-       Clean up $k$ lines & $10\times k^{2}$  \\ 
-       \hline
-       Safely landing a piece & $1$  \\
-      %  \hline
-      %  Otherwise & $0$  \\
-       \hline
-      \end{tabular}}
-  \caption{Reward Function}
-  \label{tab:reward}
-\end{table} 
+\begin{itemize}
+  \item Game over gives $-100$.
+  \item Cleaning up $k$ lines gives $10k^{2}$.
+  \item Safely landing a piece gives $1$.
+\end{itemize}
+% \begin{table}[h!]
+%   \centering
+%   \normalsize{
+%     \begin{tabular}{ |c|c| } 
+%       \hline
+%       Situation & Reward  \\ 
+%       \hline
+%        Game over & $-100$  \\ 
+%        \hline
+%        Clean up $k$ lines & $10\times k^{2}$  \\ 
+%        \hline
+%        Safely landing a piece & $1$  \\
+%       %  \hline
+%       %  Otherwise & $0$  \\
+%        \hline
+%       \end{tabular}}
+%   \caption{Reward Function}
+%   \label{tab:reward}
+% \end{table} 
 
 \item 
 {\bf Complete this bullet point for D4.}
@@ -196,13 +201,13 @@ Now that once we have our feature set, we would construct our genetic algorithm 
 
 The game would start by generating random chromosomes for $N$ children, and for each of these children, we will run $M$ simulations on it. The average lines cleaned will be recorded for each child and will be used as the fitness score for them. Next, we would begin our selection process, which would give us a number of parent states. For each group of parents, we would perform crossover and mutation operations to get us children of the next generation. Then, for each child in this generation, we would start the above the process all over again. That is, we would run simulation, record fitness, remove least fit offspring, and generate successors. We would stop the game until there is no significant improvement in performance between the parents and the children. Finally, we will choose the child with the highest fitness score and use its chromosome as our final weight combination. 
 
-One important thing worth noting is the implementation of crossover. When determining the exact combination of chromosome from the parent states, we would consider the fitness scores of parents because if one parent has a higher fitness score than the other, the former chromosome should have been more optimal than the latter one. Therefore, we would want the child to "inherit" more from the first parent. Let's assume the first parent's fitness score is $f1$ and that of second parent is $f2$. Assuming that $f1 >= f2$, then we define the combination as follows: 
+One important thing worth noting is the implementation of crossover. When determining the exact combination of chromosome from the parent states, we would consider the fitness scores of parents because if one parent has a higher fitness score than the other, the former chromosome should have been more optimal than the latter one. Therefore, we would want the child to "inherit" more from the first parent. Let's assume the first parent's fitness score is $f1$ and that of second parent is $f2$. Assuming that $f1 \geq f2$, then we define the combination as follows: 
  
  \begin{itemize}
  \item if $\frac{f1}{f2} = 1$, we will randomly take 5 weights from the first parent and fill the remaining weights from the second parent
- \item if $0 < \frac{f1}{f2} - 1 <= 0.25$, we will do a 6:4 sampling
- \item if $0.25 < \frac{f1}{f2} - 1 <= 0.5$, we will do a 7:3 sampling
- \item if $0.5 < \frac{f1}{f2} - 1 <= 0.75$, we will do a 8:2 sampling
+ \item if $0 < \frac{f1}{f2} - 1 \leq 0.25$, we will do a 6:4 sampling
+ \item if $0.25 < \frac{f1}{f2} - 1 \leq  0.5$, we will do a 7:3 sampling
+ \item if $0.5 < \frac{f1}{f2} - 1 \leq  0.75$, we will do a 8:2 sampling
  \item if $0.75 < \frac{f1}{f2} - 1$, we will do a 9:1 sampling
  \end{itemize}
 
@@ -400,7 +405,7 @@ One thing worth mentioning about the evaluation metric is that we will simoutano
        \hline
       \end{tabular}}
   \caption{Reward Function}
-  \label{tab:rewardsCopy}
+  \label{tab:reward}
 \end{table} 
 
 Note that by design, the new metric is positively correlated with the primary metric in the sense that both of them encourage cleaning as many lines as possible. However, the new metric will also introduce a relatively small reward (compared with cleaning a line) for safely landing a Tetromino for the sake of more frequent simulation for backpropagation. Meanwhile, this metric also introduces a substantial penalty for losing the game to produce strong negative feedbacks for the network.
