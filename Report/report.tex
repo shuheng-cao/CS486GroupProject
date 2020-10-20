@@ -158,7 +158,7 @@ This feature faithfully reflects our evaluation metric since we will achieve sco
 
 The holes in the Tetris game are particularly harmful because, in order to clean the line containing a hole, we need to clean up all the lines above that hole. 
 
- \item {\bf sum of the difference of height between adjacent columns}
+ \item {\bf sum of difference of height between adjacent columns}
 
 The "gaps" in the board make it harder to clear rows simply because the Tetrimonos are generated randomly, and those "gaps" are not likely to be filled perfectly by the next Tetrimono.
 
@@ -176,50 +176,49 @@ Essentially, in a handcrafted agent approach, human decisions are used to adjust
 
 In the genetic algorithm approach, we would use a feature set that includes a total of 10 features. These features are:
 \begin{enumerate}
- \item number of lines cleared
- \item number of holes
- \item sum of the difference of height between adjacent columns
- \item maximum height
- \item number of blocks currently on the board
- \item number of rows with at least a hole in it
- \item max height difference between the lowest column and highest column
- \item number of cells that is not filled with no blocks above it and two horizontal neighbors filled
- \item the height where the highest hole is located
- \item number of occupied rows which is above the highest hole such that if removed, the highest hole is no longer a hole
+ \item[1-4.] features same as Handcrafted agent
+ \item[5.] number of blocks currently on the board
+ \item[6.] number of rows with at least a hole in it
+ \item[7.] max height difference between the lowest column and highest column
+ \item[8.] number of cells that is not filled with no blocks above it and two horizontal neighbors filled
+ \item[9.] the height where the highest hole is located
+ \item[10.] number of occupied rows which is above the highest hole such that if removed, the highest hole is no longer a hole
 \end{enumerate}
 
 Now that once we have our feature set, we would construct our genetic algorithm approach start by defining the following terms:
 
 \begin{itemize}
- \item Chromosome: An array of 10 numbers representing our weights combination, each weight ranges from $-1$ to $1$
- \item Fitness: How many lines are cleared before the game is terminated
- \item Selection: After ranking each state based on fitness score, we would remove $p$ percent of states with low fitness scores and use remaining states as parents for the next generation
- \item Crossover: Take a combination of weights among the remaining parents and make it the chromosome for the children
- \item Mutation: After crossover, one random weight value in the chromosome of the child state will be mutated with a certain probability $q$
+ \item {\bf Chromosome}: An array of 10 numbers representing our weights combination, each weight ranges from $-1$ to $1$.
+ \item {\bf Fitness}: Number of lines cleared before the game ends.
+ \item {\bf Selection}: After ranking each state based on fitness score, we will remove $p$ percent of states with low fitness scores and use remaining states as parents for next generation.
+ \item {\bf Crossover}: Take a combination of weights among the remaining parents and make it the chromosome for the children (detailed implementation is shown below).
+ \item {\bf Mutation}: After crossover, one random weight value in the chromosome of the child state will be mutated with a certain probability $q$.
 \end{itemize}
 
 
 The game would start by generating random chromosomes for $M$ children, and for each of these children, we will run $N$ simulations on it. The average lines cleaned will be recorded for each child and will be used as the fitness score for them. Next, we would begin our selection process, which would remove $p\%$ children and promote the remaining children to be parents. For this group of parents, we would randomly choose $M$ pairs of parents and perform crossover and mutation operations to get $M$ children for the next generation. Then, for each child in this generation, we would start the above the process all over again. That is, we would run simulation, record fitness, remove least fit offspring, and generate successors. We would stop the game until there is no significant improvement in performance between the parents and the children. Finally, we will choose the child with the highest fitness score and use its chromosome as our final weight combination. 
 
-One important thing worth noting is the implementation of crossover. When determining the exact combination of chromosome from the parent states, we would consider the fitness scores of parents because if one parent has a higher fitness score than the other, the former chromosome should have been more optimal than the latter one. Therefore, we would want the child to "inherit" more from the first parent. Let's assume the first parent's fitness score is $f1$ and that of second parent is $f2$. Assuming that $f1 \geq f2$, then we define the combination as follows: 
+One important thing worth noting is the implementation of crossover. When determining the exact combination of chromosome from the parent states, we will consider the fitness scores of parents because if one parent has a higher fitness score than the other, the former chromosome should have been more optimal than the latter one. Therefore, we would want the child to "inherit" more from the first parent. Let's assume the first parent's fitness score is $f1$ and that of second parent is $f2$. Without loss of generality, assume $f1 \geq f2$, then we define the combination as follows: 
  
  \begin{itemize}
- \item if $\frac{f1}{f2} = 1$, we will randomly take 5 weights from the first parent and fill the remaining weights from the second parent
- \item if $0 < \frac{f1}{f2} - 1 \leq 0.25$, we will do a 6:4 sampling
- \item if $0.25 < \frac{f1}{f2} - 1 \leq  0.5$, we will do a 7:3 sampling
- \item if $0.5 < \frac{f1}{f2} - 1 \leq  0.75$, we will do a 8:2 sampling
- \item if $0.75 < \frac{f1}{f2} - 1$, we will do a 9:1 sampling
+ \item if $\frac{f1}{f2} = 1$, we will randomly take 5 weights from the first parent and fill the remaining weights from the second parent.
+ \item if $0 < \frac{f1}{f2} - 1 \leq 0.25$, we will do a 6:4 sampling.
+ \item if $0.25 < \frac{f1}{f2} - 1 \leq  0.5$, we will do a 7:3 sampling.
+ \item if $0.5 < \frac{f1}{f2} - 1 \leq  0.75$, we will do a 8:2 sampling.
+ \item if $0.75 < \frac{f1}{f2} - 1$, we will do a 9:1 sampling.
  \end{itemize}
 
+
+ Notice that this scheme involves many hyperparameters, such as the lower and upper bounds of the ratio, and in theory, we should determine this during our training. However, doing so will introduce too many degrees of freedom during training, and to avoid this, we will insist on this scheme.
 
 In conclusion, in the genetic algorithm approach, we eliminate a lot of human assumptions. That is, what weight value should be changed, and by how much. We would also take into consideration more features that may further eliminate human assumptions of which feature could have an underlying impact on the game-play or not. Despite the amount of computation with this approach, we are more likely to find an optimal weight combination compared to a handcrafted agent.
 
 
 \subsection{Reinforcement Learning Agent}
 
-The genetic algorithm mentioned above is intelligent in the sense that it will automatically find optimal weight combinations. However, notice that it is still not perfect because the state features are always chosen by humans, and they are not necessarily representative. More concretely, we may lose some information since we will represent all the successors' states, which is of size $20\times 10$, using only nine features. Thus, we will develop a new algorithm that eliminates human-chosen features and finds a feasible representation itself.
+The genetic algorithm mentioned above is intelligent in the sense that it will automatically find optimal weight combinations. However, notice that it is still not perfect because the state features are always chosen by humans, and they are not necessarily representative. More concretely, we may lose some information since we will represent all the successors' states, which is of size $20\times 10$, using only ten features. Thus, we will develop a new algorithm that eliminates human-chosen features and finds a feasible representation itself.
 
-As a result, we naturally lean towards the fields of reinforcement learning and will start with the Q-learning introduced by Chris Watkins in 1989. The detailed deduction and convergence proof are pretty complicated and are out of the scope of this report. However, the final results of Q-learning are incredibly similar to dynamic programming, where we maintain a Q-table with current states $s_i$ as column and available actions $a_j$ as rows:
+As a result, we naturally lean towards the fields of reinforcement learning and will start with the Q-learning introduced by Chris Watkins in 1989. The detailed deduction and convergence proof are pretty complicated and are out of the scope of this report. However, the final results of Q-learning are incredibly similar to dynamic programming, where we maintain a Q-table with current states $s_i$ as column and available actions $a_j$ as rows (Table \ref{tab:qtable}).
 
 $\,$
 \begin{table}[h!]
@@ -261,7 +260,7 @@ On top of that, we also need to manually determine three important setups:
   \item $r_{t}$: reward received when moving from the state $s_{t}$ to $s_{t+1}$ and is determined by the reward function.
 \end{itemize}
 
-With all these hyper-parameters and setups, we will let the agent interact with the environment on its own. At each state, the agent will always choose to perform the action with the highest Q-value and update the Q-table according to the updating formula.\footnote{Here, it is not always true that the agent will perform the action with the highest Q-value. Some techniques like $\epsilon$-greedy algorithm will choose the optimal action with probability $\epsilon$ and a random walk otherwise. We will talk more about this in the experimental design section.} We will stop Q-learning until the agent completes the game, and we will repeat this process for large enough epochs so that the Q-table converges.
+With all these hyper-parameters and setups, we will let the agent interact with the environment on its own. At each state, the agent will always choose to perform the action with the highest Q-value and update the Q-table according to the updating formula.\footnote{Here, it is not always true that the agent will perform the action with the highest Q-value. Some techniques like $\epsilon$-greedy will choose the optimal action with probability $\epsilon$ and a random walk otherwise. We will talk more about this later in this section.} We will stop Q-learning until the agent completes the game, and repeat this process for large enough epochs so that the Q-table converges.
 
 
 
@@ -270,11 +269,11 @@ Now, we will begin with a naive adaptation to the Tetris by defining states to b
 
 Theoretically, we could tackle this Tetris problem directly using the Q-learning setups mentioned above, but we are facing two severe hindrances:
 \begin{enumerate}
-  \item The reward is very sparse because all the actions except down are perfectly reversible. For example, $left$ can be reversed by $right$, and $clockwise\,\,rotation$ can be reversed by $counter\textit{-}clockwise\,\,rotation$. As a result, in the exploration stage, it will take the agent a long time before it can achieve a reward\footnote{Notice that according to the Table \ref{tab:reward}, we will only get a reward when we place a Tetromino so we won't get anything during the placement process.}, which is particularly bad for training. {}
+  \item The reward is very sparse because all the actions except {\it down} are perfectly reversible. For example, $left$ can be reversed by $right$, and $clockwise\,\,rotation$ can be reversed by $counter\textit{-}clockwise\,\,rotation$. As a result, in the exploration stage, it will take the agent a long time before it can achieve a reward\footnote{Notice that according to the Table \ref{tab:reward}, we will only get a reward when we place a Tetromino so we won't get anything during the placement process.}, which is particularly bad for training purposes.
   \item Furthermore, according to Phon-Amnuaisuk's paper, the number of stable states for a $20\times 10$ Tetris board is in the order of $10^{60}$ \cite{somnuk_2015}, which means our Q-table will be of size approximately $5\times 10^{60}$. This table is way too large to store in RAM and the training time for such a large table is also unbearable.
 \end{enumerate}
 
-Now, we will conquer these two hindrances and develop a practical architecture for this problem. For the first one, inspired by Stevens's idea of \textit{grouped action} \cite{Stevens_2016}, we can leverage the successor function from the genetic algorithm and reduce the dimension of Q-table. More precisely, instead of defining action $a_i$ to be one of the $5$ single moves, we will use a \textit{grouped action} to represents a sequence of moves until the current Tetromino is landing.\footnote{In other words, each \textit{grouped action} refers to a final placement for a specific Tetromino.} For example, if we got an L-shape Tetromino as shown in Figure \ref{fig:grouped_action}, one potential \textit{grouped action} will be $\{left\times 4, \,\,clockwise\,\,rotation \times 2,\,\,down\times 12\}$, which is essentially the successor function from the genetic algorithm.
+Now, we will conquer these two hindrances and develop a practical architecture for this problem. For the first one, inspired by Stevens's idea of \textit{grouped action} \cite{Stevens_2016}, we can leverage the successor function from the genetic algorithm and reduce the dimension of Q-table. More precisely, instead of defining action $a_i$ to be one of the $5$ single moves, we will use a \textit{grouped action} to represents a sequence of moves until the current Tetromino is landing.\footnote{In other words, each \textit{grouped action} refers to a final placement for a specific Tetromino.} For example, if we got an L-shape Tetromino as shown in Figure \ref{fig:grouped_action}, one potential \textit{grouped action} will be $\{left\times 4, \,\,clockwise\,\,rotation \times 2,\,\,down\times 12\}$, which is essentially the successor function used in the genetic algorithm.
 
 \begin{figure}[h!]
   \centering
@@ -284,7 +283,7 @@ Now, we will conquer these two hindrances and develop a practical architecture f
 \end{figure}
 
 
-With the new definition of \textit{grouped action}, we can reconstruct our Q-table and rewrite our updating formula. Notice that because after each grouped action, it's guaranteed to be a stable state (i.e., there is no floating Tetromino), we can simplify the two-dimensional Q-table into one-dimensional:
+With the new definition of \textit{grouped action}, we can reconstruct our Q-table and rewrite our updating formula. Notice that because after each grouped action, it's guaranteed to be a stable state (i.e., there is no floating Tetromino), we can simplify the two-dimensional Q-table (Table \ref{tab:qtable}) into one-dimensional (Table \ref{tab:newqtable}).
 
 \begin{table}[h!]
   \centering
@@ -297,7 +296,7 @@ With the new definition of \textit{grouped action}, we can reconstruct our Q-tab
        \hline
       \end{tabular}}
   \caption{New Q-table with random initialization}
-  \label{tab:qtbale}
+  \label{tab:newqtable}
 \end{table}
 
 with the modified updating formula:
@@ -308,11 +307,9 @@ with the modified updating formula:
 
 With the reconstructed Q-table and modified updating formula, now for each state, the agent will choose the successor with the highest Q-value instead of a specific action. This successfully solves the sparse reward problem because now, after each grouped action, we will always get a non-zero reward. However, this setup inherits the drawback of requiring enormous storage space and training time because the number of states remains $10^{60}$. 
 
-To overcome the second hindrance, we need to understand why we have so many states in our Q-table. The problem lies in the fact that we have $20\times 10$ cells in the game board, and the number of possible states is exponential in the number of cells. This situation reminds us of how we encode images during image classification, and naturally, we will consider using Convolutional Neural Networks (CNN) to encoding our state (i.e., a $20\times 10$ bitmap).  This idea is first introduced by Google DeepMind in the paper Playing Atari with Deep Reinforcement Learning \cite{Mnih_2013}, and we will adapt this idea to Tetris to come up with the architecture as shown in Figure \ref{fig:DQN}.
+To overcome the second hindrance, we need to understand why we have so many states in our Q-table. The problem lies in the fact that we have $20\times 10$ cells in the game board, and the number of possible states is exponential in the number of cells. This situation reminds us of how we encode images during image classification, and naturally, we will consider using Convolutional Neural Networks (CNN) to encoding our state (i.e., a $20\times 10$ bitmap).  This idea is first introduced by Google DeepMind in the paper Playing Atari with Deep Reinforcement Learning \cite{Mnih_2013}, and we will adapt this idea to Tetris to come up with the architecture as shown in Figure \ref{fig:DQN} in \textbf{Appendix A}.
 
-
-
-Notice that this Deep Q-network (DQN) will take a $20\times 10$ bitmap as input and output a non-negative real number as the score for that bitmap. This behavior is essentially the same as what we did in Q-learning except that the DNQ will generate the score on the fly while Q-learning will merely look up the score. At its core, the DQN is trying to approximate the Q-table using a reasonable amount of time and space. 
+This Deep Q-network (DQN) will take a $20\times 10$ bitmap as input and output a non-negative real number as the score for that bitmap. This behavior is essentially the same as what we did in Q-learning except that the DNQ will generate the score on the fly while Q-learning will merely look up the score. At its core, the DQN is trying to approximate the Q-table using a reasonable amount of time and space. 
 
 Compared with other CNN architecture, our DQN is relatively small and straightforward, mainly because of the tiny input size. A detailed summary and visualization of the network can be found in \textbf{Appendix A}. On top of that, the pseudo-code to train the DQN is shown in Figure \ref{fig:code1}.
 
@@ -395,7 +392,7 @@ Now, there are two details worth mentioning during the training process.
     \label{fig:code2}
   \end{figure}
 
-  Note that we need a decaying $\epsilon$ because we want to explore more in the beginning, and as we approach the end of the training phase, we want to exploit more.\footnote{This gives two extra hyperparameters $\epsilon$ and $\delta$ that need to be adjusted.}
+  Note that we need a decaying $\epsilon$ because we want to explore more in the beginning, and as we approach the end of the training phase, we want to exploit more.\footnote{This gives two extra hyperparameters $\epsilon$ and $\delta$ that need to be adjusted during training.}
 
   \item {\bf Training by Part}
 
@@ -404,23 +401,23 @@ Now, there are two details worth mentioning during the training process.
 
 \end{enumerate}
 
-In summary, DQN architecture successfully solves the problems of sparse rewards and enormous states, which gives us an efficient and effective estimation for the original Q-learning in Table \ref{tab:qtable}. Moreover, with CNN's powerful encoding capability, we don't need to choose the features manually, and the architecture will automatically find the optimal features during backpropagation. As a result, we can say that DQN architecture has the potential to outperform the genetic algorithm.
+In summary, DQN architecture successfully solves the problems of sparse rewards and enormous states, which gives us an efficient and effective estimation for the original Q-learning in Table \ref{tab:qtable}. Moreover, with CNN's powerful encoding capability, we don't need to choose the features manually, and the architecture will automatically find the optimal features during backpropagation. As a result, we can say that DQN architecture has the potential to outperform the handcrafted and local search agents.
 
 
 \section{Results}
 \subsection{Environmental Setup}
-For the implementation of the game Tetris, we referenced the Tetris-AI implementation \cite{Nuno}. The board is $20 \times 10$, and each Tetromino is a list of four positions that it occupies. At every step, it will generate the appearance of the next Tetrominos at random. The state will be defined as a $20 \times 10$ matrix, where each entry could be one of 0, 1, or 2, represents the empty block, the occupied block, and the block occupied by the current Tetromino, respectively. For each state, all the features needed by handcrafted and local search agents will be collected, and we will use them to calculate the heuristic. 
+For the implementation of the game Tetris, we referenced the Tetris-AI implementation \cite{Nuno}. The board is $20 \times 10$, and each Tetromino is a list of four positions that it occupies. At every step, it will generate the appearance of the next Tetrominos at random. The state will be defined as a $20 \times 10$ matrix, where each entry could be one of 0, 1, or 2, represents the empty block, the occupied block, and the block occupied by the current Tetromino, respectively. For each state, all the features needed by handcrafted and local search agents will be collected, and we will use them to calculate the heuristic value. 
 
 For the successor function, given the current board state and the next Tetromino, it will try all the possible locations and rotations that the Tetromino could land. Starting from the top left corner, the successor function will try all the rotations (1, 2, or 4 rotations depending on the shape of Tetromino. 1 rotation for ”O” shape, 2 rotations for ”I”, and 4 rotations for other shapes). Then shift the Tetromino 1 unit to the right and repeat the process again until we reach the right top corner of the board. That is when we can figure out all the possible moves, and according to the type of agents, the successor function will return different results. More precisely,
 \begin{itemize}
   \item 
-  For the handcrafted agent, we will return a list of 4 feature values
+  For the handcrafted agent, we will return a list of values for 4 feature
   \item 
-  For the local search agent, we will return a list of 10 feature values
+  For the local search agent, we will return a list of values for 10 feature
   \item 
   For the reinforcement learning agent, we will return a list of $20\times 10$ bitmaps representing all the successor states
 \end{itemize}
-Finally, the agent will return its decision to the model, and it will update the current state correspondingly.
+Finally, the agent will return its decision to the environment, which will update the current state correspondingly.
 
 
 % \textcolor{red}{\textbf{We need to come up with bitmaps for all the successor states. Please describe how we will generate the successor state.} }
@@ -432,7 +429,7 @@ Finally, the agent will return its decision to the model, and it will update the
 
 According to previous researches and the game mechanism, we have two reasonable metrics to choose from. One is to count the total number of Tetromino dropped before the game ends. And the other is to count the number of lines cleared before the game ends. They both sound reasonable, but we would like to use the second metric for our evaluation. The number of Tetromino dropped somehow describes "how long" does the game played, but this does not indicate "how good" the model is. It is still possible to fill the board without clear a single line, and it is also possible to clear several lines with very few Tetromino dropped. In order to make it live longer, the purpose is to remove lines whenever it could and clear lines as much as possible. So we pick the number of lines cleared as our evaluation metrics. In general, the score of the game is highly related to the number of lines cleared. The more lines cleared, the more score we will get finally, so it means the model plays "better". On the other hand, according to the previous researches on Tetris agent \cite{SO19}, the rules and the way that the score is rewarded can be different. We finally want to compare our model with the agents that already exist. In order to make a fair comparison, all of the agents will use the same evaluation metric, which is the number of lines cleared before a game ends so that we could tell which model has a better performance in the game.
 
-One thing worth mentioning about the evaluation metric is that we will simoutanously use two metrics when training the Reinforcement Learning agent. The first metric is the one mentioned above, and it will be used as the primary standard to compare the performance of different hyperparameter combinations during validation. On top of that, this metric will also be used to compare with other algorithms mentioned in this paper as well as results from other papers. However, one problem with the primary metric is that its rewards are very sparse, where the agent needs to wait for several Tetrominos before it could clean a line and achieve one mark. This problem is particularly bad for training a DQN because, without frequent rewards, it is difficult for the network to learn anything from backpropagation. Therefore, we decided to reshape the primary metric into the following table.
+One thing worth mentioning about the evaluation metric is that we will simoutanously use two metrics when training the Reinforcement Learning agent. The first metric is the one mentioned above, and it will be used as the primary standard to compare the performance of different hyperparameter combinations during validation. On top of that, this metric will also be used to compare with other algorithms mentioned in this paper as well as results from other papers. However, one problem with the primary metric is that its rewards are very sparse, where the agent needs to wait for several Tetrominos before it could clean a line and achieve one mark. As mentioned before, this problem is particularly bad for training a DQN because, without frequent rewards, it is difficult for the network to learn anything from backpropagation. Therefore, we decided to reshape the primary metric into the following table.
 
 \begin{table}[h!]
   \centering
@@ -454,8 +451,9 @@ One thing worth mentioning about the evaluation metric is that we will simoutano
   \label{tab:reward}
 \end{table} 
 
-Note that by design, the new metric is positively correlated with the primary metric in the sense that both of them encourage cleaning as many lines as possible. However, the new metric will also introduce a relatively small reward (compared with cleaning a line) for safely landing a Tetromino for the sake of more frequent simulation for backpropagation. Meanwhile, this metric also introduces a substantial penalty for losing the game to produce strong negative feedbacks for the network.
+Note that by design, the new metric is positively correlated with the primary metric in the sense that both of them encourage cleaning as many lines as possible. However, the new metric will also introduce a relatively small reward (compared with cleaning a line) for safely landing a Tetromino for the sake of more frequent stimulation for backpropagation. Meanwhile, this metric also introduces a substantial penalty for losing the game to produce strong negative feedbacks for the network.
 
+In summary, we will use the total number of lines cleaned as our primary metric to compare different algorithms while using a specially-designed metric to train the reinforcement learning agent.
 % Describe the measures that you used to evaluate the algorithms.  Be as precise as possible by including their mathematical formulations.  Provide a rationale for why these performance metrics are appropriate for your problem.
 \subsection{Experimental Designs}
 
@@ -464,7 +462,7 @@ As mentioned above, since we implemented a Tetris environment, we can say that w
 \begin{itemize}
   \item \textbf{Handcrafted Agent} 
   
-  The experimental design for the handcrafted agent is relatively straight-forward. Since we are merely relying on our observation and intuition, we need to keep track of each game manually. Therefore, we will use a training set of 3 games, a validation set of 100 games, and a test set of another 100 games. The training process is rather simple. We will watch the agent playing for three rounds (training) and let it play for itself for another 100 rounds (validation). Meanwhile, we will analyze its mistakes during training and calculate the average score for the validation. Then, according to the analysis, we will adjust the weights correspondingly, and if the combination of the new weights yields a better validation score, we will use it. Otherwise, we will try some other updates, and if we can't improve the validation result anymore, we will stop. Finally, we will use the best weights combination as our final result and test it on another 100 games.
+  The experimental design for the handcrafted agent is relatively straight-forward. Since we are merely relying on human observation and intuition, we need to keep track of each game manually. Therefore, we will use a training set of 3 games, a validation set of 100 games, and a test set of another 100 games. The training process is rather simple. We will watch the agent playing for three rounds (training) and let it play for itself for another 100 rounds (validation). Meanwhile, we will analyze its mistakes during training and calculate the average score for the validation. Then, according to the analysis, we will adjust the weights correspondingly, and if the combination of the new weights yields a better validation score, we will use it. Otherwise, we will try some other updates, and if we can't improve the validation result anymore, we will stop. Finally, we will use the best weights combination as our final result and test it on another 100 games.
 
   As for the weight initialization, we will start with the weights $(-1,3,2,4)$ with the following reasoning. Ultimately, the higher our board is, the less chance there is for the game to last longer. So, we intuitively assign the most weight to the $4th$ feature (maximum height). Now we want to assign weights to the $3rd$ and the $2nd$ feature. We notice that holes make it hard to be cleared; and it may consequently lead to accumulated height of the board. Therefore, in our initialization, we want to assign a relatively higher weight to the second feature, which is the number of holes. Finally, as mentioned in Methodology part, we would like the weight for the first feature to be negative because we want the number of lines cleared to be as large as possible. Hence, we would choose the number -1 as the initial weight to the $1st$ feature.
 
@@ -517,21 +515,21 @@ As mentioned above, since we implemented a Tetris environment, we can say that w
 
   \item \textbf{Reinforcement Learning Agent} 
   
-  Similar to the train-test split mentioned above, for each hyperparameter combination, we will train the network for 1,000 games and validate for 100 games, where we will measure both metrics (primary metric and reward) during training but only calculate the primary metric for validation. After we find the optimal hyperparameters, we will test the final architecture for 100 games and use this result to compare with others. As we mentioned in the {\bf Methodology} section, we will only perform the $\epsilon$-greedy algorithm and training by part techniques during the training process because we don't want to introduce any randomness during the validation or testing.
+  Similar to the train-test split mentioned in genetic algorithms, for each hyperparameter combination, we will train the network for 1,000 games and validate for 100 games, where we will measure both metrics (primary metric and reward) during training but only calculate the primary metric for validation. After we find the optimal hyperparameters, we will test the final architecture for 100 games and use this result to compare with others. As we mentioned in the {\bf Methodology} section, we will only perform the $\epsilon$-greedy algorithm and training by part techniques during the training process because we don't want to introduce any randomness to the validation or testing.
   
   As for the hyperparameter, we will leverage results from Stevens's paper \cite{Stevens_2016} and initialize our hyperparameters using their suggestions as follow. 
   
   \begin{itemize}
     \item {\bf Optimizer}: $RMSProp$
+    \item {\bf Regularization}: Batch normalization and dropout with a retention probability of $0.75$
     \item {\bf Learning rate}: $\alpha = 2\times 10^{-6}$
     \item {\bf Discount rate}: $\gamma = 0.9$
     \item {\bf Randomness}: $\epsilon = 0.5$ and $\delta = 0.0005$
-    \item {\bf Regularization}: Batch normalization and dropout with a retention probability of $0.75$
   \end{itemize}
 
   However, since our reward function, DQN architecture, and environment implementation are different from theirs, we need to adjust our hyperparameters according to the validation results, where we need to explore the optimal combination of hyperparameters similar to what we will do for the Genetic Algorithm mentioned above.
 
-  Now, recall that we introduced the special technique \textit{training by part} in the \textbf{Methodology} section and here is the detailed explanation:
+  Now, recall that we introduced the special technique \textit{training by part} technique in the \textbf{Methodology} section and here is the detailed explanation:
   
   We will decompose the training process into three parts for the sake of time efficiency as follow:
   \begin{itemize}
@@ -620,7 +618,7 @@ As mentioned above, since we implemented a Tetris environment, we can say that w
 
 
 
-\begin{figure*}[h!]
+\begin{figure*}[b!]
   \centering
   \includegraphics[width=0.75\linewidth]{figures/DQN.png}
   \caption{Deep Q-network architecture}
