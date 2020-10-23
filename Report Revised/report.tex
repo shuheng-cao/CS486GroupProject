@@ -57,7 +57,7 @@ Finally, \bi{solving a relatively simple game like Tetris will help us better un
 {\bf Methodologies}
 % {\bf For D1, describe the problem and your methodologies only.  Then, complete this part for D4. }
 
-\bi{The problem we are trying to solve is to design an agent that could achieve as many scores as possible in the Tetris game. We will implement three algorithms, including the baseline method, as shown below.}
+\bi{The problem we are trying to solve is to design an agent that could achieve as many scores as possible in the Tetris game. We will implement the environment and three algorithms, including the baseline method, as shown below.}
 % Describe, at a high-level, the problem you tackled and your main results.  What research questions are you trying to answer?   What methodologies did you used to answer the question? What are the performance measures that you used to evaluate the methodologies?   Describe your key findings in 2-3 sentences. (2-3 paragraphs)
 % In brief, the methodology of this project consists of four main parts, as shown below.
 \begin{itemize}
@@ -70,11 +70,11 @@ Finally, \bi{solving a relatively simple game like Tetris will help us better un
   \item 
   Next, we \bi{will solve} the problem using a hand-crafted agent. \bi{Inspired by Bertsekas and Tsitsiklis's paper} \cite{Bertsekas_1996}, we will manually chose the weights for 4 most representative state features: the number of holes, the height of the highest column, the height of each column, and the difference in height between consecutive columns. This approach is based mainly on the heuristic search algorithm and involves a lot of trails-and-errors. The result serves as the benchmark for the project \bi{using the evaluation metrics mentioned below}.
   \item 
-  On top of that, we will also tackle the problem \bi{using local search algorithm}. The main idea is to use a genetic algorithm to automatically find an optimal weight combination for 9 state features, where the detailed description for the features could be found in the Methodology section. 
+  On top of that, we will also tackle the problem \bi{using local search algorithm}. The main idea is to use a genetic algorithm to automatically find an optimal weight combination for 10 state features, where the detailed description for the features could be found in the Methodology section. 
   % \bi{According to the nature of the local search algorithm, this method will find the optimal weights without any human interference, and consequently, it is able to rely on more state features compared with the hand-crafted agent. As a result, we expect the local search algorithm to outperform the benchmark.}
   
   % After 200 training epochs, we indeed get a result surpassed the benchmark.
-  \item \bi{Ultimately, we will solve the problem with reinforcement learning. The main idea is that we will build and train a deep Q-network (DQN) to evaluate all the successor states of the current state. More precisely, the DQN will receive a bitmap representation of successor and output a non-negative number represents the score for it. After that, the agent will choose the successor with the highest score with probability $\epsilon$ and otherwise, it will select a random successor.}
+  \item \bi{Ultimately, we will solve the problem with reinforcement learning. The main idea is that we will build and train a deep Q-network (DQN) to evaluate all the successor states of the current state. More precisely, the DQN will receive a bitmap representation of successor and output a non-negative number represents the score for it. After that, the agent will choose the successor with the highest score and repeat until the game is over.}
   % Ultimately, we added more functionalities to the traditional Tetris, like introduce the ability to see the next Tetromino and enable holding the unwanted Tetromino, and the retrained model yields satisfying results, which proved the ability to generalization.
 
 \end{itemize}
