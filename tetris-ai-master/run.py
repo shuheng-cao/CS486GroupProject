@@ -1,5 +1,7 @@
 # from dqn_agent import DQNAgent
 from tetris import Tetris
+import keyboard
+import time
 # from datetime import datetime
 # from statistics import mean, median
 # import random
@@ -82,9 +84,36 @@ from tetris import Tetris
 if __name__ == "__main__":
     # dqn()
     env = Tetris()
-    next_states = env.get_next_states()
-    best_action = None
-    for action, state in next_states.items():
-        best_action = action
-        break
-    reward, done = env.play(best_action[0], best_action[1], render=True)
+    env._init_game()
+    # next_states = env.get_next_states()
+    # best_action = None
+    # for action, state in next_states.items():
+    #     best_action = action
+    #     break
+    # reward, done = env.play(best_action[0], best_action[1], render=True)
+
+    while True:
+        try:
+            if keyboard.is_pressed('a'):
+                env.play(-1, 0, render=True, player_mode=True)
+                time.sleep(0.1)
+                continue
+            if keyboard.is_pressed('s'):
+                env.play(0, 0, render=True, player_mode=True)
+                time.sleep(0.1)
+                continue
+            if keyboard.is_pressed('d'):
+                env.play(1, 0, render=True, player_mode=True)
+                time.sleep(0.1)
+                continue
+            if keyboard.is_pressed('q'):
+                env.play(0, -1, render=True, player_mode=True)
+                time.sleep(0.1)
+                continue
+            if keyboard.is_pressed('e'):
+                env.play(0, 1, render=True, player_mode=True)
+                time.sleep(0.1)
+                continue
+        except Exception as e:
+            print(f"finding exception {e}")
+            break

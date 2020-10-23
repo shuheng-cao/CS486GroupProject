@@ -129,10 +129,11 @@ class Tetris:
         for x, y in piece:
             x += pos[0]
             y += pos[1]
-            if x < 0 or x >= Tetris.BOARD_WIDTH \
-                    or y < 0 or y >= Tetris.BOARD_HEIGHT \
-                    or self.board[y][x] == Tetris.MAP_BLOCK:
-                return True
+            print(f"checking {x,y}")
+            if x < 0 or x >= Tetris.BOARD_WIDTH or y < 0:
+                return 1
+            if y >= Tetris.BOARD_HEIGHT or self.board[y][x] == Tetris.MAP_BLOCK:
+                return 2
         return False
 
 
@@ -154,6 +155,7 @@ class Tetris:
         '''Place a piece in the board, returning the resulting board'''        
         board = [x[:] for x in self.board]
         for x, y in piece:
+            print(f"Adding piece to board {y + pos[1], x + pos[0]}")
             board[y + pos[1]][x + pos[0]] = Tetris.MAP_BLOCK
         return board
 
@@ -162,6 +164,7 @@ class Tetris:
         '''Clears completed lines in a board'''
         # Check if lines can be cleared
         lines_to_clear = [index for index, row in enumerate(board) if sum(row) == Tetris.BOARD_WIDTH]
+        print(f"lines need to clean {lines_to_clear}")
         if lines_to_clear:
             board = [row for index, row in enumerate(board) if index not in lines_to_clear]
             # Add new lines at the top
@@ -272,32 +275,91 @@ class Tetris:
         return 4
 
 
-    def play(self, x, rotation, render=False, render_delay=None):
+    def key_control(self, x, rotation, reversed=False):
+        # for player mode, we have x to be -1 (left), 0 (down), 1 (right)
+        # and rotation to be -1 (clockwise) or 1 (counter clockwise)
+        if reversed:
+            multiplier = -1
+        else:
+            multiplier = 1
+
+        # print(f"get multiplier {multiplier}")
+
+        if rotation:
+            degree = 90 * multiplier
+            # print(f"rotation with degrees {degree}")
+            if rotation > 0:
+                self._rotate(-degree)
+            else:
+                self._rotate(degree)
+        else:
+            if x:
+                # print(f"horizontal move {x * multiplier}")
+                self.current_pos[0] += x * multiplier
+            else:
+                # print(f"vertical move {multiplier}")
+                self.current_pos[1] += multiplier
+
+    def _init_game(self):
+            self._new_round()
+            self.render()
+
+    def play(self, x, rotation, render=False, render_delay=None, player_mode=False):
         '''Makes a play given a position and a rotation, returning the reward and if the game is over'''
-        self.current_pos = [x, 0]
-        self.current_rotation = rotation
+        # print("playing as player")
+        if not player_mode:
+            self.current_pos = [x, 0]
+            self.current_rotation = rotation
+        else:
+            self.finished_round = False # for player mode only
 
-        # Drop piece
-        while not self._check_collision(self._get_rotated_piece(), self.current_pos):
-            if render:
+        # print(f"player mode with current state: {self.current_pos, self.current_rotation}")
+
+        if player_mode:
+            self.key_control(x, rotation)
+            # print(f"after key control: {self.current_pos, self.current_rotation}")
+            
+            check = self._check_collision(self._get_rotated_piece(), self.current_pos)
+            if check > 0:
+                print(f"the value of check is {check}")
+                self.key_control(x, rotation, reversed=True)
+                if check == 2:
+                    print("collision here, start new game")
+                    self.finished_round = True
+            else:
+                print("successfully rendered")
                 self.render()
-                if render_delay:
-                    sleep(render_delay)
-            self.current_pos[1] += 1
-        self.current_pos[1] -= 1
 
-        # Update board and calculate score        
-        self.board = self._add_piece_to_board(self._get_rotated_piece(), self.current_pos)
-        lines_cleared, self.board = self._clear_lines(self.board)
-        score = 1 + (lines_cleared ** 2) * Tetris.BOARD_WIDTH
-        self.score += score
+        else:
+            # Drop piece
+            while not self._check_collision(self._get_rotated_piece(), self.current_pos):
+                if render:
+                    self.render()
+                    if render_delay:
+                        sleep(render_delay)
+                self.current_pos[1] += 1
+            self.current_pos[1] -= 1
 
-        # Start new round
-        self._new_round()
+        # Update board and calculate score
+        if (not player_mode) or self.finished_round:
+            print(f"calculating score for {self.current_pos}, {self.current_rotation}")
+            self.board = self._add_piece_to_board(self._get_rotated_piece(), self.current_pos)
+            lines_cleared, self.board = self._clear_lines(self.board)
+            score = 1 + (lines_cleared ** 2) * Tetris.BOARD_WIDTH
+            self.score += score
+            self.finished_round = False
+            self._new_round()
+            self.render()
+
+        if not player_mode:
+            # Start new round
+            self._new_round()
         if self.game_over:
             score -= 2
 
-        return score, self.game_over
+        # print("about to return")
+        if not player_mode:
+            return score, self.game_over
 
 
     def render(self):
@@ -310,4 +372,5 @@ class Tetris:
         img = np.array(img)
         cv2.putText(img, str(self.score), (22, 22), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 1)
         cv2.imshow('image', np.array(img))
-        cv2.waitKey(0)
+        cv2.waitKey(1)
+        # print("finishing rendering")
