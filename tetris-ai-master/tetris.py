@@ -81,6 +81,7 @@ class Tetris:
         self.next_piece = self.bag.pop()
         self._new_round()
         self.score = 0
+        self.blocks = 0
         return self._get_board_props(self.board)
 
 
@@ -157,11 +158,13 @@ class Tetris:
         for x, y in piece:
             print(f"Adding piece to board {y + pos[1], x + pos[0]}")
             board[y + pos[1]][x + pos[0]] = Tetris.MAP_BLOCK
+        self.blocks += 4
         return board
 
 
     def _clear_lines(self, board):
         '''Clears completed lines in a board'''
+        ''' return features 1 '''
         # Check if lines can be cleared
         lines_to_clear = [index for index, row in enumerate(board) if sum(row) == Tetris.BOARD_WIDTH]
         print(f"lines need to clean {lines_to_clear}")
@@ -170,24 +173,52 @@ class Tetris:
             # Add new lines at the top
             for _ in lines_to_clear:
                 board.insert(0, [0 for _ in range(Tetris.BOARD_WIDTH)])
+            self.blocks -= lines_to_clear * Tetris.BOARD_WIDTH
         return len(lines_to_clear), board
 
 
     def _number_of_holes(self, board):
         '''Number of holes in the board (empty sqquare with at least one block above it)'''
+        ''' return features 2, 9, 10, 6, 8'''
         holes = 0
+        num_rows_with_hole = set()
+        min_i = 21 #
+        highest_hole = 0
+        lst = []
+        well_cells = 0
 
         for col in zip(*board):
             i = 0
             while i < Tetris.BOARD_HEIGHT and col[i] != Tetris.MAP_BLOCK:
                 i += 1
-            holes += len([x for x in col[i+1:] if x == Tetris.MAP_EMPTY])
+            lst.append(i)
+            min_i = min(i, min_i)
+            highest_hole = Tetris.BOARD_HEIGHT - min_i
+            cur_hole = []
+            for r in col[i+1:]:
+                if r == Tetris.MAP_EMPTY:
+                    cur_hole.append(r)
+                    num_rows_with_hole.add(r)
+            # cur_hole = len([x for x in col[i+1:] if x == Tetris.MAP_EMPTY])
+            holes += len(cur_hole)
+        for i in range(len(lst)):
+            if i == 0:
+                if lst[1] != lst[0]:
+                    well_cells += 1
+            elif i == len(lst) - 1:
+                if lst[i] != lst[i -1]:
+                    well_cells += 1
+            else:
+                if lt[i] != lst[i -1] and lst[i] != lst[i + 1]:
+                    well_cells += 1
+                
 
-        return holes
+        return holes, highest_hole, min_i, len(num_rows_with_hole), well_cells
 
 
     def _bumpiness(self, board):
         '''Sum of the differences of heights between pair of columns'''
+        ''' return features 3, 7'''
         total_bumpiness = 0
         max_bumpiness = 0
         min_ys = []
@@ -208,6 +239,7 @@ class Tetris:
 
     def _height(self, board):
         '''Sum and maximum height of the board'''
+        ''' retrun features 4'''
         sum_height = 0
         max_height = 0
         min_height = Tetris.BOARD_HEIGHT
@@ -229,10 +261,10 @@ class Tetris:
     def _get_board_props(self, board):
         '''Get properties of the board'''
         lines, board = self._clear_lines(board)
-        holes = self._number_of_holes(board)
+        holes, highest_hole, min_i, num_rows_with_hole, well_cells = self._number_of_holes(board)
         total_bumpiness, max_bumpiness = self._bumpiness(board)
         sum_height, max_height, min_height = self._height(board)
-        return [lines, holes, total_bumpiness, sum_height]
+        return [lines, holes, total_bumpiness, max_height, self.blocks, num_rows_with_hole, max_bumpiness, well_cells, highest_hole, min_i]
 
 
     def get_next_states(self):
