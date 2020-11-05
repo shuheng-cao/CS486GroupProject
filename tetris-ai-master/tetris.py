@@ -186,11 +186,18 @@ class Tetris:
         highest_hole = 0
         lst = []
         well_cells = 0
+        col_transitions = 0
+        row_transitions = 0
 
         for col in zip(*board):
             i = 0
+            flag = 0
             while i < Tetris.BOARD_HEIGHT and col[i] != Tetris.MAP_BLOCK:
                 i += 1
+                
+            if i != 0:
+                flag = 1
+                col_transitions += 1
             lst.append(i)
             min_i = min(i, min_i)
             highest_hole = Tetris.BOARD_HEIGHT - min_i
@@ -199,8 +206,30 @@ class Tetris:
                 if r == Tetris.MAP_EMPTY:
                     cur_hole.append(r)
                     num_rows_with_hole.add(r)
+                if flag == 0:
+                    if r != Tetris.MAP_EMPTY:
+                        col_transitions += 1
+                        flag = 1
+                else:
+                    if r == Tetris.MAP_EMPTY:
+                        col_transitions += 1
+                        flag = 0
             # cur_hole = len([x for x in col[i+1:] if x == Tetris.MAP_EMPTY])
             holes += len(cur_hole)
+
+            col = 0
+            flag2 = board[0][col] == Tetris.MAP_EMPTY
+            for row in range(1, len(board)):
+                if flag2:
+                    if board[row][col] != Tetris.MAP_EMPTY:
+                        row_transitions += 1
+                        flag2 = not flag2
+                else:
+                    if board[row][col] == Tetris.MAP_EMPTY:
+                        row_transitions += 1
+                        flag2 = not flag2
+            col += 1
+        
         for i in range(len(lst)):
             if i == 0:
                 if lst[1] != lst[0]:
@@ -213,7 +242,7 @@ class Tetris:
                     well_cells += 1
                 
 
-        return holes, highest_hole, min_i, len(num_rows_with_hole), well_cells
+        return holes, highest_hole, min_i, len(num_rows_with_hole), well_cells, col_transitions, row_transitions
 
 
     def _bumpiness(self, board):
@@ -243,27 +272,29 @@ class Tetris:
         sum_height = 0
         max_height = 0
         min_height = Tetris.BOARD_HEIGHT
+        heights = []
 
         for col in zip(*board):
             i = 0
             while i < Tetris.BOARD_HEIGHT and col[i] == Tetris.MAP_EMPTY:
                 i += 1
             height = Tetris.BOARD_HEIGHT - i
+            heights.append(height)
             sum_height += height
             if height > max_height:
                 max_height = height
             elif height < min_height:
                 min_height = height
 
-        return sum_height, max_height, min_height
+        return sum_height, max_height, min_height, heights
 
 
     def _get_board_props(self, board):
         '''Get properties of the board'''
         lines, board = self._clear_lines(board)
-        holes, highest_hole, min_i, num_rows_with_hole, well_cells = self._number_of_holes(board)
+        holes, highest_hole, min_i, num_rows_with_hole, well_cells, col_transitions, row_transitions = self._number_of_holes(board)
         total_bumpiness, max_bumpiness = self._bumpiness(board)
-        sum_height, max_height, min_height = self._height(board)
+        sum_height, max_height, min_height, heights = self._height(board)
         return [lines, holes, total_bumpiness, max_height, self.blocks, num_rows_with_hole, max_bumpiness, well_cells, highest_hole, min_i]
 
 
