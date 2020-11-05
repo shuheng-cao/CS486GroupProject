@@ -173,7 +173,7 @@ class Tetris:
             # Add new lines at the top
             for _ in lines_to_clear:
                 board.insert(0, [0 for _ in range(Tetris.BOARD_WIDTH)])
-            self.blocks -= lines_to_clear * Tetris.BOARD_WIDTH
+            self.blocks -= len(lines_to_clear) * Tetris.BOARD_WIDTH
         return len(lines_to_clear), board
 
 
@@ -209,7 +209,7 @@ class Tetris:
                 if lst[i] != lst[i -1]:
                     well_cells += 1
             else:
-                if lt[i] != lst[i -1] and lst[i] != lst[i + 1]:
+                if lst[i] != lst[i -1] and lst[i] != lst[i + 1]:
                     well_cells += 1
                 
 
