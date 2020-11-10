@@ -12,9 +12,8 @@ GENES = 10
 
 class Chromosome():
 
-    N_SIMULATIONS = 4
-    MAX_SIMULATION_LENGTH = 1000
-    MUTATION_CHANCE = 0.075
+    N_SIMULATIONS = 80
+    MUTATION_CHANCE = 0.01
 
     @staticmethod
     def random():
@@ -33,13 +32,12 @@ class Chromosome():
         return (np.random.random_sample(GENES) * 2) - 1
 
     @staticmethod
-    def set_globals(n_simulations, max_simulation_length, mutation_chance):
+    def set_globals(n_simulations,mutation_chance):
         """
         Sets the static constants that affect how chromosomes will cross and
         be evaluated.
         """
         Chromosome.N_SIMULATIONS = n_simulations
-        Chromosome.MAX_SIMULATION_LENGTH = max_simulation_length
         Chromosome.MUTATION_CHANCE = mutation_chance
 
     def __init__(self, genes=None):
@@ -51,7 +49,6 @@ class Chromosome():
         self.field_score = None
 
         self.simulations = Chromosome.N_SIMULATIONS
-        self.max_simulation_length = Chromosome.MAX_SIMULATION_LENGTH
         self.mutation_chance = Chromosome.MUTATION_CHANCE
 
     def __str__(self):
@@ -126,7 +123,7 @@ class Chromosome():
             tetromino = random.choice(tetrominos)
             _, __, _field, _field_score = field.get_optimal_drop(
                 tetromino, self.genes)
-            if _field_score == math.inf:
+            if _field_score == math.inf or _field is None:
                 return length, field_score
             else:
                 field = _field
