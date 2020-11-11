@@ -24,12 +24,12 @@ class DQNAgent:
         '''Builds a Keras deep neural network model'''
         model = Sequential()
 
-        model.add(Conv2D(256, (3, 3), input_shape=INPUT_SIZE))  # OBSERVATION_SPACE_VALUES = (10, 10, 3) a 10x10 RGB image.
+        model.add(Conv2D(64, (3, 3), input_shape=INPUT_SIZE))  # OBSERVATION_SPACE_VALUES = (20, 10, 1) a 20x10 image.
         model.add(Activation('relu'))
         model.add(MaxPooling2D(pool_size=(2, 2)))
         model.add(Dropout(0.2))
 
-        model.add(Conv2D(256, (3, 3)))
+        model.add(Conv2D(32, (3, 3)))
         model.add(Activation('relu'))
         model.add(MaxPooling2D(pool_size=(2, 2)))
         model.add(Dropout(0.2))
