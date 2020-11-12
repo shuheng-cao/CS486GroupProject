@@ -338,6 +338,51 @@ class Tetris:
 
         return states
 
+    def _get_board_props_handcrafted(self, board):
+        '''Get properties of the board'''
+        lines, board = self._clear_lines(board)
+        holes, highest_hole, min_i, num_rows_with_hole, well_cells, col_transitions, row_transitions = self._number_of_holes(board)
+        total_bumpiness, max_bumpiness = self._bumpiness(board)
+        sum_height, max_height, min_height, heights = self._height(board)
+        return [max_height, lines, row_transitions, col_transitions, holes, well_cells]
+
+    def get_next_states_handcrafted(self, full_board=False):
+        '''Get all possible next states'''
+        states = {}
+        piece_id = self.current_piece
+        
+        if piece_id == 6: 
+            rotations = [0]
+        elif piece_id == 0:
+            rotations = [0, 90]
+        else:
+            rotations = [0, 90, 180, 270]
+
+        # For all rotations
+        for rotation in rotations:
+            piece = Tetris.TETROMINOS[piece_id][rotation]
+            min_x = min([p[0] for p in piece])
+            max_x = max([p[0] for p in piece])
+
+            # For all positions
+            for x in range(-min_x, Tetris.BOARD_WIDTH - max_x):
+                pos = [x, 0]
+
+                # Drop piece
+                while not self._check_collision(piece, pos):
+                    pos[1] += 1
+                pos[1] -= 1
+
+                # Valid move
+                if pos[1] >= 0:
+                    board = self._add_piece_to_board(piece, pos)
+                    if full_board:
+                        states[(x, rotation)] = np.array(board)
+                    else:
+                        states[(x, rotation)] = self._get_board_props_handcrafted(board)
+
+        return states
+
 
     def get_state_size(self):
         '''Size of the state'''
