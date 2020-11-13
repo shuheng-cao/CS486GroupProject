@@ -12,7 +12,7 @@ GENES = 10
 
 class Chromosome():
 
-    N_SIMULATIONS = 80
+    N_SIMULATIONS = 10
     MUTATION_CHANCE = 0.01
 
     @staticmethod
@@ -47,7 +47,6 @@ class Chromosome():
         self.genes = genes
         self.fitness = None
         self.field_score = None
-
         self.simulations = Chromosome.N_SIMULATIONS
         self.mutation_chance = Chromosome.MUTATION_CHANCE
 
@@ -100,7 +99,7 @@ class Chromosome():
         """
         scores = np.array([
             self._get_fitness_() for _ in range(self.simulations)])
-        self.fitness, self.field_score = np.mean(scores, axis=0)
+        self.fitness = np.mean(scores, axis=0)
 
     def _get_fitness_(self):
         """
@@ -118,14 +117,17 @@ class Chromosome():
             Tetromino.LTetromino()
         ]
         field = Field()
-        field_score = -1
+        fitness = -1
+        length = 0
+        clear = 0 
         while True:
             tetromino = random.choice(tetrominos)
-            _, __, _field, _field_score = field.get_optimal_drop(
-                tetromino, self.genes)
-            if _field_score == math.inf or _field is None:
-                return length, field_score
+            _field, cleared_lines = field.get_optimal_drop( tetromino, self.genes)
+            if _field is None :
+                break
             else:
+                length += 1
+                clear += cleared_lines
                 field = _field
-                field_score = _field_score
-        return length, field_score
+                fitness = length + 10 * clear * clear
+        return fitness

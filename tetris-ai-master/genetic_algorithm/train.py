@@ -1,30 +1,20 @@
-import Board
-import Population
-import Chromosome
+from Board import Field
+from Generation import Generation
+from Chromosome import Chromosome
 import argparse
-import pickle
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--seed', type=argparse.FileType('rb'))
-    parser.add_argument('--threshold', type=int, default=1)
-    parser.add_argument('--population_size', type=int, default=16)
-    parser.add_argument('--n_simulations', type=int,
-                        default=Chromosome.N_SIMULATIONS)
-    parser.add_argument('--mutation_chance', type=float,
-                        default=Chromosome.MUTATION_CHANCE)
+    
+    parser.add_argument('--threshold', type=int, default=0)
+    parser.add_argument('--population_size', type=int, default=50)
+    parser.add_argument('--n_simulations', type=int, default=10)
+    parser.add_argument('--mutation_chance', type=float, default=0.01)
+    parser.add_argument('--selection_rate', type=float, default=0.4)
     args = parser.parse_args()
 
-    genes = Chromosome.random_genes()
-    if args.seed:
-        with args.seed as seed:
-            chromosome = pickle.load(seed)
-            genes = chromosome.genes
-
-    Chromosome.set_globals(args.n_simulations,
-                           args.mutation_chance)
-    population = Population([
-        Chromosome(genes) for i in range(args.population_size)])
+    Chromosome.set_globals(args.n_simulations,args.mutation_chance) # initialize macro for N and q
+    population = Generation([Chromosome.random() for i in range(args.population_size)], args.selection_rate, args.threshold) # initialize macro for p and stopping_criteria
     fittest = population.run()
     print('Fittest member: {}'.format(fittest))
 

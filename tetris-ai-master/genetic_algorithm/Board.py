@@ -92,8 +92,8 @@ class Field():
         """
         Checks and removes all filled lines.
         """
-        filled = np.array([row.all() and row.any() for row in state])
-        num_clear_lines = len(state[filled])
+        filled = np.array([row.all() and row.any() for row in self.state])
+        num_clear_lines = len(self.state[filled])
         non_filled = np.array(
             [not row.all() and row.any() for row in self.state])
         if non_filled.any():
@@ -113,7 +113,7 @@ class Field():
         assert isinstance(tetromino, Tetromino)
         row = self._get_tetromino_drop_row_(tetromino, column)
         if row == -1:
-            return row
+            return row, -1
         self._place_tetromino_(tetromino, row, column)
         num_lines_cleared = self._line_clear_()
         return row, num_lines_cleared
@@ -123,35 +123,36 @@ class Field():
         Check each column one by one to make sure there are no gpas in the
         column.
         """
-        rows_with_holes = 0
+        rows_with_holes = set()
         well_cells = 0
-        for row in self.state:
-            if not row.all():
-                rows_with_holes += 1
+        gaps = 0
+        filled_rows_above_highest_hole = 0
         # Cut off all the empty space above all the placed tetrominos
         top_indices = np.argmax(self.state.T != 0, axis = 1)
         # Count the number of gaps past the first filled space per column
-        gaps = [np.count_nonzero(col[top:] == 0) for col, top in zip(
-            self.state.T, top_indices)]
-            
-        highest_hole = 100
-        filled_rows_above_highest_hole = 0
-        for col, top in zip(state.T, top_indices):
-            cur = top
-            while True:
-                if col[cur] == 0:
-                    highest_hole = min(cur, highest_hole)
-                    filled_rows_above_highest_hole = cur - top
-                    break
-                cur += 1
-        highest_hole = 20 - highest_hole
+        for col, top in zip(self.state.T, top_indices):
+            for index in range(top, 20):
+                if col[index] == 0:
+                    gaps += 1
+                    rows_with_holes.add(index)
+        lst = sorted(rows_with_holes)
+        if len(rows_with_holes):
+            highest_hole = 20 - lst[0]
+        else:
+            highest_hole = 0
+
+        for pos, row in enumerate(self.state):
+            if pos == highest_hole:
+                break
+            elif row.all():
+                filled_rows_above_highest_hole += 1
 
         top_indices -= 1
         for col in range(1,9):
             cur_row = top_indices[col]
             if not self.state[cur_row][col] and self.state[cur_row][col - 1] and self.state[cur_row][col + 1]:
                 well_cells += 1
-        return rows_with_holes, sum(gaps), highest_hole, filled_rows_above_highest_hole, well_cells
+        return len(rows_with_holes), gaps, highest_hole, filled_rows_above_highest_hole, well_cells
 
     def heights(self):
         """
@@ -198,7 +199,7 @@ class Field():
             tetromino.copy().flip(),
             tetromino.copy().rotate_left()
         ]
-        best_row, best_column = None, None
+
         best_field = None
         best_drop_score = math.inf
         for rotation, tetromino_ in enumerate(rotations):
@@ -215,6 +216,5 @@ class Field():
                     score = scoring_vector.sum()
                 if score < best_drop_score:
                     best_drop_score = score
-                    best_row, best_column = (row, column)
                     best_field = f
-        return best_row, best_column, best_field, best_drop_score
+        return best_field, num_lines_cleared
