@@ -35,6 +35,7 @@ Waterloo, ON, Canada\\
 }
 \maketitle
 \newcommand\bi[1]{{\textcolor{black}{#1}}}
+\newcommand\blue[1]{\textcolor{blue}{\textbf{#1}}}
 %%%%%%%%%. Abstract %%%%%%%%%
 
 % \begin{abstract}
@@ -404,7 +405,7 @@ Now, there are two details worth mentioning during the training process.
 In summary, DQN architecture successfully solves the problems of sparse rewards and enormous states, which gives us an efficient and effective estimation for the original Q-learning in Table \ref{tab:qtable}. Moreover, with CNN's powerful encoding capability, we don't need to choose the features manually, and the architecture will automatically find the optimal features during backpropagation. As a result, we can say that DQN architecture has the potential to outperform the handcrafted and local search agents.
 
 
-\section{Results}
+\section{Results\footnote{Here is the github link to the implementation: \url{https://github.com/shuheng-cao/CS486GroupProject}}}
 \subsection{Environmental Setup}
 For the implementation of the game Tetris, we referenced the Tetris-AI implementation \cite{Nuno}. The board is $20 \times 10$, and each Tetromino is a list of four positions that it occupies. At every step, it will generate the appearance of the next Tetrominos at random. The state will be defined as a $20 \times 10$ matrix, where each entry could be one of 0, 1, or 2, represents the empty block, the occupied block, and the block occupied by the current Tetromino, respectively. For each state, all the features needed by handcrafted and local search agents will be collected, and we will use them to calculate the heuristic value. 
 
@@ -549,6 +550,59 @@ As mentioned above, since we implemented a Tetris environment, we can say that w
   
 
   In conclusion, the experimental design for the Reinforcement Learning agent consists of three steps of training where we will employ $\epsilon$-greedy algorithm and partial weight initialization for the sake of efficiency and effectiveness. 
+\end{itemize}
+
+\subsection{Implementation}
+
+As mentioned in the environment setup and design subsections, the implementation of this report mainly involves three parts: a Tetris instance to interact with ML agents, the local search agent, and the reinforcement learning agent. More elaborate explanations for all these three parts are as follows:
+
+\begin{itemize}
+  
+  \item \textbf{Tetris Interface}
+  
+  \blue{TODO by Mongo}
+  
+  \item \textbf{Local Search Agent}
+  
+  \blue{TODO by Harry}
+  
+  \item \textbf{Reinforcement Learning Agent}
+  
+  \blue{TODO by Shuheng}
+\end{itemize}
+
+\subsection{Experiment Performance}
+
+For the experiment performance, this report will concentrate on the local search and reinforcement learning agent because there is not much to improve in the handcrafted agent, as mentioned in the experiment design subsection. Here are the detailed performance results:
+
+\begin{itemize}
+  
+  \item \textbf{Local Search Agent}
+  
+  \blue{TODO by Harry}
+  
+  \item \textbf{Reinforcement Learning Agent}
+  
+  \blue{TODO by Shuheng}
+\end{itemize}
+
+\subsection{Reflection}
+
+As we can see in the two subsections above, our implementation is quite comprehensive in the sense that it involves numerous object-oriented programming techniques as well as some of the cutting-edge reinforcement learning methods. Consequently, the authors will note some lessons learned during the implementation processes, and again, it naturally falls into three parts.
+
+\begin{itemize}
+  
+  \item \textbf{Tetris Interface}
+  
+  \blue{TODO by Mongo}
+  
+  \item \textbf{Local Search Agent}
+  
+  \blue{TODO by Harry}
+  
+  \item \textbf{Reinforcement Learning Agent}
+  
+  \blue{TODO by Shuheng}
 \end{itemize}
 % {\bf Complete this section for D2 and D3.}
 
