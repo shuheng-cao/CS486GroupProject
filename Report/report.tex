@@ -57,7 +57,7 @@ Waterloo, ON, Canada\\
   
   % Motivate your entire paper.  At a high level, describe the problem that your project is addressing.  Why is this an important problem to tackle?  If there a solution to this problem, what are some potential real-world impacts of this solution?  Try to give a compelling motivating story.  If possible, support your argument with evidence such as facts and statistics.  (2-3 paragraphs)
   
-  With the great triumph of AlphaGo in 2016, more and more researchers are interested in using machine learning techniques to solve more advanced and complicated games such as StarCraft II. However, in the authors' opinion, it also provides us \bi{with} an invaluable opportunity to revisit some of the traditional video games, \bi{where we aim} for more reliable and satisfying results. Consequently, this project's primary motivation is to introduce, implement, and compare several different approaches to tackle the Tetris, a tile-matching video game with enduring appeal and popularity. \bi{In brief, Tetris is a tile-matching video game where the player will rotate and place seven different kinds of Tetrominos on top of each other. Horizontal lines will be cleaned up once they are complete, and a score will be awarded for that. This game's ultimate goal is to achieve as many marks as possible before the pieces reach the top of the game board, and therefore, there is no victory in this game.}
+  With the great triumph of AlphaGo in 2016, more and more researchers are interested in using machine learning techniques to solve more advanced and complicated games such as StarCraft II. However, in the authors' opinion, it also provides us \bi{with} an invaluable opportunity to revisit some of the traditional video games, \bi{where we aim} for more reliable and satisfying results. Consequently, \blue{this project's primary motivation is to introduce, implement, and compare several different approaches to tackle the Tetris}, a tile-matching video game with enduring appeal and popularity. \bi{In brief, Tetris is a tile-matching video game where the player will rotate and place seven different kinds of Tetrominos on top of each other. Horizontal lines will be cleaned up once they are complete, and a score will be awarded for that. This game's ultimate goal is to achieve as many marks as possible before the pieces reach the top of the game board, and therefore, there is no victory in this game.}
   
   Solving Tetris is a crucial and intriguing topic due to the two reasons below. On the one hand, Tetris is essentially an extraordinary optimization problem because each game will end no matter how well \bi{the Tetrominos} are placed \cite{burgiel_1997}. \bi{As a result}, there is no such thing as perfect solutions to Tetris and there is always room to improve. On the other hand, the analyses and comparisons mentioned in this report are not limited to Tetris only, where we could broaden them to real-life problems, such as self-driving cars and robotics, \bi{with appropriate modifications on the architectures introduced in this article}.
   
@@ -554,7 +554,7 @@ As mentioned above, since we implemented a Tetris environment, we can say that w
 
 \subsection{Implementation}
 
-As mentioned in the environment setup and design subsections, the implementation of this report mainly involves three parts: a Tetris environment to interact with ML agents, the local search agent, and the reinforcement learning agent. More elaborate explanations for all these three parts are as follows:
+As mentioned in the environment setup and design subsections, the implementation of this report mainly involves three parts: a Tetris environment to interact with ML agents, the local search agent, and the Reinforcement Learning (RL) agent. More elaborate explanations for all these three parts are as follows:
 
 \begin{itemize}
   
@@ -568,17 +568,17 @@ As mentioned in the environment setup and design subsections, the implementation
   
   \item \textbf{Reinforcement Learning Agent}
   
-During the implementation of the reinforcement learning agent, we noticed two significant challenges to the efficiency of the training process:
+During the implementation of the RL agent, we noticed two significant challenges to the efficiency of the training process:
 \begin{itemize}
   \item 
-  As mentioned in the implementation details above, when we first build the Tetris environment, it aims to optimize the performance of calculating the features for the local search agent. However, since the only input for the reinforcement learning agent is the bitmap representation of the game board, we waste a lot of computation power on the unnecessary features, especially for the function that generates the successor states.
+  As mentioned in the implementation details above, when we first build the Tetris environment, it aims to optimize the performance of calculating the features for the local search agent. However, since the only input for the RL agent is the bitmap representation of the game board, we waste a lot of computation power on the unnecessary features, especially for the function that generates the successor states.
   \item 
-  Moreover, as shown in {\bf Algorithm 2} in Figure \ref{fig:code2}, the training process involves two stages, calculating successors and fitting the model. The algorithm will work, but a crucial problem arises as we need to go back and forth between the CPU and GPU frequently. More precisely, the environment (which relies on the CPU) must wait for the agent (which depends on the GPU) to fit the data while the agent must wait for the environment to generates successors. This mutually dependent situation is notoriously bad for training efficiency.
+  Moreover, as shown in {\bf Algorithm 2} in Figure \ref{fig:code2}, the training process involves two stages, calculating successors and fitting the model. This algorithm will work, but a crucial drawback arises as we need to go back and forth between the CPU and GPU frequently. More precisely, the environment (which relies on the CPU) must wait for the agent (which depends on the GPU) to fit the data while the agent must wait for the environment to generates successors. This mutually dependent situation is notoriously bad for training efficiency.
 \end{itemize}
 Now, in order to optimize the training efficiency for Reinforcement Learning, we overcome the two challenges using the following techniques.
 \begin{itemize}
   \item 
-  Since the current Tetris environment is closely bound up with the local search agent, it is impractical to use it for the Reinforcement Learning agent. As a result, the RL agent uses an adapted version of Tetris where we eliminate all the feature calculations, and the changes can be summarized as the updated UML below:
+  Since the current Tetris environment is closely bound up with the local search agent, it is impractical to use it for the RL agent. As a result, the RL agent uses an adapted version of Tetris where we eliminate all the feature calculations, and the changes can be summarized as the updated UML below:
 
   \textcolor{blue}{\textbf{Missing UML here.} }
   
@@ -590,7 +590,28 @@ In summary, with these two changes, we reduce the time needed to train for $200$
 
 \subsection{Experiment Performance}
 
-For the experiment performance, this report will concentrate on the local search and reinforcement learning agent because there is not much to improve in the handcrafted agent, as mentioned in the experiment design subsection. Here are the detailed performance results:
+First and foremost, Table \ref{tab:resultsSummary} is a compact summary of the best performance (trained using the optimal hyperparameters) of all three agents mentioned in this paper: 
+
+\begin{table}[h!]
+  \centering
+  \normalsize{
+    \begin{tabular}{ cccc } 
+      \hline
+      Agents & min steps & avg steps & max steps  \\ 
+      \hline
+      \hline
+      Handcrafted & \blue{miss} & \blue{miss} & \blue{miss} \\ 
+      Local Search & \blue{miss} & \blue{miss} & \blue{miss}\\ 
+      RL & $102$ & $339$ & $1078$\\
+      %  \hline
+      %  Otherwise & $0$  \\
+       \hline
+      \end{tabular}}
+  \caption{Summary for Three Agents}
+  \label{tab:resultsSummary}
+\end{table} 
+
+For the experiment performance subsection, we will concentrate on the local search and reinforcement learning agent because there is not much to improve in the handcrafted agent, as mentioned in the experiment design subsection. 
 
 \begin{itemize}
   
