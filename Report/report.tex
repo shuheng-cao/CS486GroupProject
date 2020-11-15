@@ -554,7 +554,7 @@ As mentioned above, since we implemented a Tetris environment, we can say that w
 
 \subsection{Implementation}
 
-As mentioned in the environment setup and design subsections, the implementation of this report mainly involves three parts: a Tetris instance to interact with ML agents, the local search agent, and the reinforcement learning agent. More elaborate explanations for all these three parts are as follows:
+As mentioned in the environment setup and design subsections, the implementation of this report mainly involves three parts: a Tetris environment to interact with ML agents, the local search agent, and the reinforcement learning agent. More elaborate explanations for all these three parts are as follows:
 
 \begin{itemize}
   
@@ -568,7 +568,24 @@ As mentioned in the environment setup and design subsections, the implementation
   
   \item \textbf{Reinforcement Learning Agent}
   
-  \blue{TODO by Shuheng}
+During the implementation of the reinforcement learning agent, we noticed two significant challenges to the efficiency of the training process:
+\begin{itemize}
+  \item 
+  As mentioned in the implementation details above, when we first build the Tetris environment, it aims to optimize the performance of calculating the features for the local search agent. However, since the only input for the reinforcement learning agent is the bitmap representation of the game board, we waste a lot of computation power on the unnecessary features, especially for the function that generates the successor states.
+  \item 
+  Moreover, as shown in {\bf Algorithm 2} in Figure \ref{fig:code2}, the training process involves two stages, calculating successors and fitting the model. The algorithm will work, but a crucial problem arises as we need to go back and forth between the CPU and GPU frequently. More precisely, the environment (which relies on the CPU) must wait for the agent (which depends on the GPU) to fit the data while the agent must wait for the environment to generates successors. This mutually dependent situation is notoriously bad for training efficiency.
+\end{itemize}
+Now, in order to optimize the training efficiency for Reinforcement Learning, we overcome the two challenges using the following techniques.
+\begin{itemize}
+  \item 
+  Since the current Tetris environment is closely bound up with the local search agent, it is impractical to use it for the Reinforcement Learning agent. As a result, the RL agent uses an adapted version of Tetris where we eliminate all the feature calculations, and the changes can be summarized as the updated UML below:
+
+  \textcolor{blue}{\textbf{Missing UML here.} }
+  
+  \item 
+  On the other hand, to solve the frequent switch between CPU and GPU, we take advantage of the ideas from mini-batch gradient descent and dynamic programming. More concretely, instead of fitting the data right after its generation, we will push the $(state, Q-value)$ pair into a queue and only train on the data after a game finishes. Notice that such a change will not improve training efficiency but also provide reusability of training data if the queue is large enough.
+\end{itemize}
+In summary, with these two changes, we reduce the time needed to train for $200$ steps from 33 seconds to 19 seconds on a machine with two Intel Xeon E5-2660 CPUs and one Tesla T4 GPU.
 \end{itemize}
 
 \subsection{Experiment Performance}
@@ -588,7 +605,7 @@ For the experiment performance, this report will concentrate on the local search
 
 \subsection{Reflection}
 
-As we can see in the two subsections above, our implementation is quite comprehensive in the sense that it involves numerous object-oriented programming techniques as well as some of the cutting-edge reinforcement learning methods. Consequently, the authors will note some lessons learned during the implementation processes, and again, it naturally falls into three parts.
+As we can see in the two subsections above, our implementation is quite comprehensive in the sense that it involves numerous object-oriented programming techniques as well as some of the cutting-edge machine learning methods. Consequently, the authors will note some lessons learned during the implementation processes, and again, it naturally falls into three parts.
 
 \begin{itemize}
   
