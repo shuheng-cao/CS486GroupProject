@@ -94,6 +94,10 @@ if __name__ == "__main__":
 
     while True:
         try:
+            if keyboard.is_pressed('w'):
+                env.play(-2, 0, render=True, player_mode=True)
+                time.sleep(0.1)
+                continue
             if keyboard.is_pressed('a'):
                 env.play(-1, 0, render=True, player_mode=True)
                 time.sleep(0.1)

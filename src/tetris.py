@@ -407,6 +407,9 @@ class Tetris:
             else:
                 self._rotate(degree)
         else:
+            if x == -2:
+                self.current_pos[1] -= 1
+                return
             if x:
                 # print(f"horizontal move {x * multiplier}")
                 self.current_pos[0] += x * multiplier

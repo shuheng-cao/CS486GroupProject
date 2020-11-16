@@ -16,7 +16,7 @@
 \usepackage[linesnumbered,ruled]{algorithm2e}
 \usepackage{amsmath}
 \usepackage{dblfloatfix}    % To enable figures at the bottom of page
-
+\usepackage{setspace}
 \usepackage{tikz}
 \usetikzlibrary{positioning}
 
@@ -274,15 +274,25 @@ Theoretically, we could tackle this Tetris problem directly using the Q-learning
   \item Furthermore, according to Phon-Amnuaisuk's paper, the number of stable states for a $20\times 10$ Tetris board is in the order of $10^{60}$ \cite{somnuk_2015}, which means our Q-table will be of size approximately $5\times 10^{60}$. This table is way too large to store in RAM and the training time for such a large table is also unbearable.
 \end{enumerate}
 
-Now, we will conquer these two hindrances and develop a practical architecture for this problem. For the first one, inspired by Stevens's idea of \textit{grouped action} \cite{Stevens_2016}, we can leverage the successor function from the genetic algorithm and reduce the dimension of Q-table. More precisely, instead of defining action $a_i$ to be one of the $5$ single moves, we will use a \textit{grouped action} to represents a sequence of moves until the current Tetromino is landing.\footnote{In other words, each \textit{grouped action} refers to a final placement for a specific Tetromino.} For example, if we got an L-shape Tetromino as shown in Figure \ref{fig:grouped_action}, one potential \textit{grouped action} will be $\{left\times 4, \,\,clockwise\,\,rotation \times 2,\,\,down\times 12\}$, which is essentially the successor function used in the genetic algorithm.
+Now, we will conquer these two hindrances and develop a practical architecture for this problem. For the first one, inspired by Stevens's idea of \textit{grouped action} \cite{Stevens_2016}, we can leverage the successor function from the genetic algorithm and reduce the dimension of Q-table. More precisely, instead of defining action $a_i$ to be one of the $5$ single moves, we will use a \textit{grouped action} to represents a sequence of moves until the current Tetromino is landing.\footnote{In other words, each \textit{grouped action} refers to a final placement for a specific Tetromino.} For example, if we got an L-shape Tetromino as shown in Figure \ref{fig:grouped_action}, one potential \textit{grouped action} will be $\{left\times 3, \,\,clockwise\,\,rotation \times 1,\,\,down\times 10\}$, which is essentially the successor function used in the genetic algorithm.
 
-\begin{figure}[h!]
+% \begin{figure}[h!]
+%   \centering
+%   \includegraphics[width=0.9\linewidth]{figures/group_actions.jpeg}
+%   \caption{Grouped action example}
+%   \label{fig:grouped_action}
+% \end{figure}
+\begin{figure}[t!]
   \centering
-  \includegraphics[width=0.9\linewidth]{figures/group_actions.jpeg}
+  \subfigure{
+  \includegraphics[width=0.22\textwidth]{figures/group_action1.png}
+  }\hfill
+  \subfigure{
+  \includegraphics[width=0.22\textwidth]{figures/group_action2.png}
+  }
   \caption{Grouped action example}
   \label{fig:grouped_action}
 \end{figure}
-
 
 With the new definition of \textit{grouped action}, we can reconstruct our Q-table and rewrite our updating formula. Notice that because after each grouped action, it's guaranteed to be a stable state (i.e., there is no floating Tetromino), we can simplify the two-dimensional Q-table (Table \ref{tab:qtable}) into one-dimensional (Table \ref{tab:newqtable}).
 
@@ -521,11 +531,11 @@ As mentioned above, since we implemented a Tetris environment, we can say that w
   As for the hyperparameter, we will leverage results from Stevens's paper \cite{Stevens_2016} and initialize our hyperparameters using their suggestions as follow. 
   
   \begin{itemize}
-    \item {\bf Optimizer}: $RMSProp$
+    \item {\bf Optimizer}: $Adam$
     \item {\bf Regularization}: Batch normalization and dropout with a retention probability of $0.75$
     \item {\bf Learning rate}: $\alpha = 2\times 10^{-6}$
     \item {\bf Discount rate}: $\gamma = 0.9$
-    \item {\bf Randomness}: $\epsilon = 0.5$ and $\delta = 0.0005$
+    \item {\bf Randomness}: $\epsilon = 0.95$ and $\delta = 0.0005$
   \end{itemize}
 
   However, since our reward function, DQN architecture, and environment implementation are different from theirs, we need to adjust our hyperparameters according to the validation results, where we need to explore the optimal combination of hyperparameters similar to what we will do for the Genetic Algorithm mentioned above.
@@ -621,7 +631,62 @@ For the experiment performance subsection, we will concentrate on the local sear
   
   \item \textbf{Reinforcement Learning Agent}
   
-  \blue{TODO by Shuheng}
+  According to the RL agent's design and structure, we can see that one significant hindrance for training the agent is that we need to decide the value of at least $6$ hyper-parameters as list below.
+  \begin{itemize}
+    \item 
+    Whether we should use batch normalization ($BN$).
+    \item 
+    Whether we should use dropout ($DO$).
+    \item 
+    The value of the learning rate ($\alpha$).
+    \item 
+    The value of the discount rate ($\gamma$).
+    \item 
+    The value of the randomness rate ($\epsilon$).
+    \item 
+    The value of the randomness decay ($\delta$).
+  \end{itemize}
+  To make things even worse, our previous adaptation for efficiency introduces two more hyperparameters, the batch size ($BS$) and the queue size, which is also known as memory size ($MS$). Therefore, technically speaking, we need to adjust and optimize a combination of $8$ hyperparameters, which is nearly impossible to achieve through a full grid search. Fortunately, as mentioned in the Experimental Design subsection, there is some previous work in solving Tetris by RL, providing valuable information about hyperparameters. As a result, instead of exploring all the combinations of hyperparameters, we start with the recommended choices (baseline) and only alter one hyperparameter at a time while keeping all other fixed. This schedule significantly decreases the number of experiments needed, from exponential to linear, and Figure \ref{fig:hp1} shows the visualization of the performance for altering the first $6$ hyperparameters. Notice that the black points in the middle represent the average steps for a specific combination of hyperparameters, while the lower and upper bound of the dashed line stands for the minimum and maximum steps for that combination.
+
+  \begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\linewidth]{figures/HP1}
+    \caption{hyperparameters performance comparison}
+    \label{fig:hp1}
+  \end{figure}
+
+  On top of that, since the previous work didn't apply any optimization on the training algorithm in Figure \ref{fig:code2}, they are using the default value for the batch size and memory size, i.e., $BS=1, MS=\text{length of game}$. Therefore, for these two hyperparameters, we need more exploration than the previous ones, and the performance results are shown in Figure \ref{fig:hp2}.\footnote{The tabular data can be found in \textbf{Appendix C}} 
+
+  \begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\linewidth]{figures/HP2}
+    \caption{hyperparameters performance comparison}
+    \label{fig:hp2}
+  \end{figure}
+
+  Comparing each combination's performance with the baseline, we expect the following hyperparameters to be an optimal combination.
+  \begin{align*}
+    &BN=\text{false}, DO=\text{true}, \alpha=2\times 10^{-6}, \gamma = 0.95\\
+    &\epsilon=1.0,\delta=5\times 10^{-4}, BS=512, MS=20,000
+  \end{align*}
+
+  Notice that the most significant improvement comes from the removal of the batch normalization layer (which results in a $14\%$ increase in average steps) and a large memory size (which results in a $12\%$ increase in average steps). From the authors' perspective, the intuitions behind these trends are as follows:
+  \begin{itemize}
+    \item 
+    Firstly, since we are using a combination of ReLU and leaky ReLU as activation functions for the whole network, we don't necessarily need normalization since concentration on zero doesn't help much on ReLU. Therefore, removing batch normalization will help in reducing the complexity and achieving better results.
+    \item 
+    On top of that, using a large memory size will help us remember more $(state, Q-value)$ pairs, which is equivalent to a larger dataset. As a result, this should also help in improving performance.
+  \end{itemize}
+  Now, with these hyperparameters, we indeed achieved a better validation result, as shown in Table \ref{tab:resultsSummary}, and the training curve in Figure \ref{fig:tc} also gives us some sense of why the combinations make sense. For example, a large randomization rate will dominate the early training period, so we have almost no improvement in the first half. But this is beneficial for the long term as we are exploring more and the latter half is improving a lot.
+ 
+  \begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\linewidth]{figures/train_curve}
+    \caption{training curve for RL agent}
+    \label{fig:tc}
+  \end{figure}
+
+  Finally, with a well-trained RL agent, we could have a deeper understanding of how deep Q-learning (DQN) works by associating visual states with its q-values. A few examples can be found in \textbf{Appendix D}.
 \end{itemize}
 
 \subsection{Reflection}
@@ -772,4 +837,66 @@ The structure of the network is shown in the Figure \ref{fig:DQN} and here are t
     \label{fig:training}
   \end{figure}
   
+  \newpage
+  \section{Appendix C}
+  \begin{table}[h!]
+    \centering
+    \normalsize{
+      \begin{spacing}{1.9}
+      \begin{tabular}{ |cccc| } 
+        \hline
+        features & min steps & avg steps & max steps  \\ 
+        \hline
+        \hline
+        baseline & $83$& $274.39$ & $863$\\
+        without $BN$&$108$&$319.15$&$988$\\
+        without $DO$&$82$&$203.91$&$513$\\
+        $\alpha=1\times 10^{-6}$&$63$&$124.26$&$325$\\
+        $\alpha=5\times 10^{-6}$&$45$&$158.41$&$425$\\
+        $\gamma=0.85$&$78$&$300.02$&$890$\\
+        $\gamma=0.95$&$92$&$318.87$&$938$\\
+        $\epsilon=0.9$&$50$&$232.81$&$734$\\
+        $\epsilon=1.0$&$112$&$310.59$&$874$\\
+        $\delta= 4\times 10^{-4}$&$56$&$258.59$&$437$\\
+        $\delta= 6\times 10^{-4}$&$38$&$180.19$&$295$\\
+        $BS=128$&$77$&$224.45$&$695$\\
+        $BS=256$&$93$&$267.91$&$650$\\
+        $BS=512$&$88$&$325.05$&$785$\\
+        $BS=1024$&$59$&$311.92$&$798$\\
+        $MS=2000$&$53$&$196.30$&$515$\\
+        $MS=5000$&$55$&$212.99$&$612$\\
+        $MS=10000$&$75$&$257.16$&$823$\\
+        $MS=20000$&$103$&$312.34$&$919$\\
+        \hline
+      \end{tabular}
+    \end{spacing}
+    }
+    \caption{Tabular Results for RL Agent}
+    \label{tab:tabularResult}
+  \end{table}  
+  \newpage
+  \section{Appendix D}
+
+  \begin{figure}[h!]
+    \centering
+    \subfigure[score=1.94128]{
+    \includegraphics[width=0.19\textwidth]{figures/example1.png}
+    }\hfill
+    \subfigure[score=2.34137]{
+    \includegraphics[width=0.19\textwidth]{figures/example2.png}
+    }
+    \subfigure[score=1.13586]{
+    \includegraphics[width=0.19\textwidth]{figures/example3.png}
+    }\hfill
+    \subfigure[score=0.96125]{
+    \includegraphics[width=0.19\textwidth]{figures/example4.png}
+    }
+    \subfigure[score=-0.80523]{
+    \includegraphics[width=0.19\textwidth]{figures/example5.png}
+    }\hfill
+    \subfigure[score=-0.79563]{
+    \includegraphics[width=0.19\textwidth]{figures/example6.png}
+    }
+    \caption{Scores for some sample states}
+  \end{figure}
 \end{document}
