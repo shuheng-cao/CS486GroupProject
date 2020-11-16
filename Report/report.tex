@@ -577,7 +577,7 @@ As mentioned in the environment setup and design subsections, the implementation
   
   \item \textbf{Tetris Interface}
   
-  The implementation for the Tetris interface is very important. According to the design and the UML showed above, the methods of Tetris interface will be invoked by all three models. Since the three models will use the methods from Tetris class such as the successor function (get\_next\_states()), the feature value calculation functions, and play a Tetromino by placing it into the current board and the board update function is also needed. These methods will be frequently used during the training and validation process. Due to the large number of games need to train the model, the efficiency of Tetris interface implementation will result in a significant effect on the models' efficiency and the time cost that we need to spend.
+  The implementation for the Tetris interface is very important. According to the design and the UML showed in Figure \ref{fig:uml}, the methods of Tetris interface will be invoked by all three models. Since the three models will use the methods from Tetris class such as the successor function (get\_next\_states()), the feature value calculation functions, and play a Tetromino by placing it into the current board and the board update function is also needed. These methods will be frequently used during the training and validation process. Due to the large number of games need to train the model, the efficiency of Tetris interface implementation will result in a significant effect on the models' efficiency and the time cost that we need to spend.
   
   Several optimizations during the implementation of Tetris interface have been made. For the feature value calculation functions, since multiple features are needed to evaluate, and most features need to go through the entire board. It is very inefficient if we use separate methods for every one of features. It will result in many duplicate calculations. A potential solution is to combine several feature value calculation functions together, for each time we go through the entire board, return as much feature values as possible. For example, in order to figure out the number of holes, it is necessary to check every individual cells. At the same time, we could also record the highest hole position, number of rows with holes, well cells, column transitions and row transitions. To calculate the maximum height, we need to go through each columns, and at the same time, we could store the information of the height of each columns, and it will be easier to update the corresponding height in the future. This height function would return the maximum height, minimum height, sum of height, bumpiness at the same time.
   
@@ -609,7 +609,7 @@ Now, in order to optimize the training efficiency for Reinforcement Learning, we
     \centering
     \includegraphics[width=0.9\linewidth]{figures/uml}
     \caption{UML}
-    \label{fig:uml}
+    \label{fig:modified_uml}
   \end{figure}
   
   \item 
