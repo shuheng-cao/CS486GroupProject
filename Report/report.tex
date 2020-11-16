@@ -574,7 +574,11 @@ As mentioned in the environment setup and design subsections, the implementation
   
   \item \textbf{Local Search Agent}
   
-  \blue{TODO by Harry}
+  For the implementation of the local search agent, one important step is to calculate the features' value of the current board after a tetromino drops. As introduced in methodology part, we have 10 features for the local search version. An implementation challenge would be to compute the values for all features with least computation time. In order to optimize it, instead of having a helper function/method for each feature, we tried to compute as many features as we can inside one function call. This way, we would have least amount of function calls for computing the feature, thereby eliminating all unnecessary loops inside a function. 
+  
+  Another technical difficulty involves frequently copying the game state (current board holing the tetrominos dropped so far). In order to drop a most desirable tetromino, we have to try all possible dropping locations. This involves copying the board over and over again. To improve performance, we would do a shallow copy of the current board every time. 
+  
+  Aside from the aforementioned two aspects of the implementation, the implementation of genetic algorithm was straightforward in terms of selection, crossover, and mutation process.
   
   \item \textbf{Reinforcement Learning Agent}
   
@@ -611,7 +615,7 @@ First and foremost, Table \ref{tab:resultsSummary} is a compact summary of the b
       \hline
       \hline
       Handcrafted & \blue{miss} & \blue{miss} & \blue{miss} \\ 
-      Local Search & \blue{miss} & \blue{miss} & \blue{miss}\\ 
+      Local Search & $20176$ & $40138$ & $52364$\\ 
       RL & $102$ & $339$ & $1078$\\
       %  \hline
       %  Otherwise & $0$  \\
@@ -627,7 +631,31 @@ For the experiment performance subsection, we will concentrate on the local sear
   
   \item \textbf{Local Search Agent}
   
-  \blue{TODO by Harry}
+  Overall the performance of local search agent approach is quite satisfying. The best weight combination trained by the genetic algorithm yielded an average score of more than 40000 and a maximum score of more than 50000, which is dramatically more successful than a Reinforcement Learning agent approach.
+  
+  During the training process, we aimed to train three hyper-parameters: selection probability p, mutation probability q, and number of children in the initial generation M. For each child in any generation, we would perform 1000 games on it and use the mean score (out of a total of 1000 games) as the score for a child (a given chromosome). After the testing for one possible hyper-parameter combination finishes, we would have our fittest member. Then we would use the weight combination associated with the fittest member to perform another 100 games and record the minimum score, the mean score and the maximum score. The overall training performance is illustrated in Figure 4. As we can see, the fittest member has a chromosome of ${p = 0.6, q = 0.1, M = 100}$.
+  \begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\linewidth]{figures/GA1}
+    \caption{Training Process}
+    \label{fig:ga1}
+  \end{figure}
+  
+  After we get the fittest chromosome resulted from training, we would then perform validation process in a way that is specified in Methodology part. That is, we would do a complete search against:
+    $p\in\{0.4,0.5,0.6\}$, 
+    $q \in \{0.01, 0.1\}$, and
+    $M \in \{50, 100\}$
+  In this step, we recorded the minimum, mean and maximum validation score for each chromosome, as shown in Figure 5. It is shown that the optimal hyper-parameters resulted from the validation process is ${p = 0.55, q = 0.08, M = 120}$.
+  \begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\linewidth]{figures/GA2}
+    \caption{Validation Process}
+    \label{fig:ga2}
+  \end{figure}
+  
+  An interesting discovery from the data exploration is that the average performance is positively related to the number of children in the initial generation. In other words, if $p$ and $q$ remain the same, then the more $M$ is, the higher the game score is. It makes sense because because in each generation we have more members to perform crossover, which probabilistically increases the chance of generating a a fitter child.
+  
+  The biggest challenge for the performance of implementation for local search agent is with our algorithm's run-time. The whole process including training, validation, and testing took more than a week to finish. However, given the sheer amount of the data and computing tasks (a substantial amount of copying), we would argue that the long run-time is inevitable.
   
   \item \textbf{Reinforcement Learning Agent}
   
@@ -701,7 +729,11 @@ As we can see in the two subsections above, our implementation is quite comprehe
   
   \item \textbf{Local Search Agent}
   
-  \blue{TODO by Harry}
+  For the genetic algorithm, I've learned two important lessons. 
+  
+  First, it really did the good job searching for the best chromosome. Without explicitly writing technical details to play the game well. We simply told the algorithm what is considered to be optimal and what is not. The actual result is much more desirable than using handcrafted agent and reinforcement learning agent. 
+  
+  Second, although the algorithm did a good job calculating the weight for each feature, that does not mean that it can find all underlying features that would affect the gaming score. After all, we only took into consideration of 10 features for this local search implementation. Maybe there are other underlying features we fail to identify. Therefore, to improve search performance, we could add as many features as possible to our chromosome. 
   
   \item \textbf{Reinforcement Learning Agent}
   
