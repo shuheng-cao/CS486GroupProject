@@ -570,7 +570,11 @@ As mentioned in the environment setup and design subsections, the implementation
   
   \item \textbf{Tetris Interface}
   
-  \blue{TODO by Mongo}
+  The implementation for the Tetris interface is very important. According to the design and the UML showed in later section, the methods of Tetris interface will be invoked by all three models. Since the three models will use the methods from Tetris class such as the successor function (get\_next\_states()), the feature value calculation functions, and play a Tetromino by placing it into the current board and the board update function is also needed. These methods will be frequently used during the training and validation process. Due to the large number of games need to train the model, the efficiency of Tetris interface implementation will result in a significant effect on the models' efficiency and the time cost that we need to spend.
+  
+  Several optimizations during the implementation of Tetris interface have been made. For the feature value calculation functions, since multiple features are needed to evaluate, and most features need to go through the entire board. It is very inefficient if we use separate methods for every one of features. It will result in many duplicate calculations. A potential solution is to combine several feature value calculation functions together, for each time we go through the entire board, return as much feature values as possible. For example, in order to figure out the number of holes, it is necessary to check every individual cells. At the same time, we could also record the highest hole position, number of rows with holes, well cells, column transitions and row transitions. To calculate the maximum height, we need to go through each columns, and at the same time, we could store the information of the height of each columns, and it will be easier to update the corresponding height in the future. This height function would return the maximum height, minimum height, sum of height, bumpiness at the same time.
+  
+  For the successor function, instead of return the entire board for each possible successor states, we make it return the bitmap, with is a huge support for reinforcement learning agent. Also, it contains the information of next step's horizontal shifts, the angle of rotations and the feature values. So that the agent could use feature values to decide the optimal solution and whenever a decision is made, we could make a play by using the horizontal shifts and rotation, which would improve the time complexity and extra space usage. Also, the successor function needs to check every single possible moves. Using a brute force algorithm until a collision occurs. However, the part of the board which is beyond the maximum height is the same as an empty board. It is impossible to have a collision beyond the maximum height. We have the maximum height calculated and stored during the feature value calculations, thus exploring the area beyond the maximum height is a waste of time. Thus we start and check collisions from the level of maximum height. Since one of our purpose is to reduce and keep the maximum height as low as possible, and we do not want the maximum height to grow fast. Thus by applying this approach, we could improve the efficiency significantly.
   
   \item \textbf{Local Search Agent}
   
@@ -594,7 +598,12 @@ Now, in order to optimize the training efficiency for Reinforcement Learning, we
   \item 
   Since the current Tetris environment is closely bound up with the local search agent, it is impractical to use it for the RL agent. As a result, the RL agent uses an adapted version of Tetris where we eliminate all the feature calculations, and the changes can be summarized as the updated UML below:
 
-  \textcolor{blue}{\textbf{Missing UML here.} }
+ \begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\linewidth]{figures/uml}
+    \caption{UML}
+    \label{fig:uml}
+  \end{figure}
   
   \item 
   On the other hand, to solve the frequent switch between CPU and GPU, we take advantage of the ideas from mini-batch gradient descent and dynamic programming. More concretely, instead of fitting the data right after its generation, we will push the $(state, Q-value)$ pair into a queue and only train on the data after a game finishes. Notice that such a change will not improve training efficiency but also provide reusability of training data if the queue is large enough.
@@ -614,7 +623,7 @@ First and foremost, Table \ref{tab:resultsSummary} is a compact summary of the b
       Agents & min steps & avg steps & max steps  \\ 
       \hline
       \hline
-      Handcrafted & \blue{miss} & \blue{miss} & \blue{miss} \\ 
+      Handcrafted & $23$ & $210$ & $2072$ \\ 
       Local Search & $20176$ & $40138$ & $52364$\\ 
       RL & $102$ & $339$ & $1078$\\
       %  \hline
@@ -725,7 +734,11 @@ As we can see in the two subsections above, our implementation is quite comprehe
   
   \item \textbf{Tetris Interface}
   
-  \blue{TODO by Mongo}
+  The lesson that we learned from implementing Tetris interface is the design. Since the Tetris interface cooperate with all three agents, thus the key point is to design a barrier-free implementation, so that agents would have enough flexibility to get every information they need from the Tetris interface. Design and implement Object Oriented Programming in python is a new experience for us. We need to learn how to think about the whole structure at a very high level before we start. We need to figure out the API that we might need for each agent. This is a challenging part since we would like to have the same API work for all agents and also all sufficient information is provided. We also learned working as a team. We need to highly cooperate with each other so that is will be easier for us to combine separate parts together, which involves a lot of pre-planning and team communications.
+  
+  On the other hand, the optimization is another challenge. As mentioned before, the performance and efficiency of the Tetris interface significantly affects the time cost of other agents since agents relies on the APIs of the Tetris interface. At the beginning, the efficiency is not quite satisfiable. It needs relatively long time to get all successors and feature values. We spend a lot of time thinking about how to improve the efficiency and remove duplicate calculations without reducing the consistency. It is a valuable lesson about optimizing implementation performance.
+  
+  Last but not the least, another thing that we learned is visualization of Tetris with python. And we also implemented keyboard control function into the Tetris. It is also a playable Tetris game itself. Visualization helps to debug such as checking whether we are getting the right feature value for the agents. Also, for some extreme cases, instead of using random ordered Tetrominos, we would like to construct a state by our own to test certain extreme performance. Thus the Tetris interface could take inputs from the user other than control the movement of Tetromino, but also allow the user to force the type of next Tetromino. We learned the usage of cv2 pakage in python.
   
   \item \textbf{Local Search Agent}
   

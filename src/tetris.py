@@ -133,7 +133,7 @@ class Tetris:
         for x, y in piece:
             x += pos[0]
             y += pos[1]
-            print(f"checking {x,y}")
+            # print(f"checking {x,y}")
             if x < 0 or x >= Tetris.BOARD_WIDTH or y < 0:
                 return 1
             if y >= Tetris.BOARD_HEIGHT or self.board[y][x] == Tetris.MAP_BLOCK:
@@ -159,7 +159,7 @@ class Tetris:
         '''Place a piece in the board, returning the resulting board'''        
         board = [x[:] for x in self.board]
         for x, y in piece:
-            print(f"Adding piece to board {y + pos[1], x + pos[0]}")
+            # print(f"Adding piece to board {y + pos[1], x + pos[0]}")
             board[y + pos[1]][x + pos[0]] = Tetris.MAP_BLOCK
         self.blocks += 4
         return board
@@ -170,7 +170,7 @@ class Tetris:
         ''' return features 1 '''
         # Check if lines can be cleared
         lines_to_clear = [index for index, row in enumerate(board) if sum(row) == Tetris.BOARD_WIDTH]
-        print(f"lines need to clean {lines_to_clear}")
+        # print(f"lines need to clean {lines_to_clear}")
         if lines_to_clear:
             board = [row for index, row in enumerate(board) if index not in lines_to_clear]
             # Add new lines at the top
@@ -438,13 +438,13 @@ class Tetris:
             
             check = self._check_collision(self._get_rotated_piece(), self.current_pos)
             if check > 0:
-                print(f"the value of check is {check}")
+                # print(f"the value of check is {check}")
                 self.key_control(x, rotation, reversed=True)
                 if check == 2:
-                    print("collision here, start new game")
+                    # print("collision here, start new game")
                     self.finished_round = True
             else:
-                print("successfully rendered")
+                # print("successfully rendered")
                 self.render()
 
         else:
@@ -459,7 +459,7 @@ class Tetris:
 
         # Update board and calculate score
         if (not player_mode) or self.finished_round:
-            print(f"calculating score for {self.current_pos}, {self.current_rotation}")
+            # print(f"calculating score for {self.current_pos}, {self.current_rotation}")
             self.board = self._add_piece_to_board(self._get_rotated_piece(), self.current_pos)
             lines_cleared, self.board = self._clear_lines(self.board)
             score = 1 + (lines_cleared ** 2) * Tetris.BOARD_WIDTH

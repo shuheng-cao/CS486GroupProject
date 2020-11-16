@@ -58,3 +58,5 @@ if __name__ == "__main__":
         scores.append(score)
     avg = sum(scores) / float(len(scores))
     print("Average score: "+ str(avg))
+    print("Min score: " + str(min(scores)))
+    print("Max score: " + str(max(scores)))
