@@ -598,7 +598,7 @@ Now, in order to optimize the training efficiency for Reinforcement Learning, we
 In summary, with these two changes, we reduce the time needed to train for $200$ steps from 33 seconds to 19 seconds on a machine with two Intel Xeon E5-2660 CPUs and one Tesla T4 GPU.
 \end{itemize}
 
-\subsection{Experiment Performance}
+\subsection{Experimental Performance}
 
 First and foremost, Table \ref{tab:resultsSummary} is a compact summary of the best performance (trained using the optimal hyperparameters) of all three agents mentioned in this paper: 
 
@@ -705,7 +705,7 @@ As we can see in the two subsections above, our implementation is quite comprehe
   
   \item \textbf{Reinforcement Learning Agent}
   
-  \blue{TODO by Shuheng}
+  In the authors' opinions, the most valuable lessons learned from the analysis and implementation process are that theory doesn't always correspond to the practice. In this report, we analyze how and why the reinforcement learning agent should surpass the local search agent, but after we implement both, it is later that overshadows the former. The underlying reasons will be analyzed in greater detail in the Discussion section, but in brief, the lesson is that the most complex model isn't necessarily the best model. On top of that, the authors also learned many practical skills during the learning and implementation process. Firstly, none of the authors had any preknowledge about q-learning, so we need to study everything from scratch by ourselves. This learning process should be beneficial for further career, either in academics or industry. Moreover, during the implementation process, the authors encountered plenty of challenges that will never show up in the homework — for example, spending days training and validating to find optimal hyperparameters, spending hours dealing with the frequent switch between CPU and GPU, etc. These experiences give us a more in-depth understanding of Reinforcement Learning as well as practice our problem-solving skills in real life. 
 \end{itemize}
 % {\bf Complete this section for D2 and D3.}
 
