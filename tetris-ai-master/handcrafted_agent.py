@@ -43,11 +43,18 @@ def hand_crafted():
                 best_action = action
                 break
 
-        reward, done = env.play(best_action[0], best_action[1], render=True,
+        reward, done = env.play(best_action[0], best_action[1], render=False,
                                 render_delay=None)
         
         current_state = next_states[best_action]
         steps += 1
+    
+    return env.get_game_score()
 
 if __name__ == "__main__":
-    hand_crafted()
+    scores = []
+    for i in range(100):
+        score = hand_crafted()
+        scores.append(score)
+    avg = sum(scores) / float(len(scores))
+    print("Average score: "+ str(avg))
