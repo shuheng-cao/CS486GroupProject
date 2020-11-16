@@ -35,6 +35,7 @@ Waterloo, ON, Canada\\
 }
 \maketitle
 \newcommand\bi[1]{{\textcolor{black}{#1}}}
+\newcommand\blue[1]{\textcolor{blue}{\textbf{#1}}}
 %%%%%%%%%. Abstract %%%%%%%%%
 
 % \begin{abstract}
@@ -56,7 +57,7 @@ Waterloo, ON, Canada\\
   
   % Motivate your entire paper.  At a high level, describe the problem that your project is addressing.  Why is this an important problem to tackle?  If there a solution to this problem, what are some potential real-world impacts of this solution?  Try to give a compelling motivating story.  If possible, support your argument with evidence such as facts and statistics.  (2-3 paragraphs)
   
-  With the great triumph of AlphaGo in 2016, more and more researchers are interested in using machine learning techniques to solve more advanced and complicated games such as StarCraft II. However, in the authors' opinion, it also provides us \bi{with} an invaluable opportunity to revisit some of the traditional video games, \bi{where we aim} for more reliable and satisfying results. Consequently, this project's primary motivation is to introduce, implement, and compare several different approaches to tackle the Tetris, a tile-matching video game with enduring appeal and popularity. \bi{In brief, Tetris is a tile-matching video game where the player will rotate and place seven different kinds of Tetrominos on top of each other. Horizontal lines will be cleaned up once they are complete, and a score will be awarded for that. This game's ultimate goal is to achieve as many marks as possible before the pieces reach the top of the game board, and therefore, there is no victory in this game.}
+  With the great triumph of AlphaGo in 2016, more and more researchers are interested in using machine learning techniques to solve more advanced and complicated games such as StarCraft II. However, in the authors' opinion, it also provides us \bi{with} an invaluable opportunity to revisit some of the traditional video games, \bi{where we aim} for more reliable and satisfying results. Consequently, \blue{this project's primary motivation is to introduce, implement, and compare several different approaches to tackle the Tetris}, a tile-matching video game with enduring appeal and popularity. \bi{In brief, Tetris is a tile-matching video game where the player will rotate and place seven different kinds of Tetrominos on top of each other. Horizontal lines will be cleaned up once they are complete, and a score will be awarded for that. This game's ultimate goal is to achieve as many marks as possible before the pieces reach the top of the game board, and therefore, there is no victory in this game.}
   
   Solving Tetris is a crucial and intriguing topic due to the two reasons below. On the one hand, Tetris is essentially an extraordinary optimization problem because each game will end no matter how well \bi{the Tetrominos} are placed \cite{burgiel_1997}. \bi{As a result}, there is no such thing as perfect solutions to Tetris and there is always room to improve. On the other hand, the analyses and comparisons mentioned in this report are not limited to Tetris only, where we could broaden them to real-life problems, such as self-driving cars and robotics, \bi{with appropriate modifications on the architectures introduced in this article}.
   
@@ -404,7 +405,7 @@ Now, there are two details worth mentioning during the training process.
 In summary, DQN architecture successfully solves the problems of sparse rewards and enormous states, which gives us an efficient and effective estimation for the original Q-learning in Table \ref{tab:qtable}. Moreover, with CNN's powerful encoding capability, we don't need to choose the features manually, and the architecture will automatically find the optimal features during backpropagation. As a result, we can say that DQN architecture has the potential to outperform the handcrafted and local search agents.
 
 
-\section{Results}
+\section{Results\footnote{Here is the github link to the implementation: \url{https://github.com/shuheng-cao/CS486GroupProject}}}
 \subsection{Environmental Setup}
 For the implementation of the game Tetris, we referenced the Tetris-AI implementation \cite{Nuno}. The board is $20 \times 10$, and each Tetromino is a list of four positions that it occupies. At every step, it will generate the appearance of the next Tetrominos at random. The state will be defined as a $20 \times 10$ matrix, where each entry could be one of 0, 1, or 2, represents the empty block, the occupied block, and the block occupied by the current Tetromino, respectively. For each state, all the features needed by handcrafted and local search agents will be collected, and we will use them to calculate the heuristic value. 
 
@@ -549,6 +550,97 @@ As mentioned above, since we implemented a Tetris environment, we can say that w
   
 
   In conclusion, the experimental design for the Reinforcement Learning agent consists of three steps of training where we will employ $\epsilon$-greedy algorithm and partial weight initialization for the sake of efficiency and effectiveness. 
+\end{itemize}
+
+\subsection{Implementation}
+
+As mentioned in the environment setup and design subsections, the implementation of this report mainly involves three parts: a Tetris environment to interact with ML agents, the local search agent, and the Reinforcement Learning (RL) agent. More elaborate explanations for all these three parts are as follows:
+
+\begin{itemize}
+  
+  \item \textbf{Tetris Interface}
+  
+  \blue{TODO by Mongo}
+  
+  \item \textbf{Local Search Agent}
+  
+  \blue{TODO by Harry}
+  
+  \item \textbf{Reinforcement Learning Agent}
+  
+During the implementation of the RL agent, we noticed two significant challenges to the efficiency of the training process:
+\begin{itemize}
+  \item 
+  As mentioned in the implementation details above, when we first build the Tetris environment, it aims to optimize the performance of calculating the features for the local search agent. However, since the only input for the RL agent is the bitmap representation of the game board, we waste a lot of computation power on the unnecessary features, especially for the function that generates the successor states.
+  \item 
+  Moreover, as shown in {\bf Algorithm 2} in Figure \ref{fig:code2}, the training process involves two stages, calculating successors and fitting the model. This algorithm will work, but a crucial drawback arises as we need to go back and forth between the CPU and GPU frequently. More precisely, the environment (which relies on the CPU) must wait for the agent (which depends on the GPU) to fit the data while the agent must wait for the environment to generates successors. This mutually dependent situation is notoriously bad for training efficiency.
+\end{itemize}
+Now, in order to optimize the training efficiency for Reinforcement Learning, we overcome the two challenges using the following techniques.
+\begin{itemize}
+  \item 
+  Since the current Tetris environment is closely bound up with the local search agent, it is impractical to use it for the RL agent. As a result, the RL agent uses an adapted version of Tetris where we eliminate all the feature calculations, and the changes can be summarized as the updated UML below:
+
+  \textcolor{blue}{\textbf{Missing UML here.} }
+  
+  \item 
+  On the other hand, to solve the frequent switch between CPU and GPU, we take advantage of the ideas from mini-batch gradient descent and dynamic programming. More concretely, instead of fitting the data right after its generation, we will push the $(state, Q-value)$ pair into a queue and only train on the data after a game finishes. Notice that such a change will not improve training efficiency but also provide reusability of training data if the queue is large enough.
+\end{itemize}
+In summary, with these two changes, we reduce the time needed to train for $200$ steps from 33 seconds to 19 seconds on a machine with two Intel Xeon E5-2660 CPUs and one Tesla T4 GPU.
+\end{itemize}
+
+\subsection{Experiment Performance}
+
+First and foremost, Table \ref{tab:resultsSummary} is a compact summary of the best performance (trained using the optimal hyperparameters) of all three agents mentioned in this paper: 
+
+\begin{table}[h!]
+  \centering
+  \normalsize{
+    \begin{tabular}{ cccc } 
+      \hline
+      Agents & min steps & avg steps & max steps  \\ 
+      \hline
+      \hline
+      Handcrafted & \blue{miss} & \blue{miss} & \blue{miss} \\ 
+      Local Search & \blue{miss} & \blue{miss} & \blue{miss}\\ 
+      RL & $102$ & $339$ & $1078$\\
+      %  \hline
+      %  Otherwise & $0$  \\
+       \hline
+      \end{tabular}}
+  \caption{Summary for Three Agents}
+  \label{tab:resultsSummary}
+\end{table} 
+
+For the experiment performance subsection, we will concentrate on the local search and reinforcement learning agent because there is not much to improve in the handcrafted agent, as mentioned in the experiment design subsection. 
+
+\begin{itemize}
+  
+  \item \textbf{Local Search Agent}
+  
+  \blue{TODO by Harry}
+  
+  \item \textbf{Reinforcement Learning Agent}
+  
+  \blue{TODO by Shuheng}
+\end{itemize}
+
+\subsection{Reflection}
+
+As we can see in the two subsections above, our implementation is quite comprehensive in the sense that it involves numerous object-oriented programming techniques as well as some of the cutting-edge machine learning methods. Consequently, the authors will note some lessons learned during the implementation processes, and again, it naturally falls into three parts.
+
+\begin{itemize}
+  
+  \item \textbf{Tetris Interface}
+  
+  \blue{TODO by Mongo}
+  
+  \item \textbf{Local Search Agent}
+  
+  \blue{TODO by Harry}
+  
+  \item \textbf{Reinforcement Learning Agent}
+  
+  \blue{TODO by Shuheng}
 \end{itemize}
 % {\bf Complete this section for D2 and D3.}
 

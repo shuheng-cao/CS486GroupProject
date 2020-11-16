@@ -1,7 +1,0 @@
-tensorflow
-tensorboard
-Keras
-opencv-python
-numpy
-Pillow
-tqdm
