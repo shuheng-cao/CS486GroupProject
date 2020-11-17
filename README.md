@@ -39,7 +39,7 @@ Execute [handcrafted_agent.py](https://github.com/shuheng-cao/CS486GroupProject/
 
 #### Training
 There are two ways to train the Generic Algorithm Agent.
-- __(Recommended)__ train the model in the Colab environment [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/130H9T8OIUNMIVJc6tB8luHwy82K2WqGR?usp=sharing)
+- __(Recommended)__ train the model in the Colab environment [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1A-agtk1B0af63LAAELrrnmh-6ZzFJFrE?usp=sharing)
 - We could also train the model by running the python script [GeneticAgent.py](https://github.com/shuheng-cao/CS486GroupProject/blob/master/src/GeneticAgent.py). However, this may not be the most updated version and the results may not as expected.
 
 #### Executing

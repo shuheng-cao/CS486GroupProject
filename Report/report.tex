@@ -564,14 +564,17 @@ As mentioned above, since we implemented a Tetris environment, we can say that w
 
 \subsection{Implementation}
 
-As mentioned in the environment setup and design subsections, the implementation of this report mainly involves three parts: a Tetris environment to interact with ML agents, the local search agent, and the Reinforcement Learning (RL) agent. More elaborate explanations for all these three parts are as follows:
+As mentioned in the environment setup and design subsections, the implementation of this report mainly involves three parts: a Tetris environment to interact with ML agents, the local search agent, and the Reinforcement Learning (RL) agent. More elaborate explanations for all these three parts are as shown in Figure \ref{fig:uml}.
 
 \begin{itemize}
 
  \begin{figure}[h!]
     \centering
-    \includegraphics[width=1.0\linewidth]{figures/uml}
-    \caption{Detailed design and implementation for the Tetris environment as well as the three agents used in the report: handcrafted agent, local search agent, and reinforcement learning agent.}
+    \includegraphics[width=0.8\linewidth]{figures/uml}
+    \caption{Summary for the design}
+    \medskip
+    \footnotesize
+    This includes the implementation for the Tetris environment as well as the three agents depends on the environment: handcrafted agent, local search agent, and reinforcement learning agent.
     \label{fig:uml}
   \end{figure}
   
@@ -580,7 +583,7 @@ As mentioned in the environment setup and design subsections, the implementation
  
   Several optimizations during the implementation of the Tetris interface have been made. For the feature calculations, since most of the features require to go through the entire game board, it is very inefficient to compute them separately, resulting in redundancy and duplications. A potential solution is to combine several feature value calculation functions together, and each time we go through the entire board, return as many feature values as possible. For example, in order to figure out the number of holes, it is necessary to check every individual cell. We could simultaneously record a series of other features, e.g., the highest hole position, number of rows with holes, well cells, column transitions, and row transitions. Similarly, to calculate the maximum height, we need to go through each column, and at the same time, we could store the information about each column's height, which makes it easier to update the corresponding height in the future. As a result, this height function would return the maximum height, minimum height, sum of height, bumpiness at the same time.
  
-  Moreover, for the successor function, we will take advantage of polymorphism techniques. More precisely, depending on the type of agent requires for the next states, the function will return different outputs, i.e., returns the feature vectors for the Local Search agent and bitmap for the RL agent. This design sounds pretty promising in theory, but as we will mention in the RL agent's implementation, it actually comes with an inevitable cost. On top of that, the successor function also contains information about the next step's horizontal shifts and the angle of rotations. This is aimed to facilitate the play function to make a move whenever a decision is made by the agent, which improves the time and space complexity. Finally, the successor function also needs to check every possible placement for different types of Tetromino. At its core, it is a brute force algorithm to try all rotations on all columns and drop the block until a collision occurs. However, we still manage to optimize it by reusing some of the features we calculated before. More precisely, instead of starting from the top left corner, we will start from the highest column, which is one of the features we already calculated. The idea is that it is impossible to have a collision beyond the maximum height, and exploring the area beyond the maximum height is a waste of time. The change should work especially well in the early stage of our algorithm because, at that time, we have almost no blocks on the board.
+  Furthermore, for the successor function, we will take advantage of polymorphism techniques. More concretely, depending on the type of agent requires for the next states, the function will return different outputs, i.e., returns the feature vectors for the Local Search agent and bitmap for the RL agent. This design sounds pretty promising in theory, but as we will mention in the RL agent's implementation, it actually comes with an inevitable cost. On top of that, the successor function also contains information about the next step's horizontal shifts and the angle of rotations. This is aimed to facilitate the play function to make a move whenever a decision is made by the agent, which improves the time and space complexity. Finally, the successor function also needs to check every possible placement for different types of Tetromino. At its core, it is a brute force algorithm to try all rotations on all columns and drop the block until a collision occurs. However, we still manage to optimize it by reusing some of the features we calculated before. More precisely, instead of starting from the top left corner, we will start from the highest column, which is one of the features we already calculated. The idea is that it is impossible to have a collision beyond the maximum height, and exploring the area beyond the maximum height is a waste of time. The change should work especially well in the early stage of our algorithm because, at that time, we have almost no blocks on the board.
  
   
   \item \textbf{Local Search Agent}
@@ -614,6 +617,9 @@ Now, in order to optimize the training efficiency for Reinforcement Learning, we
     \centering
     \includegraphics[width=0.9\linewidth]{figures/modifiedUML.png}
     \caption{Modified implementation for RL agent}
+    \medskip
+    \footnotesize
+    For sake of efficiency, we removed a lot of unnecessary feature calculations for Reinforcement Learning agent.
     \label{fig:modified_uml}
   \end{figure}
   
@@ -623,7 +629,7 @@ Now, in order to optimize the training efficiency for Reinforcement Learning, we
 In summary, with these two changes, we reduce the time needed to train for $200$ steps from 33 seconds to 19 seconds on a machine with two Intel Xeon E5-2660 CPUs and one Tesla T4 GPU.
 \end{itemize}
 
-\subsection{Experimental Performance}
+\subsection{Experimental Performance} 
 
 First and foremost, Table \ref{tab:resultsSummary} is a compact summary of the best performance (trained using the optimal hyperparameters) of all three agents mentioned in this paper: 
 
@@ -642,7 +648,10 @@ First and foremost, Table \ref{tab:resultsSummary} is a compact summary of the b
       %  Otherwise & $0$  \\
        \hline
       \end{tabular}}
-  \caption{Summary for Three Agents}
+  \caption{Result Summary for Three Agents}
+  \medskip
+  \footnotesize
+  This is a summary for the performance of three agents using the optimal hyperparameters. We can see that the local search agent actually dominates the remaining ones while there is only subtle improvements in reinforcement Learning agent compared with the hand-crafted agent.
   \label{tab:resultsSummary}
 \end{table} 
 
@@ -652,41 +661,64 @@ For the experiment performance subsection, we will concentrate on the local sear
   
   \item \textbf{Local Search Agent}
   
-  Overall the performance of local search agent approach is quite satisfying. The best weight combination trained by the genetic algorithm yielded an average score of more than 2000 and a maximum score of around 2600, which is dramatically more successful than a Reinforcement Learning agent approach.
-  
-  During the training process, we aimed to train three hyper-parameters: selection probability p, mutation probability q, and number of children in the initial generation M. For each child in any generation, we would perform 1000 games on it and use the mean score (out of a total of 1000 games) as the score for a child (a given chromosome). After the testing for one possible hyper-parameter combination finishes, we would have our fittest member. Then we would use the weight combination associated with the fittest member to perform another 100 games and record the minimum score, the mean score and the maximum score. The overall training performance is illustrated in Figure 4. As we can see, the fittest member has a chromosome of ${p = 0.6, q = 0.1, M = 100}$.
-  \begin{figure}[h!]
+  As shown in Table \ref{tab:resultsSummary}, the overall performance of the local search agent is immensely satisfying, where the best weight combination yields average steps of 2012, which is almost $6$ times compared with the RL agent and $10$ times compared with the handcrafted agent. Here are more details about the performance and intuitions about the local search agent using the genetic algorithm.
+As mentioned in the Experimental Design section, there are mainly three hyperparameters we need to adjust:
+ \begin{itemize}
+ \item The selection probability $p$
+ \item The mutation probability $q$
+ \item The number of children in the initial generation $M$
+\end{itemize}
+Moreover, since we don't have any preknowledge about the hyperparameters, we will do the full grid search on the $12$ combinations of $(p, q, M)$:
+ \[
+ p\in\{0.4,0.5,0.6\}, q \in \{0.01, 0.1\}, M \in \{50, 100\}
+ \] 
+ 
+A summary of the validation results of min, average, and max steps is illustrated in Figure \ref{fig:ga1}, where we have the lower and upper steps represented by the dashed line and the average highlighted by the dot. Notice that the combination ${p = 0.6, q = 0.1, M = 100}$ almost surpass all the other combinations in terms of both min steps and average steps. Thus, we will use this combination as the baseline and do a further zoom-in grid search, as mentioned in the Experimental Design section.
+\begin{figure}[h!]
     \centering
     \includegraphics[width=0.9\linewidth]{figures/GA1}
-    \caption{Training Process}
+    \caption{Initial Validation Results for Local Search Agent}
+    \medskip
+    \footnotesize
+    This is results of the initial hyperparameter searching for local search agent, where the lower and upper bound of the dashed line represents the min and max steps while the highlighted dot refers to the average steps. The $x$-axis is the different combinations of hyperparameters, representing the selection probability, mutation probability, number of children separately.
     \label{fig:ga1}
   \end{figure}
   
-  After we get the fittest chromosome resulted from training, we would then perform validation process in a way that is specified in Methodology part. That is, we would do a complete search against:
-    $p\in\{0.4,0.5,0.6\}$, 
-    $q \in \{0.01, 0.1\}$, and
-    $M \in \{50, 100\}$
-  In this step, we recorded the minimum, mean and maximum validation score for each chromosome, as shown in Figure 5. It is shown that the optimal hyper-parameters resulted from the validation process is ${p = 0.55, q = 0.08, M = 120}$.\footnote{The tabular data can be found in \textbf{Appendix C}.}
+  For the zoom-in full grid search, we will train and validate on $12$ new combinations based on the baseline:  
+  \[
+  p\in\{0.55,0.6,0.65\}, q \in \{0.08, 0.12\}, M \in \{80, 120\}
+  \] 
+
+
+  We organized the results in a similar manner, as shown in Figure \ref{fig:ga2}, where we highlighted the winner (baseline) from the last full grid search using blue. Notice that we indeed get a slightly better performance using the combination $(p=0.55,q=0.08,M=120)$ compared to the baseline.\footnote{The tabular validation data for both Figure \ref{fig:ga1} and Figure \ref{fig:ga2} can be found in \textbf{Appendix C}.}
+  
   \begin{figure}[h!]
     \centering
     \includegraphics[width=0.9\linewidth]{figures/GA2}
-    \caption{Validation Process}
+    \caption{Further Validation Results for Local Search Agent}
+    \medskip
+    \footnotesize
+    This is results of the further exploration of the hyperparameters for local search agent, where the format is the same as Figure \ref{fig:ga1}.
     \label{fig:ga2}
   \end{figure}
   
-  After the above process, we have found our optimal hyper-parameters and the result is shown in Table 4. From the training curve (Figure 8) we can see that during the first half of generation process, the scores are fluctuating but displaying an overall upward trend. This makes sense because with the selection and mutation process, it is very probable that some of the children have ill-mutated genes and do not adapt well to the environment. However, as generations advance, the proportion of well-behaved individuals keep growing in the population. After a certain point of time, the number of ill-mutated members only pose trivial effect on the overall performance of the generation. Therefore we can see the curve tends to be more stable in the latter half of the genetic process. 
-  
+  A close observation of the two validation plots above actually gives us some useful insights about the genetic algorithm. For example, the average performance is positively correlated to the number of children in the initial generation. In other words, for a fixed $p$ and $q$, the more $M$ is, the higher the average steps we will end up with. It makes sense because because in each generation we have more members to perform crossover, which probabilistically increases the chance of generating a a fitter child. However, using more children requires more space and computation power, so we need to balance performance and training time. 
+
+  Now, with some satisfying validation results, it also worth the while to take a closer look at the detailed training process in order to gain a deeper understanding of the genetic algorithm. As shown in Figure \ref{fig:ga3}, we can see that the training curves are fluctuating but displaying an overall upward trend during the first half of the generation process. This is intuitive because, with the selection and mutation process, it is very probable that some of the children have ill-mutated genes and do not adapt well to the environment. However, as generations advance, the proportion of well-behaved individuals keep growing in the population. At a certain point in time, the number of ill-mutated members will be eliminated and only pose a trivial effect on the generation's overall performance. Therefore we can see the curve tends to be more stable in the latter half of the genetic process. 
+
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.9\linewidth]{figures/GA3}
-    \caption{Training Curve}
+    \caption{Training Curve for Local Search Agent}
     \label{fig:ga3}
+    \medskip
+    \footnotesize
+    This is training results for local search agent using the optimal hyperparameters combination $p=0.55,q=0.08,M=120$, where the blue and green dashed lines represent the min and max steps while the orange line refers to the average steps.
  \end{figure}
   
-  An interesting discovery from the data exploration is that the average performance is positively related to the number of children in the initial generation. In other words, if $p$ and $q$ remain the same, then the more $M$ is, the higher the game score is. It makes sense because because in each generation we have more members to perform crossover, which probabilistically increases the chance of generating a a fitter child.
   
-  The biggest challenge for the performance of implementation for local search agent is with our algorithm's run-time. The whole process including training, validation, and testing took more than a week to finish. However, given the sheer amount of the data and computing tasks (a substantial amount of copying), we would argue that the long run-time is inevitable.
-  
+  In conclusion, the genetic algorithm indeed provides some satisfying and reasonable validation results for our project. However, the most significant drawback for the local search agent is its run-time. Even with all the optimizations mentioned in the Implementation subsection, the whole process of training, validation, and testing still take more than a week to finish. 
+
   \item \textbf{Reinforcement Learning Agent}
   
   According to the RL agent's design and structure, we can see that one significant hindrance for training the agent is that we need to decide the value of at least $6$ hyper-parameters as list below.
@@ -709,7 +741,10 @@ For the experiment performance subsection, we will concentrate on the local sear
   \begin{figure}[h!]
     \centering
     \includegraphics[width=0.9\linewidth]{figures/HP1}
-    \caption{hyperparameters performance comparison}
+    \caption{Primary Hyperparameter Results for RL Agent}
+    \medskip
+    \footnotesize
+    This is the results of the primary hyperparameter adjustment results for reinforcement learning agent, where the lower and upper bound of the dashed line represents the min and max steps while the highlighted dot refers to the average steps. The $x$-axis is the different combinations of hyperparameters as labeled. The blue line is the baseline results using the hyperparameters recommended by the previous work.
     \label{fig:hp1}
   \end{figure}
 
@@ -718,7 +753,10 @@ For the experiment performance subsection, we will concentrate on the local sear
   \begin{figure}[h!]
     \centering
     \includegraphics[width=0.9\linewidth]{figures/HP2}
-    \caption{hyperparameters performance comparison}
+    \caption{Auxiliary Hyperparameter Results for RL Agent}
+    \medskip
+    \footnotesize
+    This is the results of the auxiliary hyperparameter (parameters introduced in the Implementation subsection) adjustment results for reinforcement learning agent using the same format as mentioned in Figure \ref{fig:hp1}.
     \label{fig:hp2}
   \end{figure}
 
@@ -740,7 +778,10 @@ For the experiment performance subsection, we will concentrate on the local sear
   \begin{figure}[h!]
     \centering
     \includegraphics[width=0.9\linewidth]{figures/train_curve}
-    \caption{training curve for RL agent}
+    \caption{Training Curve for RL agent}
+    \medskip
+    \footnotesize
+    This is training results for reinforcement learning agent using the optimal hyperparameters combination $\alpha=2\times 10^{-6}, \gamma = 0.95, \epsilon=1.0,\delta=5\times 10^{-4}, BS=512, MS=20,000$. The blue and green dashed lines represent the min and max steps while the orange line refers to the average steps.
     \label{fig:tc}
   \end{figure}
 
@@ -755,20 +796,19 @@ As we can see in the two subsections above, our implementation is quite comprehe
   
   \item \textbf{Tetris Interface}
   
-  The lesson that we learned from implementing Tetris interface is the design. Since the Tetris interface cooperate with all three agents, thus the key point is to design a barrier-free implementation, so that agents would have enough flexibility to get every information they need from the Tetris interface. Design and implement Object Oriented Programming in python is a new experience for us. We need to learn how to think about the whole structure at a very high level before we start. We need to figure out the API that we might need for each agent. This is a challenging part since we would like to have the same API work for all agents and also all sufficient information is provided. We also learned working as a team. We need to highly cooperate with each other so that is will be easier for us to combine separate parts together, which involves a lot of pre-planning and team communications.
-  
-  On the other hand, the optimization is another challenge. As mentioned before, the performance and efficiency of the Tetris interface significantly affects the time cost of other agents since agents relies on the APIs of the Tetris interface. At the beginning, the efficiency is not quite satisfiable. It needs relatively long time to get all successors and feature values. We spend a lot of time thinking about how to improve the efficiency and remove duplicate calculations without reducing the consistency. It is a valuable lesson about optimizing implementation performance.
-  
-  Last but not the least, another thing that we learned is visualization of Tetris with python. And we also implemented keyboard control function into the Tetris. It is also a playable Tetris game itself. Visualization helps to debug such as checking whether we are getting the right feature value for the agents. Also, for some extreme cases, instead of using random ordered Tetrominos, we would like to construct a state by our own to test certain extreme performance. Thus the Tetris interface could take inputs from the user other than control the movement of Tetromino, but also allow the user to force the type of next Tetromino. We learned the usage of cv2 pakage in python.
-  
+  The lesson that we learned from implementing the Tetris interface is the design. Since the Tetris interface cooperates with all three agents, the key point is to design a barrier-free implementation, so agents would have enough flexibility to get every information they need from the Tetris interface. Design and implement Object-Oriented Programming in python is a new experience for us. We need to learn how to think about the whole structure at a very high level before we start. We need to figure out the API that we might need for each agent. This is a challenging part since we want the same API to work correctly and provide sufficient information for all agents. We also learned working as a responsive team, which involves a lot of pre-planning and team communications.
+ 
+On the other hand, optimization is another challenge. As mentioned before, the Tetris interface's performance and efficiency significantly affect the time complexity of the training process since agents rely on the APIs provided by the Tetris interface. In the beginning, the efficiency is not entirely satisfactory, where it needs a relatively long time to get all successors and feature values. We spend a lot of time thinking about improving efficiency and removing duplicate calculations without reducing consistency. It is a valuable lesson about optimizing implementation performance.
+ 
+Last but not least, we also learned a lot in visualization with python when we try to integrate the keyboard control functionality into Tetris. This is a frustrating process, but in the end, the visualization indeed helps a lot in debugging and validating. For example, in some extreme cases, instead of using random ordered Tetrominos, we would like to construct a state on our own to test specific extreme performance.
+ 
   \item \textbf{Local Search Agent}
   
-  For the genetic algorithm, I've learned two important lessons. 
-  
-  First, it really did the good job searching for the best chromosome. Without explicitly writing technical details to play the game well. We simply told the algorithm what is considered to be optimal and what is not. The actual result is much more desirable than using handcrafted agent and reinforcement learning agent. 
-  
-  Second, although the algorithm did a good job calculating the weight for each feature, that does not mean that it can find all underlying features that would affect the gaming score. After all, we only took into consideration of 10 features for this local search implementation. Maybe there are other underlying features we fail to identify. Therefore, to improve search performance, we could add as many features as possible to our chromosome. 
-  
+Moreover, for the genetic algorithm implementation, we learned two important lessons. 
+ 
+First, even though we covered a little bit about the genetic algorithm in class, this is actually the first time we implement one ourselves, and this process helps us gain a deeper understanding of the algorithm. The genetic algorithm also reveals its power during the training process, where we achieved human-incompatible results by merely providing a game environment and feature functions. These surprising results remind us that Machine Learning is not limited to Neural Network and gives us more opinions when encountering similar problems later in our career.
+
+Second, during the lengthy training process, we also learned the drawbacks of the genetic algorithm, especially the difference between CPUs and GPUs' computation power. Even though the explorations are not presented in this report, we actually tried a lot to leverage the GPU computation power in the genetic algorithm implementation. Despite the failures we made, we have a great learning experience talking about these cutting-edge explorations and techniques.
   \item \textbf{Reinforcement Learning Agent}
   
   In the authors' opinions, the most valuable lessons learned from the analysis and implementation process are that theory doesn't always correspond to the practice. In this report, we analyze how and why the reinforcement learning agent should surpass the local search agent, but after we implement both, it is later that overshadows the former. The underlying reasons will be analyzed in greater detail in the Discussion section, but in brief, the lesson is that the most complex model isn't necessarily the best model. On top of that, the authors also learned many practical skills during the learning and implementation process. Firstly, none of the authors had any preknowledge about q-learning, so we need to study everything from scratch by ourselves. This learning process should be beneficial for further career, either in academics or industry. Moreover, during the implementation process, the authors encountered plenty of challenges that will never show up in the homework — for example, spending days training and validating to find optimal hyperparameters, spending hours dealing with the frequent switch between CPU and GPU, etc. These experiences give us a more in-depth understanding of Reinforcement Learning as well as practice our problem-solving skills in real life. 
@@ -847,8 +887,6 @@ As we can see in the two subsections above, our implementation is quite comprehe
   \caption{Deep Q-network architecture}
   \label{fig:DQN}
 \end{figure*}
-\newpage
-$\,$
 \newpage
 \section{Appendix A}
 
@@ -932,6 +970,9 @@ The structure of the network is shown in the Figure \ref{fig:DQN} and here are t
   \end{spacing}
   }
   \caption{Tabular Results for Local Search Agent}
+  \medskip
+  \footnotesize
+  This is the detailed results for the local search agent performance on different hyperparameter combinations.
   \label{tab:tabularResultGA}
 \end{table}  
   \newpage
@@ -969,6 +1010,9 @@ The structure of the network is shown in the Figure \ref{fig:DQN} and here are t
     \end{spacing}
     }
     \caption{Tabular Results for RL Agent}
+    \medskip
+    \footnotesize
+    This is the detailed results for the reinforcement learning agent performance on different hyperparameter combinations.
     \label{tab:tabularResult}
   \end{table}  
   \newpage
@@ -977,24 +1021,27 @@ The structure of the network is shown in the Figure \ref{fig:DQN} and here are t
   \begin{figure}[h!]
     \centering
     \subfigure[score=1.94128]{
-    \includegraphics[width=0.19\textwidth]{figures/example1.png}
+    \includegraphics[width=0.185\textwidth]{figures/example1.png}
     }\hfill
     \subfigure[score=2.34137]{
-    \includegraphics[width=0.19\textwidth]{figures/example2.png}
+    \includegraphics[width=0.185\textwidth]{figures/example2.png}
     }
     \subfigure[score=1.13586]{
-    \includegraphics[width=0.19\textwidth]{figures/example3.png}
+    \includegraphics[width=0.185\textwidth]{figures/example3.png}
     }\hfill
     \subfigure[score=0.96125]{
-    \includegraphics[width=0.19\textwidth]{figures/example4.png}
+    \includegraphics[width=0.185\textwidth]{figures/example4.png}
     }
     \subfigure[score=-0.80523]{
-    \includegraphics[width=0.19\textwidth]{figures/example5.png}
+    \includegraphics[width=0.185\textwidth]{figures/example5.png}
     }\hfill
     \subfigure[score=-0.79563]{
-    \includegraphics[width=0.19\textwidth]{figures/example6.png}
+    \includegraphics[width=0.185\textwidth]{figures/example6.png}
     }
-    \caption{Scores for some sample states}
+    \caption{Scores for Some Tetris States}
+    \medskip
+    \footnotesize
+    This is the results of feeding some sample game states into the Reinforcement Learning agent and generating scores for them. 
   \end{figure}
 
 
