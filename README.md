@@ -20,19 +20,42 @@ The implementation contains the following features:
 - height of each row
 
 ## Required Libarary:
-### Tetris Interface:
-cv2, pillow 6.2.0, opencv-python-headless, argparse, random, numpy, PIL, time, keyboard, math, Keras, collections
+- Tensorflow (`tensorflow-gpu==1.14.0`)
+- Keras (`Keras==2.2.4`)
+- Opencv-python (`opencv-python==4.1.0.25`)
+- Numpy (`numpy==1.16.4`)
+- Pillow (`Pillow==5.4.1`)
+- Tqdm (`tqdm==4.31.1`)
+- cv2 (`opencv-python==4.4.0.44`)
 
 ## Commands to run:
 ### Tetris Interface:
-Simply execute run.py, the game will start.
+Simply execute [run.py](https://github.com/shuheng-cao/CS486GroupProject/blob/master/src/run.py), the game will start.
 Use (W), A, S, D to control the Tetromino, (up), left, down, right respectively.
 Use Q to rotate the Tetromino 90 degrees to the left, and use E to rotate the Tetromino 90 degrees to the right.
 ### Handcrafted Agent:
-Execute handcrafted_agent.py and the game will automatically played. Set render = true if you want to visualize the game.
-### Generic Algorithm Agent:
+Execute [handcrafted_agent.py](https://github.com/shuheng-cao/CS486GroupProject/blob/master/src/handcrafted_agent.py) and the game will automatically played. Set render = true if you want to visualize the game.
+### Local Search Agent:
+
+#### Training
+There are two ways to train the Generic Algorithm Agent.
+- __(Recommended)__ train the model in the Colab environment [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/130H9T8OIUNMIVJc6tB8luHwy82K2WqGR?usp=sharing)
+- We could also train the model by running the python script [GeneticAgent.py](https://github.com/shuheng-cao/CS486GroupProject/blob/master/src/GeneticAgent.py). However, this may not be the most updated version and the results may not as expected.
+
+#### Executing
+
+*TODO: integrate the model into the environment*
 
 ### Reinforcement Learning Agent:
+#### Training
+There are also two ways to train the Generic Algorithm Agent.
+- __(Recommended)__ train the model in the Colab environment [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1EZfONSDWkliLaNQqu9Ew3KlUkLvRhAxX?usp=sharing)
+- We could also train the model by running the python script [DQNAgent.py](https://github.com/shuheng-cao/CS486GroupProject/blob/master/src/DQNAgent.py). However, this may not be the most updated version and the results may not as expected.
+
+#### Executing
+
+*TODO: integrate the model into the environment*
+
 
 ## Sample:
 <img src="https://github.com/shuheng-cao/CS486GroupProject/raw/master/demo.gif" width="254" height="530" />
