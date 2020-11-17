@@ -796,20 +796,19 @@ As we can see in the two subsections above, our implementation is quite comprehe
   
   \item \textbf{Tetris Interface}
   
-  The lesson that we learned from implementing Tetris interface is the design. Since the Tetris interface cooperate with all three agents, thus the key point is to design a barrier-free implementation, so that agents would have enough flexibility to get every information they need from the Tetris interface. Design and implement Object Oriented Programming in python is a new experience for us. We need to learn how to think about the whole structure at a very high level before we start. We need to figure out the API that we might need for each agent. This is a challenging part since we would like to have the same API work for all agents and also all sufficient information is provided. We also learned working as a team. We need to highly cooperate with each other so that is will be easier for us to combine separate parts together, which involves a lot of pre-planning and team communications.
-  
-  On the other hand, the optimization is another challenge. As mentioned before, the performance and efficiency of the Tetris interface significantly affects the time cost of other agents since agents relies on the APIs of the Tetris interface. At the beginning, the efficiency is not quite satisfiable. It needs relatively long time to get all successors and feature values. We spend a lot of time thinking about how to improve the efficiency and remove duplicate calculations without reducing the consistency. It is a valuable lesson about optimizing implementation performance.
-  
-  Last but not the least, another thing that we learned is visualization of Tetris with python. And we also implemented keyboard control function into the Tetris. It is also a playable Tetris game itself. Visualization helps to debug such as checking whether we are getting the right feature value for the agents. Also, for some extreme cases, instead of using random ordered Tetrominos, we would like to construct a state by our own to test certain extreme performance. Thus the Tetris interface could take inputs from the user other than control the movement of Tetromino, but also allow the user to force the type of next Tetromino. We learned the usage of cv2 pakage in python.
-  
+  The lesson that we learned from implementing the Tetris interface is the design. Since the Tetris interface cooperates with all three agents, the key point is to design a barrier-free implementation, so agents would have enough flexibility to get every information they need from the Tetris interface. Design and implement Object-Oriented Programming in python is a new experience for us. We need to learn how to think about the whole structure at a very high level before we start. We need to figure out the API that we might need for each agent. This is a challenging part since we want the same API to work correctly and provide sufficient information for all agents. We also learned working as a responsive team, which involves a lot of pre-planning and team communications.
+ 
+On the other hand, optimization is another challenge. As mentioned before, the Tetris interface's performance and efficiency significantly affect the time complexity of the training process since agents rely on the APIs provided by the Tetris interface. In the beginning, the efficiency is not entirely satisfactory, where it needs a relatively long time to get all successors and feature values. We spend a lot of time thinking about improving efficiency and removing duplicate calculations without reducing consistency. It is a valuable lesson about optimizing implementation performance.
+ 
+Last but not least, we also learned a lot in visualization with python when we try to integrate the keyboard control functionality into Tetris. This is a frustrating process, but in the end, the visualization indeed helps a lot in debugging and validating. For example, in some extreme cases, instead of using random ordered Tetrominos, we would like to construct a state on our own to test specific extreme performance.
+ 
   \item \textbf{Local Search Agent}
   
-  For the genetic algorithm, I've learned two important lessons. 
-  
-  First, it really did the good job searching for the best chromosome. Without explicitly writing technical details to play the game well. We simply told the algorithm what is considered to be optimal and what is not. The actual result is much more desirable than using handcrafted agent and reinforcement learning agent. 
-  
-  Second, although the algorithm did a good job calculating the weight for each feature, that does not mean that it can find all underlying features that would affect the gaming score. After all, we only took into consideration of 10 features for this local search implementation. Maybe there are other underlying features we fail to identify. Therefore, to improve search performance, we could add as many features as possible to our chromosome. 
-  
+Moreover, for the genetic algorithm implementation, we learned two important lessons. 
+ 
+First, even though we covered a little bit about the genetic algorithm in class, this is actually the first time we implement one ourselves, and this process helps us gain a deeper understanding of the algorithm. The genetic algorithm also reveals its power during the training process, where we achieved human-incompatible results by merely providing a game environment and feature functions. These surprising results remind us that Machine Learning is not limited to Neural Network and gives us more opinions when encountering similar problems later in our career.
+
+Second, during the lengthy training process, we also learned the drawbacks of the genetic algorithm, especially the difference between CPUs and GPUs' computation power. Even though the explorations are not presented in this report, we actually tried a lot to leverage the GPU computation power in the genetic algorithm implementation. Despite the failures we made, we have a great learning experience talking about these cutting-edge explorations and techniques.
   \item \textbf{Reinforcement Learning Agent}
   
   In the authors' opinions, the most valuable lessons learned from the analysis and implementation process are that theory doesn't always correspond to the practice. In this report, we analyze how and why the reinforcement learning agent should surpass the local search agent, but after we implement both, it is later that overshadows the former. The underlying reasons will be analyzed in greater detail in the Discussion section, but in brief, the lesson is that the most complex model isn't necessarily the best model. On top of that, the authors also learned many practical skills during the learning and implementation process. Firstly, none of the authors had any preknowledge about q-learning, so we need to study everything from scratch by ourselves. This learning process should be beneficial for further career, either in academics or industry. Moreover, during the implementation process, the authors encountered plenty of challenges that will never show up in the homework — for example, spending days training and validating to find optimal hyperparameters, spending hours dealing with the frequent switch between CPU and GPU, etc. These experiences give us a more in-depth understanding of Reinforcement Learning as well as practice our problem-solving skills in real life. 
@@ -888,8 +887,6 @@ As we can see in the two subsections above, our implementation is quite comprehe
   \caption{Deep Q-network architecture}
   \label{fig:DQN}
 \end{figure*}
-\newpage
-$\,$
 \newpage
 \section{Appendix A}
 
@@ -973,6 +970,9 @@ The structure of the network is shown in the Figure \ref{fig:DQN} and here are t
   \end{spacing}
   }
   \caption{Tabular Results for Local Search Agent}
+  \medskip
+  \footnotesize
+  This is the detailed results for the local search agent performance on different hyperparameter combinations.
   \label{tab:tabularResultGA}
 \end{table}  
   \newpage
@@ -1010,6 +1010,9 @@ The structure of the network is shown in the Figure \ref{fig:DQN} and here are t
     \end{spacing}
     }
     \caption{Tabular Results for RL Agent}
+    \medskip
+    \footnotesize
+    This is the detailed results for the reinforcement learning agent performance on different hyperparameter combinations.
     \label{tab:tabularResult}
   \end{table}  
   \newpage
@@ -1018,24 +1021,27 @@ The structure of the network is shown in the Figure \ref{fig:DQN} and here are t
   \begin{figure}[h!]
     \centering
     \subfigure[score=1.94128]{
-    \includegraphics[width=0.19\textwidth]{figures/example1.png}
+    \includegraphics[width=0.185\textwidth]{figures/example1.png}
     }\hfill
     \subfigure[score=2.34137]{
-    \includegraphics[width=0.19\textwidth]{figures/example2.png}
+    \includegraphics[width=0.185\textwidth]{figures/example2.png}
     }
     \subfigure[score=1.13586]{
-    \includegraphics[width=0.19\textwidth]{figures/example3.png}
+    \includegraphics[width=0.185\textwidth]{figures/example3.png}
     }\hfill
     \subfigure[score=0.96125]{
-    \includegraphics[width=0.19\textwidth]{figures/example4.png}
+    \includegraphics[width=0.185\textwidth]{figures/example4.png}
     }
     \subfigure[score=-0.80523]{
-    \includegraphics[width=0.19\textwidth]{figures/example5.png}
+    \includegraphics[width=0.185\textwidth]{figures/example5.png}
     }\hfill
     \subfigure[score=-0.79563]{
-    \includegraphics[width=0.19\textwidth]{figures/example6.png}
+    \includegraphics[width=0.185\textwidth]{figures/example6.png}
     }
-    \caption{Scores for some sample states}
+    \caption{Scores for Some Tetris States}
+    \medskip
+    \footnotesize
+    This is the results of feeding some sample game states into the Reinforcement Learning agent and generating scores for them. 
   \end{figure}
 
 
