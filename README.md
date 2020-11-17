@@ -21,10 +21,7 @@ The implementation contains the following features:
 
 ## Required Libarary:
 ### Tetris Interface:
-cv2
-### Generic Algorithm Agent:
-
-### Reinforcement Learning Agent:
+cv2, pillow 6.2.0, opencv-python-headless, argparse, random, numpy, PIL, time, keyboard, math, Keras, collections
 
 ## Commands to run:
 ### Tetris Interface:
