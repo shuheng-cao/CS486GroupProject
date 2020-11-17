@@ -571,32 +571,31 @@ As mentioned in the environment setup and design subsections, the implementation
  \begin{figure}[h!]
     \centering
     \includegraphics[width=1.0\linewidth]{figures/uml}
-    \caption{UML}
+    \caption{Detailed design and implementation for the Tetris environment as well as the three agents used in the report: handcrafted agent, local search agent, and reinforcement learning agent.}
     \label{fig:uml}
   \end{figure}
   
   \item \textbf{Tetris Interface}
-  
-  The implementation for the Tetris interface is very important. According to the design and the UML showed in Figure \ref{fig:uml}, the methods of Tetris interface will be invoked by all three models. Since the three models will use the methods from Tetris class such as the successor function (get\_next\_states()), the feature value calculation functions, and play a Tetromino by placing it into the current board and the board update function is also needed. These methods will be frequently used during the training and validation process. Due to the large number of games need to train the model, the efficiency of Tetris interface implementation will result in a significant effect on the models' efficiency and the time cost that we need to spend.
-  
-  Several optimizations during the implementation of Tetris interface have been made. For the feature value calculation functions, since multiple features are needed to evaluate, and most features need to go through the entire board. It is very inefficient if we use separate methods for every one of features. It will result in many duplicate calculations. A potential solution is to combine several feature value calculation functions together, for each time we go through the entire board, return as much feature values as possible. For example, in order to figure out the number of holes, it is necessary to check every individual cells. At the same time, we could also record the highest hole position, number of rows with holes, well cells, column transitions and row transitions. To calculate the maximum height, we need to go through each columns, and at the same time, we could store the information of the height of each columns, and it will be easier to update the corresponding height in the future. This height function would return the maximum height, minimum height, sum of height, bumpiness at the same time.
-  
-  For the successor function, instead of return the entire board for each possible successor states, we make it return the bitmap, with is a huge support for reinforcement learning agent. Also, it contains the information of next step's horizontal shifts, the angle of rotations and the feature values. So that the agent could use feature values to decide the optimal solution and whenever a decision is made, we could make a play by using the horizontal shifts and rotation, which would improve the time complexity and extra space usage. Also, the successor function needs to check every single possible moves. Using a brute force algorithm until a collision occurs. However, the part of the board which is beyond the maximum height is the same as an empty board. It is impossible to have a collision beyond the maximum height. We have the maximum height calculated and stored during the feature value calculations, thus exploring the area beyond the maximum height is a waste of time. Thus we start and check collisions from the level of maximum height. Since one of our purpose is to reduce and keep the maximum height as low as possible, and we do not want the maximum height to grow fast. Thus by applying this approach, we could improve the efficiency significantly.
+  The implementation of the Tetris interface is significant. According to the design and the UML showed in Figure \ref{fig:uml}, all three models will invoke the methods of the Tetris interface. Since the three models will use the methods from Tetris class, such as the successor function (get\_next\_states()), the feature value calculation functions, and play a Tetromino by placing it into the current board and the board update function is also needed. These methods will be frequently used during the training and validation process. Due to numerous games needing to train the model, the efficiency of Tetris interface implementation will significantly affect the models' efficiency and the time cost that we need to spend.
+ 
+  Several optimizations during the implementation of the Tetris interface have been made. For the feature calculations, since most of the features require to go through the entire game board, it is very inefficient to compute them separately, resulting in redundancy and duplications. A potential solution is to combine several feature value calculation functions together, and each time we go through the entire board, return as many feature values as possible. For example, in order to figure out the number of holes, it is necessary to check every individual cell. We could simultaneously record a series of other features, e.g., the highest hole position, number of rows with holes, well cells, column transitions, and row transitions. Similarly, to calculate the maximum height, we need to go through each column, and at the same time, we could store the information about each column's height, which makes it easier to update the corresponding height in the future. As a result, this height function would return the maximum height, minimum height, sum of height, bumpiness at the same time.
+ 
+  Moreover, for the successor function, we will take advantage of polymorphism techniques. More precisely, depending on the type of agent requires for the next states, the function will return different outputs, i.e., returns the feature vectors for the Local Search agent and bitmap for the RL agent. This design sounds pretty promising in theory, but as we will mention in the RL agent's implementation, it actually comes with an inevitable cost. On top of that, the successor function also contains information about the next step's horizontal shifts and the angle of rotations. This is aimed to facilitate the play function to make a move whenever a decision is made by the agent, which improves the time and space complexity. Finally, the successor function also needs to check every possible placement for different types of Tetromino. At its core, it is a brute force algorithm to try all rotations on all columns and drop the block until a collision occurs. However, we still manage to optimize it by reusing some of the features we calculated before. More precisely, instead of starting from the top left corner, we will start from the highest column, which is one of the features we already calculated. The idea is that it is impossible to have a collision beyond the maximum height, and exploring the area beyond the maximum height is a waste of time. The change should work especially well in the early stage of our algorithm because, at that time, we have almost no blocks on the board.
+ 
   
   \item \textbf{Local Search Agent}
   
-  For the implementation of local search agent, one technical difficulty involves frequently copying the game state (current board holing the tetrominos dropped so far). To interact with Tetris interface, genetic algorithm must choose an optimal drop ( a drop that will result in the highest weighted scores with respect to the given chromosome) every time. In order to drop a most desirable tetromino, we have to try all possible dropping locations. This process requires copying the current game state an enormous amount of time. In particular, during the late game phase when every child in the population would play relatively longer games, the time spent copying is increasingly more.
+
+  For the implementation of the local search agent, one technical difficulty involves frequently copying the game state (current board holing the tetrominoes dropped so far). To interact with the Tetris interface, the genetic algorithm must choose an optimal drop (a drop that will result in the highest weighted scores with respect to the given chromosome) every time. In order to drop the most desirable Tetromino, we have to try all possible dropping locations. This process requires copying the current game state for an enormous amount of time. In particular, during the late game phase, when every child in the population would play relatively longer games, the time spent copying is increasingly more.
   
+  To improve performance, we would pass by reference rather than do a deep copy whenever our algorithm needs the state. In other words, every time we test and select an optimal drop, we would overwrite through a pointer to the current state and pass this updated state to the next iteration, which checks for the next optimal dropping tetromino. During this step, we would avoid any form of copying (shallow copy, deep copy, slicing); instead, we would pass the current state's reference to the next iteration. This should give us a near-optimal performance in terms of both time and space complexity.
+   
+  Another technical difficulty arose from the training process. At first, we would stop the genetic algorithm if the fittest member of the current generation has a score that only results in a minor improvement compared with the fittest in the previous generation. However, during the training, we discovered that the optimal scores are fluctuating in early generations, which results in early termination of the algorithm. To elaborate, we have been assuming that the fittest member would only perform better as new generations are formed. However, it is often the case that the fittest member in the current generation actually has lower scores than that of the fittest member in the previous one. 
+   
+  To tackle this problem and execute the genetic algorithm as expected, we decided to change the stopping criteria to a fixed number of generations. Instead of specifying a score improvement threshold, we would set a total generation to be produced. In the modified implementation, we would instruct our agent to reproduce for 25 generations, and we would validate/test against the fittest member in the last generation. This method indeed works, and the output from the algorithm becomes analyzable and provides us with decent insight. The analysis is explained and visualized in the Experimental Performance section.
   
-  To improve performance, there are two strategies worth mentioning. First, we would perform boolean tests on existing (current) game state. In this way, we would avoid writing to the bitmap which requires copying to reset to the original bitmap. For example, given current tetromino to be dropped, we would loop through all possible drop positions and check if those slots are empty (otherwise there is a collision). After checking one position, we would arrive at our conclusion (whether or not this tetromino can be dropped at the location) while avoiding copying the state to perform next check because the state is not overwritten. Second, when we have to "copy" the state to proceed our algorithm, we would pass reference rather than do a shallow copy. In other words, every time after we test and select an optimal drop, we would overwrite current state and pass this updated state to the next iteration, which checks for next optimal dropping tetromino. During this step, we would avoid any form of copying (shallow copy, deepcopy, slicing), instead, we would pass current state's reference to the next iteration. To summarize, we would optimize the implementation by eliminating copying operations as much as possible.
-  
-  Another technical difficulty aroused from training process. At first, we would stop the genetic algorithm if the fittest member of current generation has a score that is a only minor improvement of that of the fittest member in previous generation, if not no improvement. However, during the training, we discovered that in early generations, the optimal scores are fluctuating, which results in early termination of the algorithm. To elaborate, we have been assuming that the fittest member would only perform better as new generations are formed. However, it is often the case that the fittest member in generation, say 3, has lower scores than that of the fittest member in generation 2. 
-  
-  To tackle this problem and to execute the genetic algorithm as expected, we decided to change the stopping criteria to a fixed number of generations. Instead of specifying a score improvement threshold, we would specify a total generations to be produced. In the modified implementation, we would instruct our agent to reproduce for 25 generations and we would validate/test against the fittest member in the last generation. This indeed works, the output from the algorithm becomes analysable and provides us with decent insight. The analysis is explained and visualized in Experimental Performance section.
-  
-  
-  Aside from the aforementioned two aspects of the implementation, the implementation of genetic algorithm was straightforward in terms of selection, crossover, and mutation process.
-  
+  Aside from the two aspects mentioned above, the implementation of the genetic algorithm follows precisely what is described in the Experimental design section, where we have the selection, crossover, and mutation process.
+   
   \item \textbf{Reinforcement Learning Agent}
   
 During the implementation of the RL agent, we noticed two significant challenges to the efficiency of the training process:
@@ -609,12 +608,12 @@ During the implementation of the RL agent, we noticed two significant challenges
 Now, in order to optimize the training efficiency for Reinforcement Learning, we overcome the two challenges using the following techniques.
 \begin{itemize}
   \item 
-  Since the current Tetris environment is closely bound up with the local search agent, it is impractical to use it for the RL agent. As a result, the RL agent uses an adapted version of Tetris where we eliminate all the feature calculations, and the changes can be summarized as the updated UML below:
+  Since the current Tetris environment is closely bound up with the local search agent, it is impractical to use it for the RL agent. As a result, the RL agent uses an adapted version of Tetris where we eliminate all the feature calculations, and the changes can be summarized as the updated UML in Figure \ref{fig:modified_uml}.
 
  \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.9\linewidth]{figures/uml}
-    \caption{UML}
+    \includegraphics[width=0.9\linewidth]{figures/modifiedUML.png}
+    \caption{Modified implementation for RL agent}
     \label{fig:modified_uml}
   \end{figure}
   
@@ -667,7 +666,7 @@ For the experiment performance subsection, we will concentrate on the local sear
     $p\in\{0.4,0.5,0.6\}$, 
     $q \in \{0.01, 0.1\}$, and
     $M \in \{50, 100\}$
-  In this step, we recorded the minimum, mean and maximum validation score for each chromosome, as shown in Figure 5. It is shown that the optimal hyper-parameters resulted from the validation process is ${p = 0.55, q = 0.08, M = 120}$.
+  In this step, we recorded the minimum, mean and maximum validation score for each chromosome, as shown in Figure 5. It is shown that the optimal hyper-parameters resulted from the validation process is ${p = 0.55, q = 0.08, M = 120}$.\footnote{The tabular data can be found in \textbf{Appendix C}.}
   \begin{figure}[h!]
     \centering
     \includegraphics[width=0.9\linewidth]{figures/GA2}
@@ -714,7 +713,7 @@ For the experiment performance subsection, we will concentrate on the local sear
     \label{fig:hp1}
   \end{figure}
 
-  On top of that, since the previous work didn't apply any optimization on the training algorithm in Figure \ref{fig:code2}, they are using the default value for the batch size and memory size, i.e., $BS=1, MS=\text{length of game}$. Therefore, for these two hyperparameters, we need more exploration than the previous ones, and the performance results are shown in Figure \ref{fig:hp2}.\footnote{The tabular data can be found in \textbf{Appendix C}} 
+  On top of that, since the previous work didn't apply any optimization on the training algorithm in Figure \ref{fig:code2}, they are using the default value for the batch size and memory size, i.e., $BS=1, MS=\text{length of game}$. Therefore, for these two hyperparameters, we need more exploration than the previous ones, and the performance results are shown in Figure \ref{fig:hp2}.\footnote{The tabular data can be found in \textbf{Appendix D}.} 
 
   \begin{figure}[h!]
     \centering
@@ -745,7 +744,7 @@ For the experiment performance subsection, we will concentrate on the local sear
     \label{fig:tc}
   \end{figure}
 
-  Finally, with a well-trained RL agent, we could have a deeper understanding of how deep Q-learning (DQN) works by associating visual states with its q-values. A few examples can be found in \textbf{Appendix D}.
+  Finally, with a well-trained RL agent, we could have a deeper understanding of how deep Q-learning (DQN) works by associating visual states with its q-values. A few examples can be found in \textbf{Appendix E}.
 \end{itemize}
 
 \subsection{Reflection}
@@ -904,8 +903,39 @@ The structure of the network is shown in the Figure \ref{fig:DQN} and here are t
     \label{fig:training}
   \end{figure}
   
+\newpage
+\section{Appendix C}
+\begin{table}[h!]
+  \centering
+  \normalsize{
+    \begin{spacing}{1.9}
+    \begin{tabular}{ |cccc| } 
+      \hline
+      chromosome($p$,$q$,$M$) & min steps & avg steps & max steps  \\ 
+      \hline
+      \hline
+      $0.05, 0.08, 80$  & $1563.65$       & $1928.35$        & $2061.7$\\
+      $0.05, 0.08, 120$ & $1661.7$        & $2011.85$        & $2613.15$\\
+      $0.05, 0.12, 80$  & $1596.65$       & $1858.1$         & $2117.2$\\
+      $0.05, 0.12, 80$  & $1619.05$       & $1958.6$         & $2337.05$\\
+      $0.6, 0.08, 80$   & $1491.65$         & $1881.25$      & $2119.05$\\
+      $0.6, 0.08, 12$   & $1408.35$         & $1913.2$       & $2061.9$\\
+      $0.6, 0.1, 100$   & $1561.55$         & $1886.3$       & $2158.65$\\
+      $0.6, 0.12, 80$   & $1459.15$         & $1758.1$       & $2006.15$\\
+      $0.6, 0.12, 120$  & $1360.65$         & $1905.85$      & $2408.65$\\
+      $0.65, 0.08, 80$  & $1380.75$         & $1828.35$      & $2141.45$\\
+      $0.65, 0.08, 120$ & $1281.85$         & $1713.65$      & $2115.9$\\
+      $0.65, 0.12, 80$  & $1308.6$         & $1710.65$       & $2156.15$\\
+      $0.65, 0.12, 120$ & $1358.15$         & $1686.3$       & $2141.95$ \\ 
+      \hline
+    \end{tabular}
+  \end{spacing}
+  }
+  \caption{Tabular Results for Local Search Agent}
+  \label{tab:tabularResultGA}
+\end{table}  
   \newpage
-  \section{Appendix C}
+  \section{Appendix D}
   \begin{table}[h!]
     \centering
     \normalsize{
@@ -942,7 +972,7 @@ The structure of the network is shown in the Figure \ref{fig:DQN} and here are t
     \label{tab:tabularResult}
   \end{table}  
   \newpage
-  \section{Appendix D}
+  \section{Appendix E}
 
   \begin{figure}[h!]
     \centering
@@ -968,36 +998,5 @@ The structure of the network is shown in the Figure \ref{fig:DQN} and here are t
   \end{figure}
 
 
-\newpage
-  \section{Appendix E}
-  \begin{table}[h!]
-    \centering
-    \normalsize{
-      \begin{spacing}{1.9}
-      \begin{tabular}{ |cccc| } 
-        \hline
-        chromosome($p$,$q$,$M$) & min steps & avg steps & max steps  \\ 
-        \hline
-        \hline
-        $0.05, 0.08, 80$  & $1563.65$       & $1928.35$        & $2061.7$\\
-        $0.05, 0.08, 120$ & $1661.7$        & $2011.85$        & $2613.15$\\
-        $0.05, 0.12, 80$  & $1596.65$       & $1858.1$         & $2117.2$\\
-        $0.05, 0.12, 80$  & $1619.05$       & $1958.6$         & $2337.05$\\
-        $0.6, 0.08, 80$   & $1491.65$         & $1881.25$      & $2119.05$\\
-        $0.6, 0.08, 12$   & $1408.35$         & $1913.2$       & $2061.9$\\
-        $0.6, 0.1, 100$   & $1561.55$         & $1886.3$       & $2158.65$\\
-        $0.6, 0.12, 80$   & $1459.15$         & $1758.1$       & $2006.15$\\
-        $0.6, 0.12, 120$  & $1360.65$         & $1905.85$      & $2408.65$\\
-        $0.65, 0.08, 80$  & $1380.75$         & $1828.35$      & $2141.45$\\
-        $0.65, 0.08, 120$ & $1281.85$         & $1713.65$      & $2115.9$\\
-        $0.65, 0.12, 80$  & $1308.6$         & $1710.65$       & $2156.15$\\
-        $0.65, 0.12, 120$ & $1358.15$         & $1686.3$       & $2141.95$ \\ 
-        \hline
-      \end{tabular}
-    \end{spacing}
-    }
-    \caption{Tabular Results for Local Search Agent}
-    \label{tab:tabularResultGA}
-  \end{table}  
   \newpage
 \end{document}
