@@ -585,9 +585,15 @@ As mentioned in the environment setup and design subsections, the implementation
   
   \item \textbf{Local Search Agent}
   
-  For the implementation of the local search agent, one important step is to calculate the features' value of the current board after a tetromino drops. As introduced in methodology part, we have 10 features for the local search version. An implementation challenge would be to compute the values for all features with least computation time. In order to optimize it, instead of having a helper function/method for each feature, we tried to compute as many features as we can inside one function call. This way, we would have least amount of function calls for computing the feature, thereby eliminating all unnecessary loops inside a function. 
+  For the implementation of local search agent, one technical difficulty involves frequently copying the game state (current board holing the tetrominos dropped so far). To interact with Tetris interface, genetic algorithm must choose an optimal drop ( a drop that will result in the highest weighted scores with respect to the given chromosome) every time. In order to drop a most desirable tetromino, we have to try all possible dropping locations. This process requires copying the current game state an enormous amount of time. In particular, during the late game phase when every child in the population would play relatively longer games, the time spent copying is increasingly more.
   
-  Another technical difficulty involves frequently copying the game state (current board holing the tetrominos dropped so far). In order to drop a most desirable tetromino, we have to try all possible dropping locations. This involves copying the board over and over again. To improve performance, we would do a shallow copy of the current board every time. 
+  
+  To improve performance, there are two strategies worth mentioning. First, we would perform boolean tests on existing (current) game state. In this way, we would avoid writing to the bitmap which requires copying to reset to the original bitmap. For example, given current tetromino to be dropped, we would loop through all possible drop positions and check if those slots are empty (otherwise there is a collision). After checking one position, we would arrive at our conclusion (whether or not this tetromino can be dropped at the location) while avoiding copying the state to perform next check because the state is not overwritten. Second, when we have to "copy" the state to proceed our algorithm, we would pass reference rather than do a shallow copy. In other words, every time after we test and select an optimal drop, we would overwrite current state and pass this updated state to the next iteration, which checks for next optimal dropping tetromino. During this step, we would avoid any form of copying (shallow copy, deepcopy, slicing), instead, we would pass current state's reference to the next iteration. To summarize, we would optimize the implementation by eliminating copying operations as much as possible.
+  
+  Another technical difficulty aroused from training process. At first, we would stop the genetic algorithm if the fittest member of current generation has a score that is a only minor improvement of that of the fittest member in previous generation, if not no improvement. However, during the training, we discovered that in early generations, the optimal scores are fluctuating, which results in early termination of the algorithm. To elaborate, we have been assuming that the fittest member would only perform better as new generations are formed. However, it is often the case that the fittest member in generation, say 3, has lower scores than that of the fittest member in generation 2. 
+  
+  To tackle this problem and to execute the genetic algorithm as expected, we decided to change the stopping criteria to a fixed number of generations. Instead of specifying a score improvement threshold, we would specify a total generations to be produced. In the modified implementation, we would instruct our agent to reproduce for 25 generations and we would validate/test against the fittest member in the last generation. This indeed works, the output from the algorithm becomes analysable and provides us with decent insight. The analysis is explained and visualized in Experimental Performance section.
+  
   
   Aside from the aforementioned two aspects of the implementation, the implementation of genetic algorithm was straightforward in terms of selection, crossover, and mutation process.
   
@@ -607,8 +613,8 @@ Now, in order to optimize the training efficiency for Reinforcement Learning, we
 
  \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.9\linewidth]{figures/uml}
-    \caption{UML}
+    \includegraphics[width=0.9\linewidth]{figures/modifiedUML.png}
+    \caption{Modified UML}
     \label{fig:modified_uml}
   \end{figure}
   
@@ -631,7 +637,7 @@ First and foremost, Table \ref{tab:resultsSummary} is a compact summary of the b
       \hline
       \hline
       Handcrafted & $23$ & $210$ & $2072$ \\ 
-      Local Search & $20176$ & $40138$ & $52364$\\ 
+      Local Search & $1662$ & $2012$ & $6614$\\ 
       RL & $102$ & $339$ & $1078$\\
       %  \hline
       %  Otherwise & $0$  \\
@@ -647,7 +653,7 @@ For the experiment performance subsection, we will concentrate on the local sear
   
   \item \textbf{Local Search Agent}
   
-  Overall the performance of local search agent approach is quite satisfying. The best weight combination trained by the genetic algorithm yielded an average score of more than 40000 and a maximum score of more than 50000, which is dramatically more successful than a Reinforcement Learning agent approach.
+  Overall the performance of local search agent approach is quite satisfying. The best weight combination trained by the genetic algorithm yielded an average score of more than 2000 and a maximum score of around 2600, which is dramatically more successful than a Reinforcement Learning agent approach.
   
   During the training process, we aimed to train three hyper-parameters: selection probability p, mutation probability q, and number of children in the initial generation M. For each child in any generation, we would perform 1000 games on it and use the mean score (out of a total of 1000 games) as the score for a child (a given chromosome). After the testing for one possible hyper-parameter combination finishes, we would have our fittest member. Then we would use the weight combination associated with the fittest member to perform another 100 games and record the minimum score, the mean score and the maximum score. The overall training performance is illustrated in Figure 4. As we can see, the fittest member has a chromosome of ${p = 0.6, q = 0.1, M = 100}$.
   \begin{figure}[h!]
@@ -668,6 +674,15 @@ For the experiment performance subsection, we will concentrate on the local sear
     \caption{Validation Process}
     \label{fig:ga2}
   \end{figure}
+  
+  After the above process, we have found our optimal hyper-parameters and the result is shown in Table 4. From the training curve (Figure 8) we can see that during the first half of generation process, the scores are fluctuating but displaying an overall upward trend. This makes sense because with the selection and mutation process, it is very probable that some of the children have ill-mutated genes and do not adapt well to the environment. However, as generations advance, the proportion of well-behaved individuals keep growing in the population. After a certain point of time, the number of ill-mutated members only pose trivial effect on the overall performance of the generation. Therefore we can see the curve tends to be more stable in the latter half of the genetic process. 
+  
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\linewidth]{figures/GA3}
+    \caption{Training Curve}
+    \label{fig:ga3}
+ \end{figure}
   
   An interesting discovery from the data exploration is that the average performance is positively related to the number of children in the initial generation. In other words, if $p$ and $q$ remain the same, then the more $M$ is, the higher the game score is. It makes sense because because in each generation we have more members to perform crossover, which probabilistically increases the chance of generating a a fitter child.
   
@@ -951,4 +966,38 @@ The structure of the network is shown in the Figure \ref{fig:DQN} and here are t
     }
     \caption{Scores for some sample states}
   \end{figure}
+
+
+\newpage
+  \section{Appendix E}
+  \begin{table}[h!]
+    \centering
+    \normalsize{
+      \begin{spacing}{1.9}
+      \begin{tabular}{ |cccc| } 
+        \hline
+        chromosome($p$,$q$,$M$) & min steps & avg steps & max steps  \\ 
+        \hline
+        \hline
+        $0.05, 0.08, 80$  & $1563.65$       & $1928.35$        & $2061.7$\\
+        $0.05, 0.08, 120$ & $1661.7$        & $2011.85$        & $2613.15$\\
+        $0.05, 0.12, 80$  & $1596.65$       & $1858.1$         & $2117.2$\\
+        $0.05, 0.12, 80$  & $1619.05$       & $1958.6$         & $2337.05$\\
+        $0.6, 0.08, 80$   & $1491.65$         & $1881.25$      & $2119.05$\\
+        $0.6, 0.08, 12$   & $1408.35$         & $1913.2$       & $2061.9$\\
+        $0.6, 0.1, 100$   & $1561.55$         & $1886.3$       & $2158.65$\\
+        $0.6, 0.12, 80$   & $1459.15$         & $1758.1$       & $2006.15$\\
+        $0.6, 0.12, 120$  & $1360.65$         & $1905.85$      & $2408.65$\\
+        $0.65, 0.08, 80$  & $1380.75$         & $1828.35$      & $2141.45$\\
+        $0.65, 0.08, 120$ & $1281.85$         & $1713.65$      & $2115.9$\\
+        $0.65, 0.12, 80$  & $1308.6$         & $1710.65$       & $2156.15$\\
+        $0.65, 0.12, 120$ & $1358.15$         & $1686.3$       & $2141.95$ \\ 
+        \hline
+      \end{tabular}
+    \end{spacing}
+    }
+    \caption{Tabular Results for Local Search Agent}
+    \label{tab:tabularResultGA}
+  \end{table}  
+  \newpage
 \end{document}
