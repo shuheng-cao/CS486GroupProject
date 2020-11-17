@@ -38,3 +38,4 @@ Execute handcrafted_agent.py and the game will automatically played. Set render 
 ### Reinforcement Learning Agent:
 
 ## Sample:
+<img src="https://github.com/shuheng-cao/CS486GroupProject/master/demo.gif" width="480" height="360" />
