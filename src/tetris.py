@@ -332,7 +332,8 @@ class Tetris:
                 if pos[1] >= 0:
                     board = self._add_piece_to_board(piece, pos)
                     if full_board:
-                        states[(x, rotation)] = np.array(board)
+                        _, board = self._clear_lines(board)
+                        states[(x, rotation)] = np.array(board).reshape([20,10,1])
                     else:
                         states[(x, rotation)] = self._get_board_props(board)
 
@@ -468,9 +469,6 @@ class Tetris:
             self._new_round()
             self.render()
 
-        if not player_mode:
-            # Start new round
-            self._new_round()
         if self.game_over:
             score -= 2
 
