@@ -114,8 +114,27 @@ Waterloo, ON, Canada\\
 %   \label{tab:reward}
 % \end{table} 
 
-% \item 
-% {\bf Complete this bullet point for D4.}
+\item 
+{\bf Main Results}
+
+Through our experiments, our main results are as follows. Out of three implementations, the local search agent approach has the best performance while the reinforcement learning approach did not perform as well as we expect. The handcrafted agent approach is the worst compared to the other two. 
+\item 
+{\bf Contributions}
+
+For the genetic algorithm, we have the following contributions
+\begin{itemize}
+    \item 
+    
+    We implemented genetic algorithm for the local search agent
+    
+    \item
+    
+    We found a positive relationship between number of games played and the scores achieved
+    
+    \item
+    
+    Our local search agent achieved best performance for the game of Tetris
+\end{itemize}
 
 % Emphasize your contributions.  How should we interpret the results?  Why should people care about this work?   Does this project introduce any novel techniques or reveal any unexpected findings?  In bullet point forms, list 3-4 key contributions of your project.
 
@@ -851,15 +870,35 @@ Second, during the lengthy training process, we also learned the drawbacks of th
 % \end{figure}
 
 
-%%%%%%%%%. Discussion %%%%%%%%%
+%%%%%%%%. Discussion %%%%%%%%%
 
-% \section{Discussion}
-
-% {\bf Complete this section for D4.}
+\section{Discussion}
 
 % The {\it Discussion} section ($\sim$1 pages) describes (a) the implications of your results, and (b) the impact and the limitations of your approach.  
 
 % For the results, describe how a reader should interpret them.  Try to form concise take-away messages for the reader.  For your approach, describe the extent to which your approach helps to solve the problem.  Describe any limitations of your approach.  If possible, compare your results and your approach to that of prior work. 
+we will focus on discussion on the local search agent as well as the reinforcement learning agent.
+
+First, we will discuss some interpretation, implication and limitation of our local search agent approach. 
+
+\begin{itemize}
+    \item \textbf{Interpretation}
+    
+    One of the main purposes of our paper was to compare and contrast different methodologies in solving Tetris game. With our results, we are surprised by how well our local search agent performs in the game. At first, we expected the local search agent to improve upon the handcrafted agent by automatically finding best weights instead of a manually trial-and-error approach. We did not expect it to perform very well since this approach still requires manually defining features which we consider would impair the performance. We expected that the reinforcement learning agent will have the best performance. One significance of this unexpected result is that the performance of Tetris game depends more heavily on the search of optimal weights of features, making it more effective for a search-algorithm-based approach to excel. Another significance is that while reinforcement learning is powerful and we have assumed it would be an optimal approach, it has some limitations in the Tetris game setting. We will discuss more about this limitation later. 
+    
+    \item \textbf{Implication}
+    
+    Since local search agent approach is not our entire focus in this paper, and that there is scarce reference of analysing local search approach's performance against a Tetris game, the scale, design, implementation and evaluation of our approach have some fundamental differences from previous works. Nevertheless, our result agrees with previous researches. That is, with sufficient time of searching for optimal hyper-parameter values, a local search agent can last very long in the game and achieve very high scores.
+    
+    \item \textbf{Limitation}
+    
+    Even though we have surprisingly good results from our local search agent approach, there are still some limitations to it.
+    
+    Firstly, we might not have found the optimal hyper-parameter values for our local search agent simply due to lack of computation power. In total, we only tested 24 combinations over 10 features. We know we should expand our search space and we acknowledge that there are probably more relevant features that we should take into consideration. However, we were not able to make the experiment more comprehensive given our hardware capabilities.
+    
+    Secondly, although we deliberately compare local search algorithms and reinforcement learning algorithms in our research and reached an conclusion that the local search algorithms performs better than its counterpart. It does not mean the former is absolutely better than the latter in the Tetris game. Specifically, we used genetic algorithm as the main driver in the local search agent and DQN in the reinforcement learning agent. We acknowledge the fact that there may be other implementations of both agents that would result in different game-plays and different conclusions. In other words, our result does not prove that a local search agent will always perform better than a reinforcement learning agent in the game of Tetris.
+\end{itemize}
+
 
 %%%%%%%%%. Conclusion %%%%%%%%%
 
