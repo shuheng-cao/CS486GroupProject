@@ -38,11 +38,14 @@ Waterloo, ON, Canada\\
 \newcommand\blue[1]{\textcolor{blue}{\textbf{#1}}}
 %%%%%%%%%. Abstract %%%%%%%%%
 
-% \begin{abstract}
-% % {\bf Complete this section for D4.}
+\begin{abstract}
+\blue{Mongo to finish this}
 
-% % The {\it Abstract} should be at most 150 words long, and should summarize briefly what your project is about.  This includes the motivation for the problem (2-3 sentences), the problem you tackled (2-3 sentences), and your main results (1-2 sentences).   
-% \end{abstract}
+{\bf Complete this section for D4.}
+
+The {\it Abstract} should be at most 150 words long, and should summarize briefly what your project is about.  This includes the motivation for the problem (2-3 sentences), the problem you tackled (2-3 sentences), and your main results (1-2 sentences).   
+
+\end{abstract}
 
 %%%%%%%%%. Introduction %%%%%%%%%
 \section{Introduction} 
@@ -57,7 +60,7 @@ Waterloo, ON, Canada\\
   
   % Motivate your entire paper.  At a high level, describe the problem that your project is addressing.  Why is this an important problem to tackle?  If there a solution to this problem, what are some potential real-world impacts of this solution?  Try to give a compelling motivating story.  If possible, support your argument with evidence such as facts and statistics.  (2-3 paragraphs)
   
-  With the great triumph of AlphaGo in 2016, more and more researchers are interested in using machine learning techniques to solve more advanced and complicated games such as StarCraft II. However, in the authors' opinion, it also provides us \bi{with} an invaluable opportunity to revisit some of the traditional video games, \bi{where we aim} for more reliable and satisfying results. Consequently, \blue{this project's primary motivation is to introduce, implement, and compare several different approaches to tackle the Tetris}, a tile-matching video game with enduring appeal and popularity. \bi{In brief, Tetris is a tile-matching video game where the player will rotate and place seven different kinds of Tetrominos on top of each other. Horizontal lines will be cleaned up once they are complete, and a score will be awarded for that. This game's ultimate goal is to achieve as many marks as possible before the pieces reach the top of the game board, and therefore, there is no victory in this game.}
+  With the great triumph of AlphaGo in 2016, more and more researchers are interested in using machine learning techniques to solve more advanced and complicated games such as StarCraft II. However, in the authors' opinion, it also provides us \bi{with} an invaluable opportunity to revisit some of the traditional video games, \bi{where we aim} for more reliable and satisfying results. Consequently, {this project's primary motivation is to introduce, implement, and compare several different approaches to tackle the Tetris}, a tile-matching video game with enduring appeal and popularity. \bi{In brief, Tetris is a tile-matching video game where the player will rotate and place seven different kinds of Tetrominos on top of each other. Horizontal lines will be cleaned up once they are complete, and a score will be awarded for that. This game's ultimate goal is to achieve as many marks as possible before the pieces reach the top of the game board, and therefore, there is no victory in this game.}
   
   Solving Tetris is a crucial and intriguing topic due to the two reasons below. On the one hand, Tetris is essentially an extraordinary optimization problem because each game will end no matter how well \bi{the Tetrominos} are placed \cite{burgiel_1997}. \bi{As a result}, there is no such thing as perfect solutions to Tetris and there is always room to improve. On the other hand, the analyses and comparisons mentioned in this report are not limited to Tetris only, where we could broaden them to real-life problems, such as self-driving cars and robotics, \bi{with appropriate modifications on the architectures introduced in this article}.
   
@@ -94,46 +97,30 @@ Waterloo, ON, Canada\\
   \item Cleaning up $k$ lines gives $10k^{2}$.
   \item Safely landing a piece gives $1$.
 \end{itemize}
-% \begin{table}[h!]
-%   \centering
-%   \normalsize{
-%     \begin{tabular}{ |c|c| } 
-%       \hline
-%       Situation & Reward  \\ 
-%       \hline
-%        Game over & $-100$  \\ 
-%        \hline
-%        Clean up $k$ lines & $10\times k^{2}$  \\ 
-%        \hline
-%        Safely landing a piece & $1$  \\
-%       %  \hline
-%       %  Otherwise & $0$  \\
-%        \hline
-%       \end{tabular}}
-%   \caption{Reward Function}
-%   \label{tab:reward}
-% \end{table} 
 
 \item 
 {\bf Main Results}
 
-Through our experiments, our main results are as follows. Out of three implementations, the local search agent approach has the best performance while the reinforcement learning approach did not perform as well as we expect. The handcrafted agent approach is the worst compared to the other two. 
+Summarily, we have the local search agent to be the most successful agent, whose performance is almost ten times better than the handcrafted agent and five times better than the reinforcement learning agent. Therefore, we come up with two main conclusions:
+\begin{itemize}
+  \item 
+  The ten features we choose for the local search agent are representative enough to encode the Tetris game board.
+  \item 
+  It is not wise to use the convolutional neural network (CNN) to extract features from a Tetris board because of its spatial invariance property.
+\end{itemize}
+
+% Through our experiments, our main results are as follows. Out of three implementations, the local search agent approach has the best performance while the reinforcement learning approach did not perform as well as we expect. The handcrafted agent approach is the worst compared to the other two. 
 \item 
 {\bf Contributions}
 
-For the genetic algorithm, we have the following contributions
+This paper mainly has the following contributions:
 \begin{itemize}
-    \item 
-    
-    We implemented genetic algorithm for the local search agent
-    
-    \item
-    
-    We found a positive relationship between number of games played and the scores achieved
-    
-    \item
-    
-    Our local search agent achieved best performance for the game of Tetris
+  \item 
+  From the implementation perspective, we built an efficient and flexible Tetris environment API that can be used for both genetic algorithms and deep Q-learning. We also created the agents in a way that is easy to adapt to customized hyperparameters. Both should help other researchers to validate or further improve our results.
+  \item 
+  From the training perspective, we developed two different training plans for the local search agent and reinforcement learning agent, which could serve as a template when transfer to other games.
+  \item 
+  From the result perspective, we introduced a novel set of features to represent the Tetris game states, which achieved overwhelmingly good results. This sequence reveals the fact that the most complex model won't guarantee the best performance. On the other hand, by investing in the RL agent's failure, we made some unexpected findings of CNN, where we noticed that it is actually unable to extract some features, such as the number of lines cleaned. This finding contradicts our assumptions in the Methodology section, and we believe this is the primary cause of the failure in the RL agent.
 \end{itemize}
 
 % Emphasize your contributions.  How should we interpret the results?  Why should people care about this work?   Does this project introduce any novel techniques or reveal any unexpected findings?  In bullet point forms, list 3-4 key contributions of your project.
@@ -902,15 +889,17 @@ First, we will discuss some interpretation, implication and limitation of our lo
 
 %%%%%%%%%. Conclusion %%%%%%%%%
 
-% \section{Conclusion}
+\section{Conclusion}
 
-% {\bf Complete this section for D4.}
+\blue{Mongo to finish this}
 
-% The {\it Conclusion} section ($\sim$0.5 pages) provides a brief summary of the entire paper.  In this section, describe 
-% \begin{itemize}
-%     \item the motivation, the problem, and your results, and
-%     \item 3-4 promising future directions.
-% \end{itemize}
+{\bf Complete this section for D4.}
+
+The {\it Conclusion} section ($\sim$0.5 pages) provides a brief summary of the entire paper.  In this section, describe 
+\begin{itemize}
+    \item the motivation, the problem, and your results, and
+    \item 3-4 promising future directions.
+\end{itemize}
 
 %%%%%%%%% Bibliography %%%%%%%%%
 \newpage

@@ -419,8 +419,9 @@ class Tetris:
                 self.current_pos[1] += multiplier
 
     def _init_game(self):
-            self._new_round()
-            self.render()
+        self._new_round()
+        self.render()
+        sleep(10)
 
     def play(self, x, rotation, render=False, render_delay=None, player_mode=False):
         '''Makes a play given a position and a rotation, returning the reward and if the game is over'''
