@@ -867,25 +867,45 @@ Second, during the lengthy training process, we also learned the drawbacks of th
 This section will focus on the local search and reinforcement learning agents because the handcrafted agent merely serves as a baseline where we didn't put much effort into it. 
 
 \subsection{Local Search Agent}
-Firstly, we will discuss the implications, impacts, and limitations of our local search agent approach. 
+% Firstly, we will discuss the implications, impacts, and limitations of our local search agent approach. 
 \begin{itemize}
 \item \textbf{Interpretation}
   
 One of our paper's primary purposes is to compare and contrast different methodologies in solving the Tetris game. With our results, we are surprised by how well our local search agent performs in the game. On the one hand, it overshadows all the other agents we implemented in this paper. On the other hand, the maximum number of steps it achieves is more than 6000, much more than an average human player could achieve. Therefore, the results actually contradict the hypothesis that the RL agent should outperform the local search agent. We will analyze more about this in the limitation subsection for RL agent.
 
-\item \textbf{Implications}
+\item \textbf{Implications and Impact}
 
 We believe the outstanding performance implies two things. Firstly, the ten features we chose are representative enough to encode the Tetris game state. On top of that, we believe the weight combinations for features are more significant than the number of features, especially when we are dealing with complex\footnote{Here the complexity refers to the number of game states, and in the case of Tetris, we have $10^{60}$ possible states.} games such as Tetris. In summary, the take-away for local search agents is that even those seemingly simple algorithms, such as genetic algorithms, can yield satisfying results, even for a complicated game.
 
 Moreover, according to our implementation results, we can make the bold judgment that, by far, the local search agent is the optimal way to tackle the game Tetris. There may be some better and more complex models in the future, but at least for now, our results match the results from \blue{PAPER REFERENCE HERE}, where the authors also implement both local search and RL agents.
   
 
-\item \textbf{Impact and Limitation}
+\item \textbf{Limitation}
 
   Now, even though we have surprisingly good results from our local search agent approach, we might not have found the optimal hyperparameter values due to the lack of computation power. In total, we only tested 24 combinations over ten features, where each combination is only trained for 200 epochs. We are aware that expanding the search space and feature sets can possibly further improve our results. However, we were not able to make the experiment more comprehensive, given our hardware capabilities. Therefore, our performance is not as good as \blue{PAPER HERE}, which also uses a genetic algorithm to tackle the Tetris game. However, we believe that we will eventually achieve a result as good as, if not better than, \blue{PAPER HERE}, given enough time and computation power.
 \end{itemize}
 
+\subsection{Reinforcement Learning Agent}
 
+
+\begin{itemize}
+  \item \textbf{Interpretation}
+   
+  According to our experimental results in Table \ref{tab:resultsSummary}, the performance of our RL agent is not very satisfying, where it is only twice better than the handcrafted agent. Furthermore, the number of maximum steps for the RL agent is only $1000$, even smaller than the handcrafted agent. Therefore, we actually fail to tackle the Tetris problem using the RL agent. This result is really unexpected and contrary to our hypothesis, where we believe the convolutional neural network (CNN) embedded in the RL agent should be able to extract the features automatically. We believe the spatial invariance property of CNN is the primary cause of this failure. More precisely, due to the nature of the convolution operation, CNN is not good at distinguishing shifted images because they will give almost identical feature maps. Such a property is desirable in image classification because a puppy shifted by a few pixels is still a puppy. However, this property is detrimental in Tetris games because this means our model can't capture the feature "number of lines cleaned". An example is an image (e) and (f) in \textbf{Appendix E}, where they achieve an incredibly close score. This case means our agent is unconfident about which state to choose, but the local search agent will clearly pick the one with less height.
+  
+  \item \textbf{Implications and Impact}
+  
+  We believe the unsatisfying performance implies that we need to be extremely careful about using CNN and DQN. Indeed, they perform pretty well on a wide range of tasks, but that doesn't mean they are perfect. When we want to encode the game states that are sensitive to pixel positions of objects, we should have a second thought about using CNN as the encoder. However, that doesn't mean all our efforts are in vain. According to the examples in Appendix E, we can see that the agent agrees with human judgment most of the time. As a result, our RL agent still learns some representative features, and it should be more useful for more complex\footnote{Here the complexity refers to the size of the game board and in the case of Tetris, we have $20\times 10$ game board.} games when people can't decide a feasible feature set.
+  
+  Moreover, the RL agent's failure has also been mentioned in the paper The Game of Tetris in Machine Learning. The author summarized different approaches to solve Tetris from seven papers and concluded that the local search agent is still the dominating strategy to solve the Tetris game \cite{SO19}. However, he didn't provide any reasoning for dominance, and we believe this paper is the first to propose the disadvantages of using CNN as the encoder of the Tetris game.
+  
+  \item \textbf{Limitation}
+  
+  Finally, the RL agent's limitation lies in the fact that we don't have enough time to explore and test all the possible solutions to fix the disadvantage of spatial invariance. We proposed some promising strategies such as feeding both manually-chosen features and CNN feature map as the input of the RL agent, which should be able to alleviate some drawbacks of CNN. However, the implementation is way complicated than the current one and doesn't fit in a project of four months.
+  
+\end{itemize}
+  
+  
 %%%%%%%%%. Conclusion %%%%%%%%%
 
 \section{Conclusion}
@@ -914,7 +934,7 @@ The {\it Conclusion} section ($\sim$0.5 pages) provides a brief summary of the e
   \caption{Deep Q-network architecture}
   \label{fig:DQN}
 \end{figure*}
-\newpage
+\newpage$\,$\newpage
 \section{Appendix A}
 
 The structure of the network is shown in the Figure \ref{fig:DQN} and here are the detailed information about each layer:
