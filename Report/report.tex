@@ -39,12 +39,7 @@ Waterloo, ON, Canada\\
 %%%%%%%%%. Abstract %%%%%%%%%
 
 \begin{abstract}
-\blue{Mongo to finish this}
-
-{\bf Complete this section for D4.}
-
-The {\it Abstract} should be at most 150 words long, and should summarize briefly what your project is about.  This includes the motivation for the problem (2-3 sentences), the problem you tackled (2-3 sentences), and your main results (1-2 sentences).   
-
+The game Tetris is a great and famous topic for research in artificial intelligence and machine learning. A number of researches have already existed. However, we believe there are more things that we can learn from this topic and there is space for the improvement of the agents since the existing agents still can’t beat a professional player. As we are highly interested in doing further research in this topic, we implemented and compared the performance of three different agent. The Handcrafted Agent, Local Search Agent and Reinforcement Learning Agent. This paper explained the feasibility of each agent in details. The result turns out that Local Search Agent outperforms other agents, and Handcrafted agent has an unstable performance, while Reinforcement Leaning Agent. Reinforcement Learning Agent achieves a great improvement, but it is still a magnitude poorer than the Local Search Agent. 
 \end{abstract}
 
 %%%%%%%%%. Introduction %%%%%%%%%
@@ -910,16 +905,11 @@ Moreover, according to our implementation results, we can make the bold judgment
 
 \section{Conclusion}
 
-\blue{Mongo to finish this}
-
-{\bf Complete this section for D4.}
-
-The {\it Conclusion} section ($\sim$0.5 pages) provides a brief summary of the entire paper.  In this section, describe 
-\begin{itemize}
-    \item the motivation, the problem, and your results, and
-    \item 3-4 promising future directions.
-\end{itemize}
-
+  As more and more researches are using machine learning technique to solve advanced and complicated video games, it is a huge topic that is worth to explore. Based on previous researches in the topic Tetris, it is an invaluable opportunity to revisit some of these traditional video games. Doing further research in a relative simple but well-known game would provide us with a more straight-forward understanding of these artificial intelligence models, and would benefit us when we are going to tackle a more complicated model in the future. Since Tetris is such a game with an extraordinary optimization problem to solve, we would like to dive deeper and contribute on this topic. According to the previous study, there are some well-performed agents of Tetris, but there is still a great potential to improve.
+  
+  As a conclusion for this report, we have introduced, implemented and compare three different agents of Tetris, which are Handcrafted Agent, Local Search Agent, and Reinforcement Learning Agent. According to our examination results, the Local Search Agent performs the best among all three agents. It performs almost 10 times better than the Handcrafted Agent and 5 times better than the Reinforcement Learning Agent. Moreover, Handcrafted Agent's performance is pretty unstable, which is mainly because the limitation of the combination of the weights and the chosen features. From our research, the Local Search Agent is currently the best solution. It does not using those fancy techniques such as CNN or RNN and still achieve pretty satisfying results. However, if we go into more complicated problem, it is really hard to take advantage of GPU or TPU. For the Reinforcement Learning Agent, it is being used and developed to solve Tetris problem in 2000s which is a pretty new method. Based on our results, the performance of Deep-Q Network is significantly poorer than the Local Search Agent. The main reason for the unsatisfactory result is the spatial invariance property of CNN, where it is not very sensitive to the relative position and the detailed difference of objects. However, it is still a feasible approach since it manages to find some representative features reasonably.
+  
+  This topic has a lot more for us to explore further. Since each game will eventually end no matter how well the decision of Tetromino is, there is no perfect solution for it and we always have space to make improvements. For the future work, we will continue improving our agents since we already figured out where the problem is. We will explore more techniques and try to combine with our agents to avoid the drawbacks of our agents. Besides, applying the experience we learned to more complicated and challenging games or problems is our next aim. Last but not the least, we are not limited to the game Tetris, but we are also focusing on using the things we discussed in this report to solve real-life problems such as robotics and self-driving system. The invaluable experience that we have explored and aimed in this paper is about Tetris but also a lot beyond Tetris.
 %%%%%%%%% Bibliography %%%%%%%%%
 \newpage
 \bibliographystyle{aaai}
